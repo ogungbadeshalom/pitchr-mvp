@@ -130,6 +130,19 @@ export async function cancelUserSubscription(userId: string): Promise<void> {
   );
 }
 
+export async function getFreelancerProfile(userId: string): Promise<{ profile_text: string } | null> {
+  const result = await query('SELECT profile_text FROM freelancer_profiles WHERE user_id = $1', [userId]);
+  return result.rows[0] || null;
+}
+
+export async function upsertFreelancerProfile(userId: string, profileText: string): Promise<void> {
+  await query(
+    `INSERT INTO freelancer_profiles (user_id, profile_text, updated_at) VALUES ($1, $2, NOW())
+     ON CONFLICT (user_id) DO UPDATE SET profile_text = $2, updated_at = NOW()`,
+    [userId, profileText]
+  );
+}
+
 export async function createAuditLog(
   userId: string | null,
   action: string,

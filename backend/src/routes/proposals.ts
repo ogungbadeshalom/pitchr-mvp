@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { generateProposal } from '../services/proposalEngine';
 import { validateAndUseSession } from '../services/sessionService';
-import { findUserById, saveProposal, getProposalsByUserId } from '../database/queries';
+import { findUserById, saveProposal, getProposalsByUserId, getFreelancerProfile } from '../database/queries';
 import { query } from '../config/database';
 import { getDeepseekConfig } from '../config/deepseek';
 import { verifyToken } from '../config/jwt';
@@ -29,6 +29,7 @@ const generateSchema = z.object({
   length: z.enum(['short', 'standard', 'detailed']),
   user_context: z.string().max(1000).optional(),
   session_token: z.string().optional(),
+  profile_text: z.string().max(5000).optional(),
 });
 
 function isMockMode() {
@@ -77,11 +78,18 @@ router.post('/generate', sessionRateLimit, async (req, res, next) => {
       userId = user.id;
     }
 
+    let profileText = parsed.data.profile_text;
+    if (!profileText && userId) {
+      const profile = await getFreelancerProfile(userId);
+      profileText = profile?.profile_text || undefined;
+    }
+
     const result = await generateProposal({
       jobDescription: job_description,
       platform,
       length,
       userContext: user_context,
+      profileText,
     });
 
     try {

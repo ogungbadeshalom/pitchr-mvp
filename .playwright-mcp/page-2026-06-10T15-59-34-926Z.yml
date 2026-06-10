@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "Pitchr Pitchr" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Pitchr" [ref=e7]
+          - generic [ref=e8]: Pitchr
+        - link "Dashboard" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e10]
+          - text: Dashboard
+    - main [ref=e12]:
+      - generic [ref=e13]:
+        - heading "Generate Proposal" [level=1] [ref=e14]
+        - paragraph [ref=e15]: Paste a job description and get a winning proposal
+        - generic [ref=e16]:
+          - button "Your Profile Optional" [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]:
+              - img [ref=e20]
+              - text: Your Profile
+              - generic [ref=e23]: Optional
+            - img [ref=e24]
+          - generic [ref=e26]:
+            - generic [ref=e27]: Job Description
+            - textbox "Paste the job description from Upwork or Fiverr..." [ref=e28]
+          - generic [ref=e29]:
+            - generic [ref=e30]:
+              - generic [ref=e31]: Platform
+              - combobox [ref=e32]:
+                - option "Upwork" [selected]
+                - option "Fiverr"
+                - option "Other"
+            - generic [ref=e33]:
+              - generic [ref=e34]: Length
+              - combobox [ref=e35]:
+                - option "Short (Fiverr)"
+                - option "Standard (Upwork)" [selected]
+                - option "Detailed (Technical)"
+          - button "Unlock Proposal — Purchase Session" [ref=e36] [cursor=pointer]
+  - button "Toggle dark mode" [ref=e37] [cursor=pointer]:
+    - img [ref=e38]

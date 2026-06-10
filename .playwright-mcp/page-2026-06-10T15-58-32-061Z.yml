@@ -1,0 +1,298 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Pitchr Pitchr" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Pitchr" [ref=e6]
+          - generic [ref=e7]: Pitchr
+        - navigation [ref=e8]:
+          - link "Features" [ref=e9] [cursor=pointer]:
+            - /url: "#features"
+          - link "Pricing" [ref=e10] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "Reviews" [ref=e11] [cursor=pointer]:
+            - /url: "#testimonials"
+          - link "Sign In" [ref=e12] [cursor=pointer]:
+            - /url: /auth/login
+          - link "Get Started Free" [ref=e13] [cursor=pointer]:
+            - /url: /auth/signup
+    - main [ref=e14]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - img [ref=e21]
+          - text: Trusted by freelancers across Nigeria
+        - heading "Write winning proposals in 30 seconds flat" [level=1] [ref=e24]:
+          - text: Write winning proposals
+          - text: in 30 seconds flat
+        - paragraph [ref=e25]:
+          - text: Stop spending hours writing proposals. Pitchr uses AI to craft high-converting, tailored proposals for every job on Upwork and Fiverr.
+          - strong [ref=e26]: Pay as you go — starting at just ₦500.
+        - generic [ref=e27]:
+          - link "Generate Your First Proposal" [ref=e28] [cursor=pointer]:
+            - /url: /session
+            - text: Generate Your First Proposal
+            - img [ref=e29]
+          - link "See Pricing" [ref=e31] [cursor=pointer]:
+            - /url: "#pricing"
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - img [ref=e34]
+            - text: No subscription required
+          - generic [ref=e36]:
+            - img [ref=e37]
+            - text: Pay with Flutterwave
+          - generic [ref=e39]:
+            - img [ref=e40]
+            - text: AI-powered by DeepSeek
+          - generic [ref=e42]:
+            - img [ref=e43]
+            - text: Used by 500+ freelancers
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - heading "Everything you need to land more clients" [level=2] [ref=e48]
+          - paragraph [ref=e49]: Purpose-built for Nigerian freelancers who want to win more work without spending hours on every proposal.
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - img [ref=e53]
+            - heading "AI-Powered Proposals" [level=3] [ref=e55]
+            - paragraph [ref=e56]: Our AI analyzes every job description and crafts a tailored, high-converting proposal that speaks directly to the client's needs.
+          - generic [ref=e57]:
+            - img [ref=e59]
+            - heading "Pay As You Go" [level=3] [ref=e61]
+            - paragraph [ref=e62]: No subscriptions or monthly commitments. Buy a session (₦500 for 5 proposals) when you need it. It never expires until you use it.
+          - generic [ref=e63]:
+            - img [ref=e65]
+            - heading "Works on Upwork & Fiverr" [level=3] [ref=e67]
+            - paragraph [ref=e68]: Proposals optimized for both platforms. Short and punchy for Fiverr, detailed and professional for Upwork.
+          - generic [ref=e69]:
+            - img [ref=e71]
+            - heading "Multiple Length Options" [level=3] [ref=e73]
+            - paragraph [ref=e74]: Short proposals for quick Fiverr gigs, standard for Upwork contracts, or detailed technical proposals for complex projects.
+          - generic [ref=e75]:
+            - img [ref=e77]
+            - heading "Save & Reuse" [level=3] [ref=e79]
+            - paragraph [ref=e80]: All your generated proposals are saved automatically. Build a library of winning proposals you can reuse and adapt.
+          - generic [ref=e81]:
+            - img [ref=e83]
+            - heading "Personalized to You" [level=3] [ref=e85]
+            - paragraph [ref=e86]: Paste your freelancer profile once — experience, results, skills — and every proposal is tailored with your real background. No generic templates.
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - heading "Three steps to your next client" [level=2] [ref=e90]
+          - paragraph [ref=e91]: It takes less than a minute from pasting the job to having a winning proposal ready.
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - generic [ref=e96]: "01"
+            - heading "Paste the Job" [level=3] [ref=e97]
+            - paragraph [ref=e98]: Copy the job description from Upwork or Fiverr and paste it into Pitchr.
+          - generic [ref=e99]:
+            - generic [ref=e102]: "02"
+            - heading "AI Writes Your Proposal" [level=3] [ref=e103]
+            - paragraph [ref=e104]: Our AI analyzes the job, blends in your freelancer profile, and crafts a personalized proposal that sells your real experience.
+          - generic [ref=e105]:
+            - generic [ref=e107]: "03"
+            - heading "Copy & Submit" [level=3] [ref=e108]
+            - paragraph [ref=e109]: Review, copy your proposal, and send it. Land more clients in less time.
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - heading "Simple, transparent pricing" [level=2] [ref=e113]
+          - paragraph [ref=e114]: Start with a one-time session or subscribe for unlimited access. No hidden fees, no surprises.
+        - generic [ref=e115]:
+          - button "Session — Pay per use" [ref=e116] [cursor=pointer]
+          - button "Monthly — Unlimited" [ref=e117] [cursor=pointer]
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - paragraph [ref=e120]: Flash
+            - paragraph [ref=e121]: ₦500
+            - paragraph [ref=e122]: 5 proposals · 30 min session
+            - list [ref=e123]:
+              - listitem [ref=e124]:
+                - img [ref=e125]
+                - text: 5 AI-generated proposals
+              - listitem [ref=e127]:
+                - img [ref=e128]
+                - text: Upwork & Fiverr optimized
+              - listitem [ref=e130]:
+                - img [ref=e131]
+                - text: 30-minute session window
+              - listitem [ref=e133]:
+                - img [ref=e134]
+                - text: Save proposals to dashboard
+            - link "Get Flash" [ref=e136] [cursor=pointer]:
+              - /url: /session
+          - generic [ref=e137]:
+            - generic [ref=e138]: Best Value
+            - paragraph [ref=e139]: Power
+            - paragraph [ref=e140]: ₦1,200
+            - paragraph [ref=e141]: 20 proposals · 4 hour session
+            - list [ref=e142]:
+              - listitem [ref=e143]:
+                - img [ref=e144]
+                - text: 20 AI-generated proposals
+              - listitem [ref=e146]:
+                - img [ref=e147]
+                - text: Upwork & Fiverr optimized
+              - listitem [ref=e149]:
+                - img [ref=e150]
+                - text: 4-hour session window
+              - listitem [ref=e152]:
+                - img [ref=e153]
+                - text: Save to dashboard
+              - listitem [ref=e155]:
+                - img [ref=e156]
+                - text: Priority generation speed
+            - link "Get Power" [ref=e158] [cursor=pointer]:
+              - /url: /session
+      - generic [ref=e160]:
+        - heading "Secure payments you can trust" [level=2] [ref=e161]
+        - generic [ref=e162]:
+          - generic [ref=e163]:
+            - img [ref=e165]
+            - paragraph [ref=e167]: Flutterwave
+            - paragraph [ref=e168]: PCI-DSS compliant
+          - generic [ref=e169]:
+            - img [ref=e171]
+            - paragraph [ref=e173]: SSL Encrypted
+            - paragraph [ref=e174]: 256-bit encryption
+          - generic [ref=e175]:
+            - img [ref=e177]
+            - paragraph [ref=e179]: No Card Storage
+            - paragraph [ref=e180]: We never store your details
+          - generic [ref=e181]:
+            - img [ref=e183]
+            - paragraph [ref=e185]: NGN Payments
+            - paragraph [ref=e186]: Pay in your local currency
+      - generic [ref=e188]:
+        - generic [ref=e189]:
+          - heading "Loved by Nigerian freelancers" [level=2] [ref=e190]
+          - paragraph [ref=e191]: Join hundreds of freelancers who land more clients with Pitchr.
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e194]:
+              - img [ref=e195]
+              - img [ref=e197]
+              - img [ref=e199]
+              - img [ref=e201]
+              - img [ref=e203]
+            - paragraph [ref=e205]: “I was spending 2 hours on every Upwork proposal. Pitchr cut that to 30 seconds — and I landed my first $500 contract within a week.”
+            - generic [ref=e206]:
+              - paragraph [ref=e207]: Chidi O.
+              - paragraph [ref=e208]: Full-Stack Developer, Lagos
+          - generic [ref=e209]:
+            - generic [ref=e210]:
+              - img [ref=e211]
+              - img [ref=e213]
+              - img [ref=e215]
+              - img [ref=e217]
+              - img [ref=e219]
+            - paragraph [ref=e221]: “The ₦500 flash session is insane value. I used 3 proposals and got 2 replies. Way better conversion than my old copy-paste templates.”
+            - generic [ref=e222]:
+              - paragraph [ref=e223]: Aminat B.
+              - paragraph [ref=e224]: UI/UX Designer, Abuja
+          - generic [ref=e225]:
+            - generic [ref=e226]:
+              - img [ref=e227]
+              - img [ref=e229]
+              - img [ref=e231]
+              - img [ref=e233]
+              - img [ref=e235]
+            - paragraph [ref=e237]: “I was sceptical about AI proposals, but the quality is genuinely good. It catches the job details and writes in a natural tone. Highly recommend.”
+            - generic [ref=e238]:
+              - paragraph [ref=e239]: Femi K.
+              - paragraph [ref=e240]: Content Writer, Ibadan
+          - generic [ref=e241]:
+            - generic [ref=e242]:
+              - img [ref=e243]
+              - img [ref=e245]
+              - img [ref=e247]
+              - img [ref=e249]
+              - img [ref=e251]
+            - paragraph [ref=e253]: “The detailed proposal option is perfect for complex VA jobs. I've been on Fiverr for 2 years and my response rate has never been this high.”
+            - generic [ref=e254]:
+              - paragraph [ref=e255]: Sarah I.
+              - paragraph [ref=e256]: Virtual Assistant, Port Harcourt
+      - generic [ref=e258]:
+        - heading "Ready to land your next client?" [level=2] [ref=e259]
+        - paragraph [ref=e260]: Join hundreds of Nigerian freelancers winning more work with Pitchr. Start generating proposals in 30 seconds.
+        - link "Generate a Proposal — It’s ₦500" [ref=e261] [cursor=pointer]:
+          - /url: /session
+          - text: Generate a Proposal — It’s ₦500
+          - img [ref=e262]
+      - generic [ref=e265]:
+        - generic [ref=e266]:
+          - heading "Frequently Asked Questions" [level=2] [ref=e267]
+          - paragraph [ref=e268]: Everything you need to know about Pitchr
+        - generic [ref=e269]:
+          - group [ref=e270] [cursor=pointer]:
+            - generic "How does Pitchr work?" [ref=e271]:
+              - generic [ref=e272]: How does Pitchr work?
+              - img [ref=e273]
+          - group [ref=e275] [cursor=pointer]:
+            - generic "Do I need a subscription?" [ref=e276]:
+              - generic [ref=e277]: Do I need a subscription?
+              - img [ref=e278]
+          - group [ref=e280] [cursor=pointer]:
+            - generic "Which platforms do you support?" [ref=e281]:
+              - generic [ref=e282]: Which platforms do you support?
+              - img [ref=e283]
+          - group [ref=e285] [cursor=pointer]:
+            - generic "Is my payment information secure?" [ref=e286]:
+              - generic [ref=e287]: Is my payment information secure?
+              - img [ref=e288]
+          - group [ref=e290] [cursor=pointer]:
+            - generic "Can I try it before paying?" [ref=e291]:
+              - generic [ref=e292]: Can I try it before paying?
+              - img [ref=e293]
+          - group [ref=e295] [cursor=pointer]:
+            - generic "How does the profile feature work?" [ref=e296]:
+              - generic [ref=e297]: How does the profile feature work?
+              - img [ref=e298]
+          - group [ref=e300] [cursor=pointer]:
+            - generic "What if I'm not satisfied?" [ref=e301]:
+              - generic [ref=e302]: What if I'm not satisfied?
+              - img [ref=e303]
+    - contentinfo [ref=e305]:
+      - generic [ref=e306]:
+        - generic [ref=e307]:
+          - generic [ref=e308]:
+            - text: Pitchr
+            - paragraph [ref=e309]: AI-powered proposal generator for Nigerian freelancers. Write winning proposals in 30 seconds and land more clients on Upwork and Fiverr.
+          - generic [ref=e310]:
+            - heading "Quick Links" [level=4] [ref=e311]
+            - list [ref=e312]:
+              - listitem [ref=e313]:
+                - link "Features" [ref=e314] [cursor=pointer]:
+                  - /url: "#features"
+              - listitem [ref=e315]:
+                - link "Pricing" [ref=e316] [cursor=pointer]:
+                  - /url: "#pricing"
+              - listitem [ref=e317]:
+                - link "Reviews" [ref=e318] [cursor=pointer]:
+                  - /url: "#testimonials"
+              - listitem [ref=e319]:
+                - link "Try Now" [ref=e320] [cursor=pointer]:
+                  - /url: /session
+          - generic [ref=e321]:
+            - heading "Connect With Us" [level=4] [ref=e322]
+            - generic [ref=e323]:
+              - link "Twitter / X" [ref=e324] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e325]
+                - text: Twitter / X
+              - link "Facebook" [ref=e327] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e328]
+                - text: Facebook
+              - link "Instagram" [ref=e330] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e331]
+                - text: Instagram
+              - link "LinkedIn" [ref=e333] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e334]
+                - text: LinkedIn
+        - paragraph [ref=e337]: © 2026 Pitchr. Built for Nigerian freelancers.
+  - button "Toggle dark mode" [active] [ref=e338] [cursor=pointer]:
+    - img [ref=e348]
+  - alert [ref=e341]
