@@ -1,0 +1,213 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Pitchr" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e6]:
+          - link "Features" [ref=e7] [cursor=pointer]:
+            - /url: "#features"
+          - link "How It Works" [ref=e8] [cursor=pointer]:
+            - /url: "#how-it-works"
+          - link "Pricing" [ref=e9] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "FAQ" [ref=e10] [cursor=pointer]:
+            - /url: "#faq"
+        - generic [ref=e11]:
+          - link "Sign In" [ref=e12] [cursor=pointer]:
+            - /url: /auth/login
+          - link "Try It Now" [ref=e13] [cursor=pointer]:
+            - /url: /session
+            - text: Try It Now
+            - img [ref=e14]
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - img [ref=e21]
+        - text: AI Proposal Generator for Nigerian Freelancers
+      - heading "Write proposals that actually get replies." [level=1] [ref=e24]:
+        - text: Write proposals that
+        - text: actually get replies.
+      - paragraph [ref=e25]:
+        - text: Paste a job description. Get a winning proposal written specifically for Upwork or Fiverr. No templates, no clich\u00e9s, no wasted connects.
+        - strong [ref=e26]: 30 seconds.
+      - generic [ref=e27]:
+        - link "Generate a Proposal \\u2014 \\u20A6500" [ref=e28] [cursor=pointer]:
+          - /url: /session
+          - text: Generate a Proposal \u2014 \u20A6500
+          - img [ref=e29]
+        - link "See how it works" [ref=e31] [cursor=pointer]:
+          - /url: "#features"
+          - text: See how it works
+          - img [ref=e32]
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - img [ref=e36]
+          - text: No account needed
+        - generic [ref=e39]:
+          - img [ref=e40]
+          - text: Pay as you go
+        - generic [ref=e43]:
+          - img [ref=e44]
+          - text: Naira only
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - img [ref=e51]
+        - text: Used by freelancers across Nigeria
+      - generic [ref=e53]:
+        - img [ref=e54]
+        - text: 500+ proposals generated
+      - generic [ref=e59]:
+        - img [ref=e60]
+        - text: "Average setup: 30 seconds"
+    - generic [ref=e64]:
+      - generic [ref=e65]:
+        - paragraph [ref=e66]: Features
+        - heading "Built for how freelancers actually win." [level=2] [ref=e67]
+        - paragraph [ref=e68]: "Every feature is designed around one goal: getting you more replies."
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - img [ref=e72]
+          - heading "AI Built for Upwork & Fiverr" [level=3] [ref=e75]
+          - paragraph [ref=e76]: Knows the difference between a Fiverr gig pitch and an Upwork cover letter. Writes the right length, tone, and structure for each platform.
+        - generic [ref=e77]:
+          - img [ref=e79]
+          - heading "Writes From Your Real Profile" [level=3] [ref=e82]
+          - paragraph [ref=e83]: Pulls from your actual experience, not generic templates. Every proposal sounds like you, not like ChatGPT.
+        - generic [ref=e84]:
+          - img [ref=e86]
+          - heading "30 Seconds, Not 30 Minutes" [level=3] [ref=e88]
+          - paragraph [ref=e89]: Paste a job description, pick your platform, and get a ready-to-send proposal. Edit if you want, or send as-is.
+        - generic [ref=e90]:
+          - img [ref=e92]
+          - heading "Re-Spin Until It Hits" [level=3] [ref=e97]
+          - paragraph [ref=e98]: Don’t like the angle? Hit re-spin for a different hook, approach, or close. No extra charge.
+        - generic [ref=e99]:
+          - img [ref=e101]
+          - heading "No Templates, No Clichés" [level=3] [ref=e104]
+          - paragraph [ref=e105]: Never starts with “I am passionate” or “look no further.” Every proposal opens with a specific insight from the job.
+        - generic [ref=e106]:
+          - img [ref=e108]
+          - heading "Pay as You Go or Subscribe" [level=3] [ref=e111]
+          - paragraph [ref=e112]: Try with a single session at ₦500. Upgrade to monthly if you’re serious. No lock-in, no surprise charges.
+    - generic [ref=e114]:
+      - generic [ref=e115]:
+        - paragraph [ref=e116]: How It Works
+        - heading "Three steps to your next win." [level=2] [ref=e117]
+      - generic [ref=e118]:
+        - generic [ref=e119]:
+          - img [ref=e121]
+          - generic [ref=e124]: "01"
+          - heading "Paste the listing" [level=3] [ref=e125]
+          - paragraph [ref=e126]: Copy the job description from Upwork, Fiverr, or anywhere else. Tell us which platform.
+        - generic [ref=e127]:
+          - img [ref=e129]
+          - generic [ref=e132]: "02"
+          - heading "AI writes the proposal" [level=3] [ref=e133]
+          - paragraph [ref=e134]: Pitchr builds the hook, the fit, the approach, and the close using DeepSeek AI and your profile.
+        - generic [ref=e135]:
+          - img [ref=e137]
+          - generic [ref=e140]: "03"
+          - heading "Send and win" [level=3] [ref=e141]
+          - paragraph [ref=e142]: Review, edit if needed, and send. Land more clients without spending hours writing.
+    - generic [ref=e144]:
+      - generic [ref=e145]:
+        - paragraph [ref=e146]: Pricing
+        - heading "Simple, transparent pricing." [level=2] [ref=e147]
+        - paragraph [ref=e148]: No lock-in. No hidden fees. Pay only for what you need.
+      - generic [ref=e150]:
+        - button "Session" [ref=e151] [cursor=pointer]
+        - button "Monthly" [ref=e152] [cursor=pointer]
+      - generic [ref=e153]:
+        - generic [ref=e154]:
+          - paragraph [ref=e155]: Flash
+          - paragraph [ref=e156]: \u20A6500
+          - paragraph [ref=e157]: 5 proposals · 30 min access
+          - link "Get Flash" [ref=e158] [cursor=pointer]:
+            - /url: /session
+        - generic [ref=e159]:
+          - generic [ref=e160]: Best value
+          - paragraph [ref=e161]: Power
+          - paragraph [ref=e162]: \u20A61,200
+          - paragraph [ref=e163]: 20 proposals · 4 hours access
+          - link "Get Power" [ref=e164] [cursor=pointer]:
+            - /url: /session
+      - paragraph [ref=e165]: flutterwave \u00B7 card \u00B7 ussd \u00B7 bank transfer \u00B7 naira only
+    - generic [ref=e167]:
+      - generic [ref=e168]:
+        - paragraph [ref=e169]: Proof
+        - heading "Freelancers are winning with Pitchr." [level=2] [ref=e170]
+      - generic [ref=e171]:
+        - generic [ref=e172]:
+          - img [ref=e173]
+          - generic [ref=e176]: AO
+          - paragraph [ref=e177]: “My reply rate went from one in twenty to one in eight. Same jobs, same rate, different proposal.”
+          - generic [ref=e178]:
+            - paragraph [ref=e179]: Adaeze O.
+            - paragraph [ref=e180]: Backend Developer, Lagos
+        - generic [ref=e181]:
+          - img [ref=e182]
+          - generic [ref=e185]: CU
+          - paragraph [ref=e186]: “I used to spend 45 minutes on every proposal. Now I spend 30 seconds and get better results.”
+          - generic [ref=e187]:
+            - paragraph [ref=e188]: Chidi U.
+            - paragraph [ref=e189]: Product Designer, Abuja
+        - generic [ref=e190]:
+          - img [ref=e191]
+          - generic [ref=e194]: FN
+          - paragraph [ref=e195]: “Tried it once, got an interview the same day. I haven’t written a proposal from scratch since.”
+          - generic [ref=e196]:
+            - paragraph [ref=e197]: Fatima N.
+            - paragraph [ref=e198]: Content Writer, Kano
+    - generic [ref=e200]:
+      - generic [ref=e201]:
+        - paragraph [ref=e202]: FAQ
+        - heading "Questions? Answered." [level=2] [ref=e203]
+      - generic [ref=e204]:
+        - group [ref=e205]:
+          - generic "Will clients know this is AI-written?" [ref=e206] [cursor=pointer]:
+            - text: Will clients know this is AI-written?
+            - img [ref=e207]
+        - group [ref=e209]:
+          - generic "How is this different from ChatGPT?" [ref=e210] [cursor=pointer]:
+            - text: How is this different from ChatGPT?
+            - img [ref=e211]
+        - group [ref=e213]:
+          - generic "Can I cancel a monthly plan?" [ref=e214] [cursor=pointer]:
+            - text: Can I cancel a monthly plan?
+            - img [ref=e215]
+        - group [ref=e217]:
+          - generic "What payment methods are accepted?" [ref=e218] [cursor=pointer]:
+            - text: What payment methods are accepted?
+            - img [ref=e219]
+        - group [ref=e221]:
+          - generic "Do I need an account to try it?" [ref=e222] [cursor=pointer]:
+            - text: Do I need an account to try it?
+            - img [ref=e223]
+    - generic [ref=e226]:
+      - heading "Ready to win more clients?" [level=2] [ref=e227]
+      - paragraph [ref=e228]: Generate your first proposal in 30 seconds. No account required.
+      - generic [ref=e229]:
+        - link "Generate a Proposal \\u2014 \\u20A6500" [ref=e230] [cursor=pointer]:
+          - /url: /session
+          - text: Generate a Proposal \u2014 \u20A6500
+          - img [ref=e231]
+        - link "Learn more" [ref=e233] [cursor=pointer]:
+          - /url: "#faq"
+    - contentinfo [ref=e234]:
+      - generic [ref=e235]:
+        - generic [ref=e236]:
+          - generic [ref=e237]: Pitchr
+          - generic [ref=e238]:
+            - link "Features" [ref=e239] [cursor=pointer]:
+              - /url: "#features"
+            - link "Pricing" [ref=e240] [cursor=pointer]:
+              - /url: "#pricing"
+            - link "FAQ" [ref=e241] [cursor=pointer]:
+              - /url: "#faq"
+            - link "Sign Up" [ref=e242] [cursor=pointer]:
+              - /url: /auth/signup
+        - generic [ref=e243]:
+          - paragraph [ref=e244]: © 2026 Pitchr. Built in Lagos, Nigeria.
+          - paragraph [ref=e245]: flutterwave \u00B7 card \u00B7 ussd \u00B7 bank transfer
+  - button "Toggle dark mode" [ref=e246] [cursor=pointer]:
+    - img [ref=e247]
