@@ -1,11 +1,11 @@
-# ProposalPro — Design Document
+# Pitchr — Design Document
 
 **Status:** Approved
 **Date:** 2026-06-08
 
 ## Overview
 
-ProposalPro is a micro-SaaS proposal generation tool for Nigerian freelancers on Upwork and Fiverr. Users generate winning proposals in ~30 seconds via AI (DeepSeek). Monetized via pay-per-session (Flash ₦500, Power ₦1,200) and monthly subscriptions (Starter ₦2k, Pro ₦3.5k, Ultra ₦5k).
+Pitchr is a micro-SaaS proposal generation tool for Nigerian freelancers on Upwork and Fiverr. Users generate winning proposals in ~30 seconds via AI (DeepSeek). Monetized via pay-per-session (Flash ₦500, Power ₦1,200) and monthly subscriptions (Starter ₦2k, Pro ₦3.5k, Ultra ₦5k).
 
 ## Design Decisions
 
@@ -47,7 +47,7 @@ ProposalPro is a micro-SaaS proposal generation tool for Nigerian freelancers on
 ## Project Structure
 
 ```
-proposalpro/
+pitchr/
 ├── frontend/          # Next.js 14 app
 │   ├── app/
 │   │   ├── page.tsx           # Landing page

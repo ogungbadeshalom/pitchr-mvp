@@ -14,6 +14,14 @@ export async function createUser(id: string, email: string, firstName?: string, 
 }
 
 export async function upsertUser(id: string, email: string, firstName?: string, lastName?: string): Promise<User> {
+  const existing = await findUserByEmail(email);
+  if (existing) {
+    const result = await query(
+      `UPDATE users SET first_name = COALESCE($2, users.first_name), last_name = COALESCE($3, users.last_name) WHERE id = $1 RETURNING *`,
+      [existing.id, firstName ?? null, lastName ?? null]
+    );
+    return result.rows[0];
+  }
   const result = await query(
     `INSERT INTO users (id, email, first_name, last_name) VALUES ($1, $2, $3, $4)
      ON CONFLICT (id) DO UPDATE SET email = $2, first_name = COALESCE($3, users.first_name), last_name = COALESCE($4, users.last_name)

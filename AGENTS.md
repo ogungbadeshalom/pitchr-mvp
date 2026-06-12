@@ -41,9 +41,11 @@ docker compose up -d               # postgres:15 + supertokens-postgresql:7.0
 ## Local Dev Setup
 
 1. `docker compose up -d` — starts Postgres on 5432 + SuperTokens on 3567
-2. `cd backend && npm run dev` — auto-runs migrations on start
-3. `cd frontend && npm run dev`
-4. Open `http://localhost:3000`
+2. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env`
+3. Add `http://localhost:3567/auth/callback/google` and `http://localhost:3000/auth/callback` as Authorized redirect URIs in Google Cloud Console
+4. `cd backend && npm run dev` — auto-runs migrations on start
+5. `cd frontend && npm run dev`
+6. Open `http://localhost:3000`
 
 Both `.env` and `.env.local` are gitignored. Use `.env.example` as template.
 
@@ -65,6 +67,7 @@ All configs are **lazy-loaded via getter functions** (`getDeepseekConfig()`, `ge
 | POST | `/api/auth/signup` | none | Create account (bcrypt, JWT cookie) |
 | POST | `/api/auth/signin` | none | Sign in, returns `{ user, token }` |
 | POST | `/api/auth/signout` | none | Clears cookie |
+| POST | `/api/auth/google-finish` | none | Completes Google OAuth, issues JWT cookie |
 | GET | `/api/user` | `requireAuth` | Returns all user fields including subscription |
 | PATCH | `/api/user/profile` | `requireAuth` | Update first_name/last_name |
 | GET | `/api/proposals` | `requireAuth` | User's proposals (dashboard) |
@@ -82,6 +85,7 @@ All configs are **lazy-loaded via getter functions** (`getDeepseekConfig()`, `ge
 - `requireAuth` middleware extracts `userId` from cookie or `Authorization: Bearer` header
 - Token contains only `{ userId }` — no subscription data
 - SuperTokens runs alongside custom auth at `/api/auth/*`; custom routes take priority
+- Google OAuth: frontend uses `supertokens-web-js` to redirect → SuperTokens handles OAuth → callback page calls `POST /api/auth/google-finish` to issue JWT
 
 ## Frontend State
 

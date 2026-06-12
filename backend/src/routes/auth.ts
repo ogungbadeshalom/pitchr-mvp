@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import { query } from '../config/database';
-import { findUserByEmail, findUserByEmailWithPassword } from '../database/queries';
+import { findUserByEmail, findUserByEmailWithPassword, findUserById, upsertUser } from '../database/queries';
 import { signToken } from '../config/jwt';
 import { AppError } from '../utils/errors';
 
@@ -72,6 +72,30 @@ router.post('/signin', async (req: Request, res: Response, next: NextFunction) =
 router.post('/signout', (_req: Request, res: Response) => {
   res.clearCookie('pitchr_token', { httpOnly: true, sameSite: 'lax' });
   res.json({ message: 'Signed out' });
+});
+
+router.post('/google-finish', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id, email } = req.body;
+    if (!id || !email) {
+      throw new AppError('Missing user info', 'VALIDATION_ERROR', 400);
+    }
+    const user = await upsertUser(id, email);
+    if (!user) {
+      throw new AppError('User not found', 'NOT_FOUND', 404);
+    }
+    const token = signToken(user.id);
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('pitchr_token', token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.json({ user, token });
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;

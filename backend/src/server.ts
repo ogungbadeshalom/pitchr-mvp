@@ -12,9 +12,9 @@ import paymentsRouter from './routes/payments';
 import sessionsRouter from './routes/sessions';
 import userRouter from './routes/user';
 
-initSuperTokens();
-
 export function createApp() {
+  initSuperTokens();
+
   const app = express();
 
   app.use(cors({

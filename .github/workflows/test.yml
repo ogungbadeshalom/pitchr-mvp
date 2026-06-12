@@ -7,9 +7,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: proposalpro
-          POSTGRES_PASSWORD: proposalpro
-          POSTGRES_DB: proposalpro
+          POSTGRES_USER: pitchr
+          POSTGRES_PASSWORD: pitchr
+          POSTGRES_DB: pitchr
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

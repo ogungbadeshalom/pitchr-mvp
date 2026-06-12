@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_USER: proposalpro
-      POSTGRES_PASSWORD: proposalpro
-      POSTGRES_DB: proposalpro
+      POSTGRES_USER: pitchr
+      POSTGRES_PASSWORD: pitchr
+      POSTGRES_DB: pitchr
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U proposalpro"]
+      test: ["CMD-SHELL", "pg_isready -U pitchr"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,7 +21,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      POSTGRESQL_CONNECTION_URI: postgresql://proposalpro:proposalpro@postgres:5432/proposalpro
+      POSTGRESQL_CONNECTION_URI: postgresql://pitchr:pitchr@postgres:5432/pitchr
     ports:
       - "3567:3567"
     healthcheck:
