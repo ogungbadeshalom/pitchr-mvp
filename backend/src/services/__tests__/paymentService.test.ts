@@ -16,19 +16,15 @@ describe('getSessionPrice', () => {
 });
 
 describe('getSubscriptionPrice', () => {
-  it('should return 2000 for starter', () => {
-    expect(getSubscriptionPrice('starter')).toBe(2000);
+  it('should return 1500 for starter', () => {
+    expect(getSubscriptionPrice('starter')).toBe(1500);
   });
 
   it('should return 3500 for pro', () => {
     expect(getSubscriptionPrice('pro')).toBe(3500);
   });
 
-  it('should return 5000 for ultra', () => {
-    expect(getSubscriptionPrice('ultra')).toBe(5000);
-  });
-
-  it('should return 2000 for unknown plan', () => {
-    expect(getSubscriptionPrice('flash')).toBe(2000);
+  it('should return 1500 for unknown plan', () => {
+    expect(getSubscriptionPrice('flash')).toBe(1500);
   });
 });

@@ -59,14 +59,13 @@ const HOW_IT_WORKS = [
 ];
 
 const PRICING_SESSION = [
-  { name: 'Flash', price: '500', desc: '5 proposals \u00B7 30 min access', badge: null, featured: false },
-  { name: 'Power', price: '1,200', desc: '20 proposals \u00B7 4 hours access', badge: 'Best value', featured: true },
+  { name: 'Flash', price: '500', features: ['5 AI proposals written from your job', 'Upwork & Fiverr optimized formats', 'No account needed — pay and go', 'Results in under 30 seconds'], badge: null, featured: false },
+  { name: 'Power', price: '1,200', features: ['20 AI proposals tailored to each job', 'Re-spin for different hooks and angles', 'Upwork & Fiverr optimized formats', 'Priority generation speed', '4-hour window — use at your pace'], badge: 'Best value', featured: true },
 ];
 
 const PRICING_MONTHLY = [
-  { name: 'Starter', price: '2,000', desc: '10 proposals per month', badge: null, featured: false },
-  { name: 'Pro', price: '3,500', desc: 'Unlimited proposals', badge: 'Most popular', featured: true },
-  { name: 'Ultra', price: '5,000', desc: 'Unlimited + 3 team seats', badge: null, featured: false },
+  { name: 'Starter', price: '1,500', annualPrice: '15,000', annualNote: 'Save ₦3,000', features: ['30 proposals written from your profile', 'Upwork & Fiverr optimized formats', 'Re-spin any proposal for a fresh angle', 'Email support', 'Save ₦3,000 with annual billing'], badge: null, featured: false },
+  { name: 'Pro', price: '3,500', annualPrice: '35,000', annualNote: 'Save ₦7,000', features: ['Unlimited proposals — zero caps', 'All freelance platforms supported', 'Priority speed — fastest generation', 'Priority support — replies within hours', 'Save ₦7,000 with annual billing'], badge: 'Most popular', featured: true },
 ];
 
 const TESTIMONIALS = [
@@ -86,6 +85,7 @@ const FAQS = [
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState<'session' | 'monthly'>('session');
+  const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
   const [email, setEmail] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
@@ -255,7 +255,7 @@ export default function Home() {
           <div className="flex items-center justify-center mb-10">
             <div className="inline-flex bg-muted rounded-lg p-1">
               <button onClick={() => setTab('session')} className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${tab === 'session' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Session</button>
-              <button onClick={() => setTab('monthly')} className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${tab === 'monthly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Monthly</button>
+              <button onClick={() => { setTab('monthly'); setBillingTab('monthly'); }} className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${tab === 'monthly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Monthly</button>
             </div>
           </div>
           {mounted && hasSession ? (
@@ -283,12 +283,14 @@ export default function Home() {
                 />
               </div>
               <div className="grid md:grid-cols-2 gap-6">
-                {PRICING_SESSION.map(({ name, price, desc, badge, featured }) => (
+                {PRICING_SESSION.map(({ name, price, features, badge, featured }) => (
                   <div key={name} className={`rounded-xl p-6 border relative ${featured ? 'border-brand-500 ring-1 ring-brand-500 bg-card' : 'border-border bg-card'}`}>
                     {badge && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-xs font-medium px-3 py-0.5 rounded-full">{badge}</span>}
                     <p className="text-sm text-muted-foreground font-medium mb-1">{name}</p>
                     <p className="text-3xl font-bold text-foreground mb-1"><span className="text-lg font-medium text-muted-foreground">₦</span>{price}</p>
-                    <p className="text-sm text-muted-foreground mb-5">{desc}</p>
+                    <ul className="text-sm text-muted-foreground mb-5 space-y-1 list-disc list-inside">
+                      {features.map((f, i) => <li key={i}>{f}</li>)}
+                    </ul>
                     <button
                       onClick={() => handleBuySession(name.toLowerCase() as 'flash' | 'power')}
                       disabled={paymentLoading}
@@ -305,16 +307,33 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-              {PRICING_MONTHLY.map(({ name, price, desc, badge, featured }) => (
-                <div key={name} className={`rounded-xl p-6 border relative ${featured ? 'border-brand-500 ring-1 ring-brand-500 bg-card' : 'border-border bg-card'}`}>
-                  {badge && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-xs font-medium px-3 py-0.5 rounded-full">{badge}</span>}
-                  <p className="text-sm text-muted-foreground font-medium mb-1">{name}</p>
-                  <p className="text-3xl font-bold text-foreground mb-1"><span className="text-lg font-medium text-muted-foreground">₦</span>{price}<span className="text-sm font-medium text-muted-foreground">/mo</span></p>
-                  <p className="text-sm text-muted-foreground mb-5">{desc}</p>
-                  <Link href="/auth/signup" className="block w-full text-center bg-brand-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-brand-700 transition-all">Start {name}</Link>
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-center mb-8">
+                <div className="inline-flex bg-muted rounded-lg p-1">
+                  <button onClick={() => setBillingTab('monthly')} className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${billingTab === 'monthly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Monthly</button>
+                  <button onClick={() => setBillingTab('annual')} className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${billingTab === 'annual' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Annual</button>
                 </div>
-              ))}
+              </div>
+              <div className="grid md:grid-cols-2 gap-6 max-w-xl mx-auto">
+                {PRICING_MONTHLY.map(({ name, price, annualPrice, annualNote, features, badge, featured }) => (
+                  <div key={name} className={`rounded-xl p-6 border relative ${featured ? 'border-brand-500 ring-1 ring-brand-500 bg-card' : 'border-border bg-card'}`}>
+                    {badge && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-xs font-medium px-3 py-0.5 rounded-full">{badge}</span>}
+                    <p className="text-sm text-muted-foreground font-medium mb-1">{name}</p>
+                    <p className="text-3xl font-bold text-foreground mb-1">
+                      <span className="text-lg font-medium text-muted-foreground">₦</span>
+                      {billingTab === 'annual' ? annualPrice : price}
+                      <span className="text-sm font-medium text-muted-foreground">{billingTab === 'annual' ? '/yr' : '/mo'}</span>
+                    </p>
+                    {billingTab === 'annual' && (
+                      <p className="text-xs text-brand-600 font-medium mt-0.5">{annualNote}</p>
+                    )}
+                    <ul className="text-sm text-muted-foreground mb-5 mt-3 space-y-1 list-disc list-inside">
+                      {features.map((f, i) => <li key={i}>{f}</li>)}
+                    </ul>
+                    <Link href="/auth/signup" className="block w-full text-center bg-brand-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-brand-700 transition-all">Start {name}</Link>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           <p className="text-center text-sm text-muted-foreground mt-6 font-mono">flutterwave · card · ussd · bank transfer · naira only</p>

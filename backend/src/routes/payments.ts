@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { initSessionPayment, initSubscriptionPayment, verifyWebhookSignature, getSubscriptionPrice } from '../services/paymentService';
+import { initSessionPayment, initSubscriptionPayment, verifyWebhookSignature, getSessionPrice, getSubscriptionPrice, getAnnualPrice } from '../services/paymentService';
 import { generateSessionToken, getSessionLimit, getSessionDuration } from '../services/sessionService';
+import { sendReceipt } from '../services/emailService';
 import { createSession, createPayment, updatePaymentStatus, updateUserSubscription, cancelUserSubscription, createAuditLog, findUserByEmail, findUserById } from '../database/queries';
 import { query } from '../config/database';
 import { requireAuth } from '../middleware/auth';
@@ -15,7 +16,8 @@ const initSessionSchema = z.object({
 });
 
 const initSubscriptionSchema = z.object({
-  plan: z.enum(['starter', 'pro', 'ultra']),
+  plan: z.enum(['starter', 'pro']),
+  billing_period: z.enum(['monthly', 'annual']).optional().default('monthly'),
 });
 
 const confirmSubscriptionSchema = z.object({
@@ -33,7 +35,7 @@ router.post('/init-session', async (req, res, next) => {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const result = await initSessionPayment(plan, email, frontendUrl);
 
-    await createPayment(null, null, getSubscriptionPrice(plan), 'one_time', result.reference);
+    await createPayment(null, null, getSessionPrice(plan), 'one_time', result.reference);
 
     res.json(result);
   } catch (err) {
@@ -48,7 +50,7 @@ router.post('/init-subscription', requireAuth, async (req, res, next) => {
       throw new ValidationError('Invalid input', { errors: parsed.error.flatten().fieldErrors });
     }
 
-    const { plan } = parsed.data;
+    const { plan, billing_period } = parsed.data;
     const userId = (req as any).userId;
     const user = await findUserById(userId);
     if (!user) {
@@ -56,9 +58,10 @@ router.post('/init-subscription', requireAuth, async (req, res, next) => {
     }
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const result = await initSubscriptionPayment(plan, user.email, frontendUrl, userId);
+    const result = await initSubscriptionPayment(plan, user.email, frontendUrl, userId, billing_period);
 
-    await createPayment(userId, null, getSubscriptionPrice(plan), 'subscription', result.reference);
+    const price = billing_period === 'annual' ? getAnnualPrice(plan) : getSubscriptionPrice(plan);
+    await createPayment(userId, null, price, 'subscription', result.reference);
 
     res.json(result);
   } catch (err) {
@@ -74,29 +77,36 @@ router.post('/confirm-subscription', requireAuth, async (req, res, next) => {
     }
 
     const { reference } = parsed.data;
-    const plan = reference.replace('PROP_SUB_', '').split('_')[0] as string;
-    const validPlans = ['starter', 'pro', 'ultra'];
+    const parts = reference.replace('PROP_SUB_', '').split('_');
+    const plan = parts[0] as string;
+    const billingPeriod = parts[1] as string || 'monthly';
+    const validPlans = ['starter', 'pro'];
     if (!validPlans.includes(plan)) {
       throw new ValidationError('Invalid plan in reference');
     }
 
     const userId = (req as any).userId;
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const days = billingPeriod === 'annual' ? 365 : 30;
+    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 
-    await updateUserSubscription(userId, plan, expiresAt);
+    await updateUserSubscription(userId, plan, expiresAt, billingPeriod);
 
     try { await updatePaymentStatus(reference, 'completed'); } catch { /* ok if no payment record yet */ }
 
     await createAuditLog(userId, 'subscription_created', 'users', userId, { plan });
 
     const user = await findUserById(userId);
+    if (user) {
+      const price = billingPeriod === 'annual' ? getAnnualPrice(plan) : getSubscriptionPrice(plan);
+      sendReceipt(user.email, plan, price, reference).catch(() => {});
+    }
     if (!user) return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
 
     const safeUser = {
       id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name,
       subscription_tier: user.subscription_tier, subscription_started_at: user.subscription_started_at,
       subscription_ended_at: user.subscription_ended_at, proposal_count_this_month: user.proposal_count_this_month,
-      proposal_limit_this_month: user.proposal_limit_this_month, created_at: user.created_at,
+      proposal_limit_this_month: user.proposal_limit_this_month, billing_period: user.billing_period, created_at: user.created_at,
     };
     res.json({ message: 'Subscription activated', user: safeUser });
   } catch (err) {
@@ -139,15 +149,20 @@ router.post('/webhook', async (req, res) => {
       const session = await createSession(token, plan, customer.email, expiresAt, limit);
       await query('UPDATE sessions SET payment_status = $1 WHERE id = $2', ['completed', session.id]);
       await createAuditLog(null, 'session_created', 'sessions', '', { plan, token });
+      sendReceipt(customer.email, `session_${plan}`, data.amount, tx_ref).catch(() => {});
     }
 
     if (tx_ref.startsWith('PROP_SUB_')) {
-      const plan = tx_ref.replace('PROP_SUB_', '').split('_')[0];
+      const parts = tx_ref.replace('PROP_SUB_', '').split('_');
+      const plan = parts[0];
+      const billingPeriod = parts[1] || 'monthly';
       const user = await findUserByEmail(customer.email);
       if (user) {
-        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-        await updateUserSubscription(user.id, plan, expiresAt);
-        await createAuditLog(user.id, 'subscription_created', 'users', user.id, { plan });
+        const days = billingPeriod === 'annual' ? 365 : 30;
+        const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+        await updateUserSubscription(user.id, plan, expiresAt, billingPeriod);
+        await createAuditLog(user.id, 'subscription_created', 'users', user.id, { plan, billingPeriod });
+        sendReceipt(customer.email, plan, data.amount, tx_ref).catch(() => {});
       }
     }
 

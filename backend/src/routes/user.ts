@@ -49,7 +49,7 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
 
     values.push(userId);
     const result = await query(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx} RETURNING id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, created_at`,
+      `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx} RETURNING id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at`,
       values
     );
 

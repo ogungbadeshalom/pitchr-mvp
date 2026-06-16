@@ -20,6 +20,7 @@ export default function SessionPage() {
   const [loading, setLoading] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [pricingTab, setPricingTab] = useState<'session' | 'monthly'>('session');
+  const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
   const [email, setEmail] = useState('');
   const [profileText, setProfileText] = useState('');
   const [profileOpen, setProfileOpen] = useState(false);
@@ -105,7 +106,7 @@ export default function SessionPage() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/init-subscription`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planName.toLowerCase() }),
+        body: JSON.stringify({ plan: planName.toLowerCase(), billing_period: billingTab }),
         credentials: 'include',
       });
       const data = await response.json();
@@ -142,7 +143,7 @@ export default function SessionPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/images/logo.jpg" alt="Pitchr" width={20} height={20} className="rounded" />
+              <Image src="/images/P.png" alt="Pitchr" width={20} height={20} className="rounded" />
               <span className="font-bold text-brand-600">Pitchr</span>
             </Link>
             <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
@@ -366,41 +367,64 @@ export default function SessionPage() {
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-card border border-brand-100 dark:border-brand-800 rounded-xl p-6 text-center hover:shadow-md transition-shadow">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Flash</p>
-                    <p className="text-3xl font-bold mt-2 text-foreground">₦500</p>
-                    <p className="text-sm text-muted-foreground mt-1">5 proposals · 30 min</p>
-                    <Button className="mt-4 w-full" variant="secondary" onClick={() => handleBuySession('flash')}>
+                  <div className="bg-white dark:bg-card border border-brand-100 dark:border-brand-800 rounded-xl p-6 hover:shadow-md transition-shadow flex flex-col">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Flash</p>
+                    <p className="text-3xl font-bold text-foreground">₦500</p>
+                    <p className="text-xs text-muted-foreground mb-3">5 proposals · 30 min</p>
+                    <ul className="text-xs text-muted-foreground space-y-1.5 mb-5 flex-1 list-disc list-inside">
+                      <li>5 AI proposals written from your job</li>
+                      <li>Upwork & Fiverr optimized formats</li>
+                      <li>No account needed — pay and go</li>
+                      <li>Results in under 30 seconds</li>
+                    </ul>
+                    <Button className="w-full" variant="secondary" onClick={() => handleBuySession('flash')}>
                       Get Flash
                     </Button>
                   </div>
-                  <div className="bg-white dark:bg-card border-2 border-brand-500 rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow relative">
+                  <div className="bg-white dark:bg-card border-2 border-brand-500 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow relative flex flex-col">
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-xs px-3 py-0.5 rounded-full font-medium">
                       Popular
                     </div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Power</p>
-                    <p className="text-3xl font-bold mt-2 text-foreground">₦1,200</p>
-                    <p className="text-sm text-muted-foreground mt-1">20 proposals · 4 hours</p>
-                    <Button className="mt-4 w-full" onClick={() => handleBuySession('power')}>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Power</p>
+                    <p className="text-3xl font-bold text-foreground">₦1,200</p>
+                    <p className="text-xs text-muted-foreground mb-3">20 proposals · 4 hours</p>
+                    <ul className="text-xs text-muted-foreground space-y-1.5 mb-5 flex-1 list-disc list-inside">
+                      <li>20 AI proposals tailored to each job</li>
+                      <li>Re-spin for different hooks and angles</li>
+                      <li>Upwork & Fiverr optimized formats</li>
+                      <li>Priority generation speed</li>
+                      <li>4-hour window — use at your pace</li>
+                    </ul>
+                    <Button className="w-full" onClick={() => handleBuySession('power')}>
                       Get Power
                     </Button>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  { plan: 'Starter', price: '₦2k', props: '10 proposals/mo' },
-                  { plan: 'Pro', price: '₦3.5k', props: 'Unlimited' },
-                  { plan: 'Ultra', price: '₦5k', props: 'Unlimited + priority' },
-                ].map(({ plan, price, props }) => (
-                  <div key={plan} className="bg-white dark:bg-card border border-brand-100 dark:border-brand-800 rounded-xl p-5 text-center hover:shadow-md transition-shadow">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{plan}</p>
-                    <p className="text-xl font-bold mt-1 text-foreground">{price}<span className="text-xs font-normal text-muted-foreground">/mo</span></p>
-                    <p className="text-xs text-muted-foreground mt-1">{props}</p>
-                    <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => handleSubscribe(plan)} disabled={loading}>Subscribe</Button>
+              <div>
+                <div className="flex items-center justify-center mb-6">
+                  <div className="inline-flex bg-muted rounded-lg p-0.5">
+                    <button onClick={() => setBillingTab('monthly')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${billingTab === 'monthly' ? 'bg-white dark:bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Monthly</button>
+                    <button onClick={() => setBillingTab('annual')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${billingTab === 'annual' ? 'bg-white dark:bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>Annual</button>
                   </div>
-                ))}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { plan: 'Starter', price: billingTab === 'annual' ? '₦15k' : '₦1.5k', annualNote: 'Save ₦3,000', features: ['30 proposals written from your profile', 'Upwork & Fiverr optimized', 'Re-spin for fresh angles', 'Email support'], subLabel: billingTab === 'annual' ? '/yr' : '/mo' },
+                    { plan: 'Pro', price: billingTab === 'annual' ? '₦35k' : '₦3.5k', annualNote: 'Save ₦7,000', features: ['Unlimited proposals — no caps', 'All platforms supported', 'Priority speed', 'Priority support'], subLabel: billingTab === 'annual' ? '/yr' : '/mo' },
+                  ].map(({ plan, price, annualNote, features, subLabel }) => (
+                    <div key={plan} className="bg-white dark:bg-card border border-brand-100 dark:border-brand-800 rounded-xl p-5 text-center hover:shadow-md transition-shadow">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">{plan}</p>
+                      <p className="text-xl font-bold mt-1 text-foreground">{price}<span className="text-xs font-normal text-muted-foreground">{subLabel}</span></p>
+                      {billingTab === 'annual' && <p className="text-xs text-brand-600 font-medium">{annualNote}</p>}
+                      <ul className="text-xs text-muted-foreground mt-3 space-y-1.5 text-left list-disc list-inside">
+                        {features.map((f, i) => <li key={i}>{f}</li>)}
+                      </ul>
+                      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => handleSubscribe(plan)} disabled={loading}>Subscribe</Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

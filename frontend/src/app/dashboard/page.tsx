@@ -25,7 +25,7 @@ export default function DashboardPage() {
       if (cancelled) return;
       if (userData.user) {
         const u = userData.user;
-        setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0);
+        setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0, u.billing_period);
       }
       setRecentProposals((proposalsData.proposals || []).slice(0, 5));
     }).catch(() => {});
@@ -45,7 +45,6 @@ export default function DashboardPage() {
     free: 'bg-slate-100 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300',
     starter: 'bg-brand-50 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300',
     pro: 'bg-teal-50 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300',
-    ultra: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
   };
 
   const sessionColors = 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300';
@@ -173,7 +172,7 @@ export default function DashboardPage() {
                 {hasSubscription || hasSession ? 'Manage Plan' : 'Get a Plan'}
               </p>
               <p className="text-muted-foreground text-sm mt-1">
-                {hasSubscription ? 'Sessions from ₦500 or change plan' : 'Sessions from ₦500, unlimited from ₦2,000/mo'}
+                {hasSubscription ? 'Sessions from ₦500 or change plan' : 'Sessions from ₦500, unlimited from ₦1,500/mo'}
               </p>
             </div>
             <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center group-hover:translate-x-1 transition-transform">

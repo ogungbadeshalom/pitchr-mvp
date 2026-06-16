@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   themeColor: '#059669',
   icons: {
-    icon: '/images/logo.jpg',
+    icon: '/images/P.png',
   },
 }
 

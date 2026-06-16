@@ -32,7 +32,7 @@ export async function upsertUser(id: string, email: string, firstName?: string, 
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  const result = await query('SELECT id, email, first_name, last_name, subscription_tier, subscription_started_at, subscription_ended_at, proposal_count_this_month, proposal_limit_this_month, created_at FROM users WHERE email = $1 AND deleted_at IS NULL', [email]);
+  const result = await query('SELECT id, email, first_name, last_name, subscription_tier, subscription_started_at, subscription_ended_at, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at FROM users WHERE email = $1 AND deleted_at IS NULL', [email]);
   return result.rows[0] || null;
 }
 
@@ -114,26 +114,25 @@ export async function updatePaymentStatus(reference: string, status: string): Pr
 }
 
 const PLAN_LIMITS: Record<string, number> = {
-  starter: 10,
+  starter: 30,
   pro: 0,
-  ultra: 0,
 };
 
 export function getProposalLimit(plan: string): number {
   return PLAN_LIMITS[plan] ?? 0;
 }
 
-export async function updateUserSubscription(userId: string, plan: string, expiresAt: Date): Promise<void> {
+export async function updateUserSubscription(userId: string, plan: string, expiresAt: Date, billingPeriod?: string): Promise<void> {
   const limit = getProposalLimit(plan);
   await query(
-    `UPDATE users SET subscription_tier = $1, subscription_started_at = NOW(), subscription_ended_at = $2, proposal_limit_this_month = $3, proposal_count_this_month = 0 WHERE id = $4`,
-    [plan, expiresAt, limit, userId]
+    `UPDATE users SET subscription_tier = $1, subscription_started_at = NOW(), subscription_ended_at = $2, proposal_limit_this_month = $3, proposal_count_this_month = 0, billing_period = $4 WHERE id = $5`,
+    [plan, expiresAt, limit, billingPeriod || 'monthly', userId]
   );
 }
 
 export async function cancelUserSubscription(userId: string): Promise<void> {
   await query(
-    `UPDATE users SET subscription_tier = 'free', subscription_started_at = NULL, subscription_ended_at = NULL, proposal_count_this_month = 0, proposal_limit_this_month = NULL WHERE id = $1`,
+    `UPDATE users SET subscription_tier = 'free', subscription_started_at = NULL, subscription_ended_at = NULL, proposal_count_this_month = 0, proposal_limit_this_month = NULL, billing_period = NULL WHERE id = $1`,
     [userId]
   );
 }

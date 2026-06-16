@@ -3,11 +3,12 @@ export interface User {
   email: string;
   first_name: string | null;
   last_name: string | null;
-  subscription_tier: 'free' | 'starter' | 'pro' | 'ultra';
+  subscription_tier: 'free' | 'starter' | 'pro';
   subscription_started_at: Date | null;
   subscription_ended_at: Date | null;
   proposal_count_this_month: number;
   proposal_limit_this_month: number;
+  billing_period: 'monthly' | 'annual' | null;
   created_at: Date;
 }
 
@@ -65,5 +66,6 @@ export interface InitSessionPaymentRequest {
 }
 
 export interface InitSubscriptionRequest {
-  plan: 'starter' | 'pro' | 'ultra';
+  plan: 'starter' | 'pro';
+  billing_period?: 'monthly' | 'annual';
 }

@@ -8,9 +8,13 @@ const SESSION_PRICES: Record<string, number> = {
 };
 
 const SUBSCRIPTION_PRICES: Record<string, number> = {
-  starter: 2000,
+  starter: 1500,
   pro: 3500,
-  ultra: 5000,
+};
+
+const ANNUAL_PRICES: Record<string, number> = {
+  starter: 15000,
+  pro: 35000,
 };
 
 export function getSessionPrice(plan: string): number {
@@ -18,7 +22,11 @@ export function getSessionPrice(plan: string): number {
 }
 
 export function getSubscriptionPrice(plan: string): number {
-  return SUBSCRIPTION_PRICES[plan] || 2000;
+  return SUBSCRIPTION_PRICES[plan] || 1500;
+}
+
+export function getAnnualPrice(plan: string): number {
+  return ANNUAL_PRICES[plan] || 15000;
 }
 
 async function callFlutterwave(amount: number, txRef: string, email: string, name: string, redirectUrl: string) {
@@ -72,9 +80,9 @@ export async function initSessionPayment(plan: string, email: string, frontendUr
   }
 }
 
-export async function initSubscriptionPayment(plan: string, email: string, frontendUrl: string, userId: string) {
-  const amount = getSubscriptionPrice(plan);
-  const txRef = `PROP_SUB_${plan}_${Date.now()}`;
+export async function initSubscriptionPayment(plan: string, email: string, frontendUrl: string, userId: string, billingPeriod: string = 'monthly') {
+  const amount = billingPeriod === 'annual' ? getAnnualPrice(plan) : getSubscriptionPrice(plan);
+  const txRef = `PROP_SUB_${plan}_${billingPeriod}_${Date.now()}`;
 
   if (getFlutterwaveConfig().secretKey === 'sk_placeholder') {
     logger.warn('Flutterwave not configured, returning mock payment link');

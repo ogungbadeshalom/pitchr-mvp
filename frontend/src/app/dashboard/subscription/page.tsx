@@ -12,7 +12,7 @@ const SESSION_PLANS = [
     price: '₦500',
     label: 'one-time',
     proposals: '5 proposals',
-    features: ['5 AI proposals', '30 min access', 'Upwork & Fiverr', 'Standard speed'],
+    features: ['5 AI proposals written from your job', 'Upwork & Fiverr optimized formats', 'No account needed — pay and go', 'Results in under 30 seconds'],
   },
   {
     id: 'power',
@@ -20,7 +20,7 @@ const SESSION_PLANS = [
     price: '₦1,200',
     label: 'one-time',
     proposals: '20 proposals',
-    features: ['20 AI proposals', '4 hour access', 'Upwork & Fiverr', 'Priority speed'],
+    features: ['20 AI proposals tailored to each job', 'Re-spin for different hooks and angles', 'Upwork & Fiverr optimized formats', 'Priority generation speed', '4-hour window — use at your pace'],
     popular: true,
   },
 ];
@@ -29,27 +29,25 @@ const SUBSCRIPTION_PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '₦2,000',
+    monthlyPrice: '₦1,500',
+    annualPrice: '₦15,000',
+    annualNote: 'Save ₦3,000',
     label: 'per month',
-    proposals: '10 proposals/month',
-    features: ['10 AI proposals/mo', 'Upwork & Fiverr', 'Standard speed', 'Email support'],
+    annualLabel: 'per year',
+    proposals: '30 proposals/month',
+    features: ['30 AI proposals written from your profile', 'Upwork & Fiverr optimized formats', 'Re-spin any proposal for a fresh angle', 'Email support', 'Save ₦3,000 with annual billing'],
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: '₦3,500',
+    monthlyPrice: '₦3,500',
+    annualPrice: '₦35,000',
+    annualNote: 'Save ₦7,000',
     label: 'per month',
+    annualLabel: 'per year',
     proposals: 'Unlimited proposals',
-    features: ['Unlimited AI proposals', 'All platforms', 'Priority speed', 'Priority support'],
+    features: ['Unlimited proposals — zero caps', 'All freelance platforms supported', 'Priority speed — fastest generation', 'Priority support — replies within hours', 'Save ₦7,000 with annual billing'],
     popular: true,
-  },
-  {
-    id: 'ultra',
-    name: 'Ultra',
-    price: '₦5,000',
-    label: 'per month',
-    proposals: 'Unlimited + Priority',
-    features: ['Unlimited AI proposals', 'All platforms', 'Fastest speed', '24/7 priority support', 'Custom tone settings'],
   },
 ];
 
@@ -69,6 +67,7 @@ function SubscriptionInner() {
   const isSubscriptionSuccess = reference?.startsWith('PROP_SUB_');
 
   const [tab, setTab] = useState<'session' | 'monthly'>('session');
+  const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
   const [selected, setSelected] = useState('flash');
   const [buying, setBuying] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -119,7 +118,7 @@ function SubscriptionInner() {
           const u = data.user;
           setUser(
             u.id, u.email, u.first_name || null, u.last_name || null,
-            u.subscription_tier, u.proposal_count_this_month, u.proposal_limit_this_month
+            u.subscription_tier, u.proposal_count_this_month, u.proposal_limit_this_month, u.billing_period
           );
           addToast('Subscription activated!', 'success');
         }
@@ -169,7 +168,7 @@ function SubscriptionInner() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/init-subscription`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, billing_period: billingTab }),
         credentials: 'include',
       });
       const data = await response.json();
@@ -274,7 +273,7 @@ function SubscriptionInner() {
           Session
         </button>
         <button
-          onClick={() => handleTabChange('monthly')}
+          onClick={() => { handleTabChange('monthly'); setBillingTab('monthly'); }}
           className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
             tab === 'monthly' ? 'bg-white dark:bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           }`}
@@ -282,6 +281,28 @@ function SubscriptionInner() {
           Monthly
         </button>
       </div>
+
+      {/* Billing toggle (monthly only) */}
+      {tab === 'monthly' && (
+        <div className="flex gap-1 mb-8 p-1 bg-muted rounded-lg w-fit">
+          <button
+            onClick={() => setBillingTab('monthly')}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              billingTab === 'monthly' ? 'bg-white dark:bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBillingTab('annual')}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              billingTab === 'annual' ? 'bg-white dark:bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Annual
+          </button>
+        </div>
+      )}
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -302,12 +323,33 @@ function SubscriptionInner() {
             )}
 
             <div className="mb-4">
-              <p className="text-sm text-muted-foreground uppercase tracking-wider font-medium">{plan.name}</p>
-              <p className="text-3xl font-bold mt-2 text-foreground">
-                {plan.price}
-                <span className="text-sm font-normal text-muted-foreground">/{plan.label}</span>
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">{plan.proposals}</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wider font-medium">{(plan as any).name}</p>
+              {tab === 'session' ? (
+                <>
+                  <p className="text-3xl font-bold mt-2 text-foreground">
+                    {(plan as any).price}
+                    <span className="text-sm font-normal text-muted-foreground">/{(plan as any).label}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{(plan as any).proposals}</p>
+                </>
+              ) : billingTab === 'annual' ? (
+                <>
+                  <p className="text-3xl font-bold mt-2 text-foreground">
+                    {(plan as any).annualPrice}
+                    <span className="text-sm font-normal text-muted-foreground">/{(plan as any).annualLabel}</span>
+                  </p>
+                  <p className="text-xs text-brand-600 font-medium mt-0.5">{(plan as any).annualNote}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{(plan as any).proposals}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-3xl font-bold mt-2 text-foreground">
+                    {(plan as any).monthlyPrice}
+                    <span className="text-sm font-normal text-muted-foreground">/{(plan as any).label}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{(plan as any).proposals}</p>
+                </>
+              )}
             </div>
 
             <div className="flex-1 mb-6">

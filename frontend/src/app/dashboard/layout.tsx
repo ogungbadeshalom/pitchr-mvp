@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <Image src="/images/logo.jpg" alt="Pitchr" width={22} height={22} className="rounded" />
+              <Image src="/images/P.png" alt="Pitchr" width={22} height={22} className="rounded" />
               <span className="text-lg font-bold text-brand-600 tracking-tight">Pitchr</span>
             </Link>
             <span className="hidden sm:block text-sm text-muted-foreground">

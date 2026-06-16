@@ -4,6 +4,7 @@ import { query } from '../config/database';
 import { findUserByEmail, findUserByEmailWithPassword, findUserById, upsertUser } from '../database/queries';
 import { signToken } from '../config/jwt';
 import { AppError } from '../utils/errors';
+import { sendWelcomeEmail } from '../services/emailService';
 
 const router = Router();
 
@@ -34,6 +35,9 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction) =
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    sendWelcomeEmail(user.email, user.first_name || user.email).catch(() => {});
+
     res.status(201).json({ user, token });
   } catch (err) {
     next(err);

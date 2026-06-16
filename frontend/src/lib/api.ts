@@ -22,4 +22,14 @@ export async function initSessionPayment(plan: string, email: string) {
   return response.data;
 }
 
+export async function initSubscriptionPayment(plan: string, billingPeriod: string = 'monthly') {
+  const response = await api.post('/api/payments/init-subscription', { plan, billing_period: billingPeriod });
+  return response.data;
+}
+
+export async function confirmSubscription(reference: string) {
+  const response = await api.post('/api/payments/confirm-subscription', { reference });
+  return response.data;
+}
+
 export default api;

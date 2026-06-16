@@ -105,9 +105,8 @@ flash:  5 proposals, 30 min duration
 power: 20 proposals, 4 hour duration
 
 // Subscription limits (backend/src/database/queries.ts)
-starter: 10 proposals/month
+starter: 30 proposals/month
 pro:      0 = unlimited
-ultra:    0 = unlimited
 ```
 
 ## Payment Reference Format
@@ -117,7 +116,8 @@ PROP_flash_<timestamp>      → session payment
 PROP_power_<timestamp>      → session payment
 PROP_SUB_starter_<timestamp> → subscription payment
 PROP_SUB_pro_<timestamp>     → subscription payment
-PROP_SUB_ultra_<timestamp>   → subscription payment
+PROP_SUB_starter_annual_<timestamp> → subscription (annual)
+PROP_SUB_pro_annual_<timestamp>     → subscription (annual)
 ```
 
 ## Key Conventions
@@ -136,7 +136,7 @@ Tables: `users`, `sessions`, `proposals`, `payments`, `audit_logs`
 
 ## Tests
 
-Backend only. Vitest. Single test file: `src/services/__tests__/proposalEngine.test.ts`.
+Backend only. Vitest. 11 test suites across services, middleware, routes, config, database, and utils.
 
 ```bash
 cd backend && npm test              # all tests
