@@ -5,7 +5,21 @@ import { useSessionStore } from '../../../store/sessionStore';
 import { useToastStore } from '../../../store/toastStore';
 import { useUserStore } from '../../../store/userStore';
 
-const SESSION_PLANS = [
+interface Plan {
+  id: string;
+  name: string;
+  price?: string;
+  monthlyPrice?: string;
+  annualPrice?: string;
+  annualNote?: string;
+  label?: string;
+  annualLabel?: string;
+  proposals: string;
+  features: string[];
+  popular?: boolean;
+}
+
+const SESSION_PLANS: Plan[] = [
   {
     id: 'flash',
     name: 'Flash Session',
@@ -25,7 +39,7 @@ const SESSION_PLANS = [
   },
 ];
 
-const SUBSCRIPTION_PLANS = [
+const SUBSCRIPTION_PLANS: Plan[] = [
   {
     id: 'starter',
     name: 'Starter',
@@ -323,31 +337,31 @@ function SubscriptionInner() {
             )}
 
             <div className="mb-4">
-              <p className="text-sm text-muted-foreground uppercase tracking-wider font-medium">{(plan as any).name}</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wider font-medium">{plan.name}</p>
               {tab === 'session' ? (
                 <>
                   <p className="text-3xl font-bold mt-2 text-foreground">
-                    {(plan as any).price}
-                    <span className="text-sm font-normal text-muted-foreground">/{(plan as any).label}</span>
+                    {plan.price}
+                    <span className="text-sm font-normal text-muted-foreground">/{plan.label}</span>
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">{(plan as any).proposals}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{plan.proposals}</p>
                 </>
               ) : billingTab === 'annual' ? (
                 <>
                   <p className="text-3xl font-bold mt-2 text-foreground">
-                    {(plan as any).annualPrice}
-                    <span className="text-sm font-normal text-muted-foreground">/{(plan as any).annualLabel}</span>
+                    {plan.annualPrice}
+                    <span className="text-sm font-normal text-muted-foreground">/{plan.annualLabel}</span>
                   </p>
-                  <p className="text-xs text-brand-600 font-medium mt-0.5">{(plan as any).annualNote}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{(plan as any).proposals}</p>
+                  <p className="text-xs text-brand-600 font-medium mt-0.5">{plan.annualNote}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{plan.proposals}</p>
                 </>
               ) : (
                 <>
                   <p className="text-3xl font-bold mt-2 text-foreground">
-                    {(plan as any).monthlyPrice}
-                    <span className="text-sm font-normal text-muted-foreground">/{(plan as any).label}</span>
+                    {plan.monthlyPrice}
+                    <span className="text-sm font-normal text-muted-foreground">/{plan.label}</span>
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">{(plan as any).proposals}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{plan.proposals}</p>
                 </>
               )}
             </div>
