@@ -88,6 +88,17 @@ function SubscriptionInner() {
   const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/user', { credentials: 'include' });
+        if (!res.ok) { router.push('/auth/login'); return; }
+      } catch {
+        router.push('/auth/login');
+      }
+    })();
+  }, [router]);
+
+  useEffect(() => {
     if (!reference) return;
 
     if (isSessionSuccess) {

@@ -330,7 +330,7 @@ export default function Home() {
                     <ul className="text-sm text-muted-foreground mb-5 mt-3 space-y-1 list-disc list-inside">
                       {features.map((f, i) => <li key={i}>{f}</li>)}
                     </ul>
-                    <Link href="/auth/signup" className="block w-full text-center bg-brand-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-brand-700 transition-all">Start {name}</Link>
+                    <Link href="/dashboard/subscription" className="block w-full text-center bg-brand-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-brand-700 transition-all">Start {name}</Link>
                   </div>
                 ))}
               </div>
