@@ -1,0 +1,24 @@
+# ── Production Caddyfile ──────────────────────────────────
+# Replace pitchr.com.ng with YOUR actual domain
+#
+# Usage: docker compose up -d
+# Caddy auto-provisions SSL via Let's Encrypt.
+
+pitchr.com.ng {
+    reverse_proxy frontend:3000
+    log {
+        output file /data/logs/frontend.log
+    }
+}
+
+api.pitchr.com.ng {
+    reverse_proxy backend:5001
+    log {
+        output file /data/logs/backend.log
+    }
+}
+
+# Optional: redirect www to non-www
+www.pitchr.com.ng {
+    redir https://pitchr.com.ng{uri} permanent
+}
