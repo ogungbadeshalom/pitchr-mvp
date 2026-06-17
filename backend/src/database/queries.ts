@@ -51,17 +51,28 @@ export async function createSession(
   plan: string,
   email: string,
   expiresAt: Date,
-  proposalsLimit: number
+  proposalsLimit: number,
+  paymentReference?: string
 ): Promise<Session> {
   const result = await query(
-    `INSERT INTO sessions (token, plan, email, expires_at, proposals_limit) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [token, plan, email, expiresAt, proposalsLimit]
+    `INSERT INTO sessions (token, plan, email, expires_at, proposals_limit, payment_reference) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [token, plan, email, expiresAt, proposalsLimit, paymentReference || null]
   );
   return result.rows[0];
 }
 
 export async function findSessionByToken(token: string): Promise<Session | null> {
   const result = await query('SELECT * FROM sessions WHERE token = $1', [token]);
+  return result.rows[0] || null;
+}
+
+export async function findSessionByPaymentReference(reference: string): Promise<Session | null> {
+  const result = await query('SELECT * FROM sessions WHERE payment_reference = $1', [reference]);
+  return result.rows[0] || null;
+}
+
+export async function findPaymentByReference(reference: string): Promise<Payment | null> {
+  const result = await query('SELECT * FROM payments WHERE flutterwave_reference = $1', [reference]);
   return result.rows[0] || null;
 }
 

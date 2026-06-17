@@ -97,7 +97,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Image src="/images/P.png" alt="Pitchr" width={24} height={24} className="rounded" />
+            <Image src="/images/P.png" alt="Pitchr logo" width={24} height={24} className="rounded" />
             <span className="text-2xl font-bold text-brand-600 tracking-tight">Pitchr</span>
           </Link>
         </div>
