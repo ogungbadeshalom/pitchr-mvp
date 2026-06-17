@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Link href="/admin" className="flex items-center gap-2">
-              <Image src="/images/P.png" alt="Pitchr" width={22} height={22} className="rounded" />
+              <Image src="/images/P.png" alt="Pitchr logo" width={22} height={22} className="rounded" />
               <span className="text-lg font-bold text-brand-600 tracking-tight">Pitchr</span>
             </Link>
             <span className="text-xs bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-medium">Admin</span>
@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
-        {children}
+        <main>{children}</main>
       </div>
     </div>
   );

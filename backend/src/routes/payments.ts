@@ -3,10 +3,11 @@ import { z } from 'zod';
 import { initSessionPayment, initSubscriptionPayment, verifyWebhookSignature, getSessionPrice, getSubscriptionPrice, getAnnualPrice } from '../services/paymentService';
 import { generateSessionToken, getSessionLimit, getSessionDuration } from '../services/sessionService';
 import { sendReceipt } from '../services/emailService';
-import { createSession, createPayment, updatePaymentStatus, updateUserSubscription, cancelUserSubscription, createAuditLog, findUserByEmail, findUserById } from '../database/queries';
+import { createSession, createPayment, updatePaymentStatus, updateUserSubscription, cancelUserSubscription, createAuditLog, findUserByEmail, findUserById, findPaymentByReference } from '../database/queries';
 import { query } from '../config/database';
 import { requireAuth } from '../middleware/auth';
 import { ValidationError } from '../utils/errors';
+import { getFlutterwaveConfig } from '../config/flutterwave';
 
 const router = Router();
 
@@ -86,29 +87,61 @@ router.post('/confirm-subscription', requireAuth, async (req, res, next) => {
     }
 
     const userId = (req as any).userId;
-    const days = billingPeriod === 'annual' ? 365 : 30;
-    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 
-    await updateUserSubscription(userId, plan, expiresAt, billingPeriod);
+    // 1. Check if payment record exists
+    const payment = await findPaymentByReference(reference);
 
-    try { await updatePaymentStatus(reference, 'completed'); } catch { /* ok if no payment record yet */ }
+    // 2. If already completed (webhook processed it), return success
+    if (payment && payment.status === 'completed') {
+      const user = await findUserById(userId);
+      if (!user) return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
 
-    await createAuditLog(userId, 'subscription_created', 'users', userId, { plan });
+      const safeUser = {
+        id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name,
+        subscription_tier: user.subscription_tier, subscription_started_at: user.subscription_started_at,
+        subscription_ended_at: user.subscription_ended_at, proposal_count_this_month: user.proposal_count_this_month,
+        proposal_limit_this_month: user.proposal_limit_this_month, billing_period: user.billing_period, created_at: user.created_at,
+      };
+      return res.json({ message: 'Subscription already active', user: safeUser });
+    }
 
-    const user = await findUserById(userId);
-    if (user) {
+    // 3. In mock mode with a payment record, activate the subscription
+    const isMock = getFlutterwaveConfig().secretKey === 'sk_placeholder';
+    if (isMock && payment) {
+      const days = billingPeriod === 'annual' ? 365 : 30;
+      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+
+      await updateUserSubscription(userId, plan, expiresAt, billingPeriod);
+      try { await updatePaymentStatus(reference, 'completed'); } catch { /* ok */ }
+      await createAuditLog(userId, 'subscription_created', 'users', userId, { plan });
+
+      const user = await findUserById(userId);
+      if (!user) return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
+
       const price = billingPeriod === 'annual' ? getAnnualPrice(plan) : getSubscriptionPrice(plan);
       sendReceipt(user.email, plan, price, reference).catch(() => {});
-    }
-    if (!user) return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
 
-    const safeUser = {
-      id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name,
-      subscription_tier: user.subscription_tier, subscription_started_at: user.subscription_started_at,
-      subscription_ended_at: user.subscription_ended_at, proposal_count_this_month: user.proposal_count_this_month,
-      proposal_limit_this_month: user.proposal_limit_this_month, billing_period: user.billing_period, created_at: user.created_at,
-    };
-    res.json({ message: 'Subscription activated', user: safeUser });
+      const safeUser = {
+        id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name,
+        subscription_tier: user.subscription_tier, subscription_started_at: user.subscription_started_at,
+        subscription_ended_at: user.subscription_ended_at, proposal_count_this_month: user.proposal_count_this_month,
+        proposal_limit_this_month: user.proposal_limit_this_month, billing_period: user.billing_period, created_at: user.created_at,
+      };
+      return res.json({ message: 'Subscription activated', user: safeUser });
+    }
+
+    // 4. Mock mode but no payment record — forged reference
+    if (isMock && !payment) {
+      return res.status(402).json({ error: 'PAYMENT_NOT_FOUND', message: 'No payment record found for this reference.' });
+    }
+
+    // 5. Real mode: payment exists but not completed — reject
+    if (payment && payment.status === 'pending') {
+      return res.status(402).json({ error: 'PAYMENT_PENDING', message: 'Your payment is still being processed. Please wait for confirmation.' });
+    }
+
+    // 6. No payment record — forged reference
+    return res.status(402).json({ error: 'PAYMENT_NOT_FOUND', message: 'No payment record found for this reference.' });
   } catch (err) {
     next(err);
   }
@@ -146,7 +179,7 @@ router.post('/webhook', async (req, res) => {
       const duration = getSessionDuration(plan);
       const expiresAt = new Date(Date.now() + duration);
 
-      const session = await createSession(token, plan, customer.email, expiresAt, limit);
+      const session = await createSession(token, plan, customer.email, expiresAt, limit, tx_ref);
       await query('UPDATE sessions SET payment_status = $1 WHERE id = $2', ['completed', session.id]);
       await createAuditLog(null, 'session_created', 'sessions', '', { plan, token });
       sendReceipt(customer.email, `session_${plan}`, data.amount, tx_ref).catch(() => {});
