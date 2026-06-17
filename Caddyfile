@@ -1,10 +1,10 @@
 pitchr.com.ng {
-    reverse_proxy /api* backend:5001
-    reverse_proxy frontend:3000
+    reverse_proxy /api* localhost:5001
+    reverse_proxy localhost:3000
 }
 
 api.pitchr.com.ng {
-    reverse_proxy backend:5001
+    reverse_proxy localhost:5001
 }
 
 www.pitchr.com.ng {
