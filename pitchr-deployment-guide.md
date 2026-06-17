@@ -246,7 +246,82 @@ docker stats
 
 ---
 
-## 10. Troubleshooting
+## 10. Now What? (Post-Launch Steps)
+
+### 10.1 Verify Health
+
+```bash
+# From your VPS
+curl http://localhost:5001/api/health
+```
+
+Expected output:
+```json
+{"status":"ok","timestamp":"2026-06-17T...","database":"connected"}
+```
+
+If you see `database: "connected"`, everything is wired up correctly.
+
+### 10.2 Set Up DNS
+
+In your domain registrar, add these **A records** pointing to your VPS IP:
+
+| Type | Name | Value |
+|------|------|-------|
+| A | `@` | `your-vps-ip` |
+| A | `api` | `your-vps-ip` |
+| A | `www` | `your-vps-ip` |
+
+Once DNS propagates, Caddy auto-provisions SSL — your site will be HTTPS.
+
+### 10.3 Set Up Flutterwave Webhook
+
+In Flutterwave Dashboard → Settings → Webhooks, add:
+```
+https://api.yourdomain.com.ng/api/payments/webhook
+```
+
+This lets Pitchr handle payment confirmations automatically (session activation, subscription activation, email receipts).
+
+### 10.4 Test the Full Flow
+
+- Open `http://your-vps-ip` in a browser
+- Sign up with email
+- Buy a Flash Session (₦500) — test payment with Flutterwave test card
+- Generate a proposal — paste any job description
+- Verify the proposal saves to your dashboard
+- Test dark mode toggle
+- Test on mobile
+
+### 10.5 Updating After Code Changes
+
+```bash
+ssh root@your-vps-ip
+cd /root/pitchr
+git pull
+docker compose up -d --build
+```
+
+### 10.6 Monitoring
+
+```bash
+# Check logs for errors
+docker compose logs -f --tail=50
+
+# Check disk space
+df -h
+
+# Check memory usage
+free -m
+
+# Set up automatic security updates
+apt install unattended-upgrades
+dpkg-reconfigure --priority=low unattended-upgrades
+```
+
+---
+
+## 12. Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
@@ -260,7 +335,7 @@ docker stats
 
 ---
 
-## 11. Monthly Cost
+## 13. Monthly Cost
 
 | Item | Cost |
 |------|------|
