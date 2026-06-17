@@ -10,6 +10,7 @@ import { useCopy } from '../../hooks/useCopy';
 import { generateProposal, initSessionPayment } from '../../lib/api';
 import { Button } from '../../components/ui/button';
 import SessionTimer from '../../components/session-timer';
+import ThemeToggle from '../../components/ui/theme-toggle';
 import { AxiosError } from 'axios';
 
 export default function SessionPage() {
@@ -153,22 +154,25 @@ export default function SessionPage() {
               Dashboard
             </Link>
           </div>
-          {canGenerate && hydrated && (
-            <div className="flex items-center gap-3 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-                <span className="text-muted-foreground">
-                  {displayRemaining === Infinity ? 'Unlimited' : `${displayRemaining} proposal${displayRemaining !== 1 ? 's' : ''} remaining`}
-                </span>
+          <div className="flex items-center gap-3">
+            {canGenerate && hydrated && (
+              <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+                  <span className="text-muted-foreground">
+                    {displayRemaining === Infinity ? 'Unlimited' : `${displayRemaining} proposal${displayRemaining !== 1 ? 's' : ''} remaining`}
+                  </span>
+                </div>
+                {token && (
+                  <>
+                    <span className="text-muted-foreground/30">|</span>
+                    <SessionTimer />
+                  </>
+                )}
               </div>
-              {token && (
-                <>
-                  <span className="text-muted-foreground/30">|</span>
-                  <SessionTimer />
-                </>
-              )}
-            </div>
-          )}
+            )}
+            <ThemeToggle className="w-8 h-8 rounded-lg bg-background border border-border flex items-center justify-center hover:shadow-md hover:border-brand-300 transition-all shrink-0" />
+          </div>
         </div>
       </header>
 

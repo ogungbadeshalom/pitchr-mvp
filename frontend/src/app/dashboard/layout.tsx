@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUserStore } from '../../store/userStore'
+import ThemeToggle from '../../components/ui/theme-toggle'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Overview', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
@@ -28,12 +29,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {firstName ? `${firstName}'s workspace` : 'Dashboard'}
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/session" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/session" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-brand-700 transition-colors shadow-sm">
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              New Proposal
+              <span className="hidden sm:inline">New Proposal</span>
             </Link>
             <button
               onClick={() => {
@@ -44,6 +45,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               Sign out
             </button>
+            <ThemeToggle className="w-8 h-8 rounded-lg bg-background border border-border flex items-center justify-center hover:shadow-md hover:border-brand-300 transition-all shrink-0" />
           </div>
         </div>
       </header>

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { ToastContainer } from '../components/ui/toast'
-import ThemeToggle from '../components/ui/theme-toggle'
 import PwaSetup from '../components/pwa-setup'
 
 export const metadata: Metadata = {
@@ -26,7 +25,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <PwaSetup />
         <ToastContainer />
-        <ThemeToggle />
       </body>
     </html>
   )

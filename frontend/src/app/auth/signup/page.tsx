@@ -8,6 +8,7 @@ import { useToastStore } from '../../../store/toastStore';
 import { useUserStore } from '../../../store/userStore';
 import { initSuperTokens } from '../../../lib/supertokens';
 import { getAuthorisationURLWithQueryParamsAndSetState } from 'supertokens-web-js/recipe/thirdparty';
+import ThemeToggle from '../../../components/ui/theme-toggle';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -92,7 +93,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-brand-50 via-white to-teal-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-950">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-brand-50 via-white to-teal-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-950 relative">
+      <ThemeToggle className="absolute top-4 right-4 w-9 h-9 rounded-lg bg-background border border-border shadow-sm flex items-center justify-center hover:shadow-md hover:border-brand-300 transition-all" />
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
