@@ -1,5 +1,4 @@
 services:
-  # ── Database ─────────────────────────────────────────
   postgres:
     image: postgres:15
     container_name: pitchr-postgres
@@ -18,7 +17,6 @@ services:
       retries: 5
       start_period: 30s
 
-  # ── Auth (SuperTokens) ──────────────────────────────
   supertokens:
     image: registry.supertokens.io/supertokens/supertokens-postgresql:latest
     container_name: pitchr-supertokens
@@ -29,27 +27,24 @@ services:
     environment:
       POSTGRESQL_CONNECTION_URI: postgresql://${POSTGRES_USER:-pitchr}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-pitchr}
 
-  # ── Backend API ─────────────────────────────────────
   backend:
     build: ./backend
     container_name: pitchr-backend
     restart: unless-stopped
-    ports:
-      - "5001:5001"
     env_file: .env
     depends_on:
       postgres:
         condition: service_healthy
       supertokens:
         condition: service_started
+    dns: 8.8.8.8
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-pitchr}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-pitchr}
       SUPERTOKENS_URI: http://supertokens:3567
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-      API_URL: ${API_URL:-http://localhost:5001}
+      FRONTEND_URL: ${FRONTEND_URL:-https://pitchr.com.ng}
+      API_URL: ${API_URL:-https://api.pitchr.com.ng}
 
-  # ── Frontend (Next.js) ──────────────────────────────
   frontend:
     build:
       context: ./frontend
@@ -57,11 +52,25 @@ services:
         NEXT_PUBLIC_API_URL: ""
     container_name: pitchr-frontend
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     env_file: .env
+    dns: 8.8.8.8
     depends_on:
       - backend
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: pitchr-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    dns: 8.8.8.8
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:

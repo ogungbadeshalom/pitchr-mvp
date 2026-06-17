@@ -1,0 +1,12 @@
+pitchr.com.ng {
+    reverse_proxy /api* backend:5001
+    reverse_proxy frontend:3000
+}
+
+api.pitchr.com.ng {
+    reverse_proxy backend:5001
+}
+
+www.pitchr.com.ng {
+    redir https://pitchr.com.ng{uri} permanent
+}
