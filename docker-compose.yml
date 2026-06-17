@@ -34,8 +34,6 @@ services:
     build: ./backend
     container_name: pitchr-backend
     restart: unless-stopped
-    ports:
-      - "5001:5001"
     env_file: .env
     depends_on:
       postgres:
@@ -54,13 +52,29 @@ services:
     build: ./frontend
     container_name: pitchr-frontend
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     env_file: .env
     depends_on:
       - backend
     environment:
       NEXT_PUBLIC_API_URL: ${API_URL:-https://api.pitchr.com.ng}
 
+  # ── Reverse Proxy (Caddy — auto SSL) ────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: pitchr-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:
