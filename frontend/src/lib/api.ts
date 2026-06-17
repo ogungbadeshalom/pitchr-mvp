@@ -1,7 +1,16 @@
 import axios from 'axios';
 
+function getApiUrl() {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') {
+    const { hostname } = window.location;
+    return `http://${hostname}:5001`;
+  }
+  return 'http://localhost:5001';
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '',
+  baseURL: getApiUrl(),
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });

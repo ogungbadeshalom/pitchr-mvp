@@ -42,13 +42,12 @@ services:
         condition: service_healthy
       supertokens:
         condition: service_started
-    dns: 8.8.8.8
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-pitchr}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-pitchr}
       SUPERTOKENS_URI: http://supertokens:3567
-      FRONTEND_URL: ${FRONTEND_URL:-https://pitchr.com.ng}
-      API_URL: ${API_URL:-https://api.pitchr.com.ng}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      API_URL: ${API_URL:-http://localhost:5001}
 
   # ── Frontend (Next.js) ──────────────────────────────
   frontend:
@@ -58,29 +57,11 @@ services:
         NEXT_PUBLIC_API_URL: ""
     container_name: pitchr-frontend
     restart: unless-stopped
-    env_file: .env
-    dns: 8.8.8.8
-    depends_on:
-      - backend
-
-  # ── Reverse Proxy (Caddy — auto SSL) ────────────────
-  caddy:
-    image: caddy:2-alpine
-    container_name: pitchr-caddy
-    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-    dns: 8.8.8.8
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - "3000:3000"
+    env_file: .env
     depends_on:
       - backend
-      - frontend
 
 volumes:
   pgdata:
-  caddy_data:
-  caddy_config:
