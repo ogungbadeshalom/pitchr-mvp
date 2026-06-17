@@ -21,7 +21,7 @@ export default function AuthCallbackPage() {
         if (response.status === 'OK') {
           const { user } = response;
           const finish = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/auth/google-finish`,
+            '/api/auth/google-finish',
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },

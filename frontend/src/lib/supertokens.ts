@@ -5,10 +5,11 @@ let initialized = false;
 
 export function initSuperTokens() {
   if (initialized || typeof window === 'undefined') return;
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5001';
   SuperTokens.init({
     appInfo: {
       appName: 'Pitchr',
-      apiDomain: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001',
+      apiDomain: origin,
       apiBasePath: '/api/auth',
     },
     recipeList: [
