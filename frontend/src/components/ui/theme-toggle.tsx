@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
-function SunIcon() {
+function SunIcon({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-500">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
       <line x1="12" y1="21" x2="12" y2="23" />
@@ -18,15 +18,15 @@ function SunIcon() {
   );
 }
 
-function MoonIcon() {
+function MoonIcon({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-300">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
 }
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ className }: { className?: string }) {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -36,9 +36,7 @@ export default function ThemeToggle() {
       const isDark = stored ? stored === 'dark' : prefersDark;
       setDark(isDark);
       document.documentElement.classList.toggle('dark', isDark);
-    } catch {
-      // localStorage unavailable (private mode, etc.) — stay light
-    }
+    } catch {}
   }, []);
 
   function toggle() {
@@ -47,18 +45,16 @@ export default function ThemeToggle() {
     document.documentElement.classList.toggle('dark', next);
     try {
       localStorage.setItem('pitchr_theme', next ? 'dark' : 'light');
-    } catch {
-      // localStorage unavailable
-    }
+    } catch {}
   }
 
   return (
     <button
       onClick={toggle}
-      className="fixed top-4 right-4 z-[100] w-9 h-9 rounded-lg bg-background border border-border shadow-sm flex items-center justify-center hover:shadow-md hover:border-brand-300 transition-all"
+      className={className || 'w-9 h-9 rounded-lg bg-background border border-border shadow-sm flex items-center justify-center hover:shadow-md hover:border-brand-300 transition-all'}
       aria-label="Toggle dark mode"
     >
-      {dark ? <SunIcon /> : <MoonIcon />}
+      {dark ? <SunIcon className="text-brand-500" /> : <MoonIcon className="text-brand-300" />}
     </button>
   );
 }

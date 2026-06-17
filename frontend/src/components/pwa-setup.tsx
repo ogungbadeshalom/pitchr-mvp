@@ -17,6 +17,10 @@ export default function PwaSetup() {
 
     const handler = (e: Event) => {
       e.preventDefault();
+      try {
+        const last = localStorage.getItem('pitchr_pwa_dismissed');
+        if (last && Date.now() - Number(last) < 7 * 24 * 60 * 60 * 1000) return;
+      } catch {}
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowInstall(true);
     };
