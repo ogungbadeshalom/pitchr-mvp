@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: pitchr-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pitchr
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pitchr
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pitchr -d pitchr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  supertokens:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:latest
+    container_name: pitchr-supertokens
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRESQL_CONNECTION_URI: postgresql://pitchr:password@postgres:5432/pitchr
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: pitchr-backend
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      supertokens:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      DATABASE_URL: postgresql://pitchr:password@postgres:5432/pitchr
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_BASE_URL: https://api.deepseek.com/v1
+      FLUTTERWAVE_PUBLIC_KEY: ${FLUTTERWAVE_PUBLIC_KEY}
+      FLUTTERWAVE_SECRET_KEY: ${FLUTTERWAVE_SECRET_KEY}
+      SUPERTOKENS_URI: http://supertokens:3567
+      SUPERTOKENS_API_KEY: placeholder
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      ZEPTOMAIL_API_KEY: ${ZEPTOMAIL_API_KEY}
+      ZEPTOMAIL_FROM: noreply@pitchr.com.ng
+      FRONTEND_URL: https://pitchr.com.ng
+      API_URL: https://api.pitchr.com.ng
+      LOG_LEVEL: info
+      JWT_SECRET: ${JWT_SECRET}
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: pitchr-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.pitchr.com.ng
+
+volumes:
+  pgdata:
+    driver: local
