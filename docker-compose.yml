@@ -1,34 +1,80 @@
 services:
+  # ── Database ─────────────────────────────────────────
   postgres:
     image: postgres:15
+    container_name: pitchr-postgres
+    restart: unless-stopped
+    env_file: .env
     environment:
-      POSTGRES_USER: pitchr
-      POSTGRES_PASSWORD: pitchr
-      POSTGRES_DB: pitchr
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER:-pitchr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-pitchr}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pitchr"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pitchr} -d ${POSTGRES_DB:-pitchr}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
+  # ── Auth (SuperTokens) ──────────────────────────────
   supertokens:
-    image: registry.supertokens.io/supertokens/supertokens-postgresql:7.0
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:latest
+    container_name: pitchr-supertokens
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      POSTGRESQL_CONNECTION_URI: postgresql://pitchr:pitchr@postgres:5432/pitchr
+      POSTGRESQL_CONNECTION_URI: postgresql://${POSTGRES_USER:-pitchr}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-pitchr}
+
+  # ── Backend API ─────────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: pitchr-backend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      supertokens:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-pitchr}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-pitchr}
+      SUPERTOKENS_URI: http://supertokens:3567
+      FRONTEND_URL: ${FRONTEND_URL:-https://pitchr.com.ng}
+      API_URL: ${API_URL:-https://api.pitchr.com.ng}
+
+  # ── Frontend (Next.js) ──────────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: pitchr-frontend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: ${API_URL:-https://api.pitchr.com.ng}
+
+  # ── Reverse Proxy (Caddy — auto SSL) ────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: pitchr-caddy
+    restart: unless-stopped
     ports:
-      - "3567:3567"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3567/hello"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
 
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:
