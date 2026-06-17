@@ -1,0 +1,16 @@
+{
+  "name": "pitchr-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pitchr — AI proposal generator for Nigerian freelancers",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "test": "cd backend && npm test",
+    "typecheck": "cd backend && npx tsc --noEmit && cd ../frontend && npx tsc --noEmit",
+    "lint": "cd frontend && npx next lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
