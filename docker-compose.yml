@@ -34,12 +34,15 @@ services:
     build: ./backend
     container_name: pitchr-backend
     restart: unless-stopped
+    ports:
+      - "5001:5001"
     env_file: .env
     depends_on:
       postgres:
         condition: service_healthy
       supertokens:
         condition: service_started
+    dns: 8.8.8.8
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-pitchr}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-pitchr}
@@ -52,7 +55,10 @@ services:
     build: ./frontend
     container_name: pitchr-frontend
     restart: unless-stopped
+    ports:
+      - "3000:3000"
     env_file: .env
+    dns: 8.8.8.8
     depends_on:
       - backend
     environment:
@@ -66,6 +72,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    dns: 8.8.8.8
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
