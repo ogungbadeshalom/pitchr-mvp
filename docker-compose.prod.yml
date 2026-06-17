@@ -26,51 +26,6 @@ services:
     environment:
       POSTGRESQL_CONNECTION_URI: postgresql://pitchr:password@postgres:5432/pitchr
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: pitchr-backend
-    restart: unless-stopped
-    ports:
-      - "5001:5001"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      supertokens:
-        condition: service_started
-    environment:
-      NODE_ENV: production
-      PORT: 5001
-      DATABASE_URL: postgresql://pitchr:password@postgres:5432/pitchr
-      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
-      DEEPSEEK_BASE_URL: https://api.deepseek.com/v1
-      FLUTTERWAVE_PUBLIC_KEY: ${FLUTTERWAVE_PUBLIC_KEY}
-      FLUTTERWAVE_SECRET_KEY: ${FLUTTERWAVE_SECRET_KEY}
-      SUPERTOKENS_URI: http://supertokens:3567
-      SUPERTOKENS_API_KEY: placeholder
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      ZEPTOMAIL_API_KEY: ${ZEPTOMAIL_API_KEY}
-      ZEPTOMAIL_FROM: noreply@pitchr.com.ng
-      FRONTEND_URL: https://pitchr.com.ng
-      API_URL: https://api.pitchr.com.ng
-      LOG_LEVEL: info
-      JWT_SECRET: ${JWT_SECRET}
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: pitchr-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    environment:
-      NEXT_PUBLIC_API_URL: https://api.pitchr.com.ng
-
 volumes:
   pgdata:
     driver: local
