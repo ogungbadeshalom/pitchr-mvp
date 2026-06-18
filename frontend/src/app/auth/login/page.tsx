@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '../../../components/ui/button';
 import { useToastStore } from '../../../store/toastStore';
-import { useSessionStore } from '../../../store/sessionStore';
 import { useUserStore } from '../../../store/userStore';
 import { initSuperTokens } from '../../../lib/supertokens';
 import { getAuthorisationURLWithQueryParamsAndSetState } from 'supertokens-web-js/recipe/thirdparty';
@@ -21,7 +20,6 @@ export default function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
-  const clearSession = useSessionStore((s) => s.clearSession);
   const setUser = useUserStore((s) => s.setUser);
 
   async function handleGoogleSignIn() {
@@ -80,7 +78,6 @@ export default function LoginPage() {
           const u = data.user;
           setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0);
         }
-        clearSession();
         router.push('/dashboard');
       } else {
         const data = await response.json();
