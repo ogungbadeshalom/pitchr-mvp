@@ -77,15 +77,15 @@ function SubscriptionInner() {
   const subscriptionTier = useUserStore((s) => s.subscriptionTier);
 
   const reference = searchParams.get('reference');
-  const isSessionSuccess = reference?.startsWith('PROP_flash') || reference?.startsWith('PROP_power');
-  const isSubscriptionSuccess = reference?.startsWith('PROP_SUB_');
+  const hasRef = typeof reference === 'string' && reference.length > 0;
 
   const [tab, setTab] = useState<'session' | 'monthly'>('session');
   const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
   const [selected, setSelected] = useState('flash');
   const [buying, setBuying] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
-  const [confirming, setConfirming] = useState(false);
+  const [payStatus, setPayStatus] = useState<'processing' | 'session_ok' | 'sub_ok' | 'error' | null>(hasRef ? 'processing' : null);
+  const [payError, setPayError] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -101,62 +101,70 @@ function SubscriptionInner() {
   useEffect(() => {
     if (!reference) return;
 
-    if (isSessionSuccess) {
-      (async () => {
-        try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sessions/claim`, {
+    const isFlash = reference.startsWith('PROP_flash');
+    const isPower = reference.startsWith('PROP_power');
+    const isSub = reference.startsWith('PROP_SUB_');
+
+    if (!isFlash && !isPower && !isSub) {
+      setPayStatus('error');
+      setPayError('Invalid payment reference.');
+      return;
+    }
+
+    (async () => {
+      try {
+        if (isFlash || isPower) {
+          const res = await fetch('/api/sessions/claim', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ reference }),
           });
+          const data = await res.json();
+
           if (res.ok) {
-            const data = await res.json();
             useSessionStore.getState().setSession(data.token, data.plan, data.expiresAt, data.limit);
+            setClaimedToken(data.token);
+            setPayStatus('session_ok');
             addToast('Session activated!', 'success');
+          } else {
+            const msg = data.message || 'Payment could not be verified.';
+            setPayError(msg);
+            setPayStatus('error');
           }
-        } catch { /* fallback — ignore */ }
-      })();
-      return;
-    }
-
-    if (!isSubscriptionSuccess) return;
-
-    let cancelled = false;
-    setConfirming(true);
-
-    (async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/confirm-subscription`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reference }),
-          credentials: 'include',
-        });
-
-        if (!res.ok) {
-          addToast('Payment confirmation failed. If your card was charged, contact support.', 'error');
           return;
         }
 
-        const data = await res.json();
-        if (!cancelled && data.user) {
-          const u = data.user;
-          setUser(
-            u.id, u.email, u.first_name || null, u.last_name || null,
-            u.subscription_tier, u.proposal_count_this_month, u.proposal_limit_this_month, u.billing_period
-          );
-          addToast('Subscription activated!', 'success');
+        if (isSub) {
+          const res = await fetch('/api/payments/confirm-subscription', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference }),
+            credentials: 'include',
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            if (data.user) {
+              const u = data.user;
+              setUser(
+                u.id, u.email, u.first_name || null, u.last_name || null,
+                u.subscription_tier, u.proposal_count_this_month, u.proposal_limit_this_month, u.billing_period
+              );
+            }
+            setPayStatus('sub_ok');
+            addToast('Subscription activated!', 'success');
+          } else {
+            const msg = data.message || 'Payment could not be verified.';
+            setPayError(msg);
+            setPayStatus('error');
+          }
         }
       } catch {
-        if (!cancelled) addToast('Connection error confirming payment', 'error');
-      } finally {
-        if (!cancelled) setConfirming(false);
+        setPayError('Connection error verifying payment.');
+        setPayStatus('error');
       }
     })();
-
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reference, router, addToast, setUser]);
 
   function handleTabChange(newTab: 'session' | 'monthly') {
     setTab(newTab);
@@ -226,37 +234,44 @@ function SubscriptionInner() {
     }
   }
 
-  // --- Success states (no plans grid shown) ---
+  // --- Payment confirmation states ---
 
-  if (isSubscriptionSuccess) {
+  if (payStatus === 'processing') {
     return (
-      <div className="bg-teal-50 border border-teal-200 rounded-xl p-8 text-center max-w-lg mx-auto">
-        <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
-          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
-            <polyline points="20 6 9 17 4 12"/>
+      <div className="bg-brand-50 border border-brand-200 rounded-xl p-8 text-center max-w-lg mx-auto">
+        <div className="w-14 h-14 rounded-full bg-brand-100 flex items-center justify-center mx-auto mb-4">
+          <svg aria-hidden="true" className="animate-spin h-7 w-7 text-brand-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-foreground mb-2">
-          {confirming ? 'Activating your subscription...' : 'Subscription Active!'}
-        </h2>
-        <p className="text-sm text-muted-foreground mb-6">
-          {confirming
-            ? 'Please wait while we confirm your payment and activate your plan.'
-            : 'Your plan is now live — start generating winning proposals.'}
-        </p>
-        {!confirming && (
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
-          >
-            Go to Dashboard
-          </button>
-        )}
+        <h2 className="text-xl font-bold text-foreground mb-2">Verifying your payment...</h2>
+        <p className="text-sm text-muted-foreground">Please wait while we confirm your payment with Flutterwave.</p>
       </div>
     );
   }
 
-  if (isSessionSuccess) {
+  if (payStatus === 'error') {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center max-w-lg mx-auto">
+        <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600">
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-foreground mb-2">Payment Not Confirmed</h2>
+        <p className="text-sm text-muted-foreground mb-6">{payError || 'Your payment could not be verified. If you were charged, contact support.'}</p>
+        <button
+          onClick={() => { setPayStatus(null); setPayError(''); }}
+          className="bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (payStatus === 'session_ok') {
     return (
       <div className="bg-teal-50 border border-teal-200 rounded-xl p-8 text-center max-w-lg mx-auto">
         <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
@@ -264,13 +279,33 @@ function SubscriptionInner() {
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-foreground mb-2">Session Payment Successful!</h2>
+        <h2 className="text-xl font-bold text-foreground mb-2">Session Activated!</h2>
         <p className="text-sm text-muted-foreground mb-6">Your session is ready. Head to the proposal generator to start.</p>
         <button
           onClick={() => router.push('/session')}
           className="bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
         >
           Start Generating
+        </button>
+      </div>
+    );
+  }
+
+  if (payStatus === 'sub_ok') {
+    return (
+      <div className="bg-teal-50 border border-teal-200 rounded-xl p-8 text-center max-w-lg mx-auto">
+        <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-foreground mb-2">Subscription Active!</h2>
+        <p className="text-sm text-muted-foreground mb-6">Your plan is now live — start generating winning proposals.</p>
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+        >
+          Go to Dashboard
         </button>
       </div>
     );
