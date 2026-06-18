@@ -88,6 +88,7 @@ function SubscriptionInner() {
   const [payError, setPayError] = useState('');
 
   useEffect(() => {
+    if (reference) return;
     (async () => {
       try {
         const res = await fetch('/api/user', { credentials: 'include' });
@@ -96,7 +97,7 @@ function SubscriptionInner() {
         router.push('/auth/login');
       }
     })();
-  }, [router]);
+  }, [reference, router]);
 
   useEffect(() => {
     if (!reference) return;
