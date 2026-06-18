@@ -101,6 +101,52 @@ export async function initSubscriptionPayment(plan: string, email: string, front
   }
 }
 
+export async function verifyFlutterwaveTransaction(txRef: string): Promise<{ status: string; amount: number; email: string } | null> {
+  const cfg = getFlutterwaveConfig();
+
+  if (cfg.secretKey === 'sk_placeholder') {
+    return { status: 'successful', amount: 500, email: 'mock@pitchr.ng' };
+  }
+
+  try {
+    const response = await fetch(
+      `${cfg.baseUrl}/transactions/verify_by_reference?tx_ref=${encodeURIComponent(txRef)}`,
+      {
+        headers: { Authorization: `Bearer ${cfg.secretKey}` },
+      }
+    );
+
+    if (!response.ok) {
+      logger.warn('Flutterwave verify failed', { status: response.status, txRef });
+      return null;
+    }
+
+    const data = await response.json() as {
+      status: string;
+      message?: string;
+      data?: { status: string; amount: number; tx_ref: string; customer?: { email: string; name: string } };
+    };
+
+    if (data.status === 'success' && data.data) {
+      logger.info('Flutterwave verify: transaction found', {
+        txRef,
+        txStatus: data.data.status,
+        amount: data.data.amount,
+      });
+      return {
+        status: data.data.status,
+        amount: data.data.amount,
+        email: data.data.customer?.email || '',
+      };
+    }
+
+    return null;
+  } catch (error) {
+    logger.error('Flutterwave verify error', { txRef, error: String(error) });
+    return null;
+  }
+}
+
 export function verifyWebhookSignature(body: string, signature: string): boolean {
   if (getFlutterwaveConfig().secretKey === 'sk_placeholder') return true;
   const crypto = require('crypto');

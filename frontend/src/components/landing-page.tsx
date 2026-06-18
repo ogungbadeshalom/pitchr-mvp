@@ -1,9 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { initSessionPayment } from '../lib/api';
-import { AxiosError } from 'axios';
-import { useToastStore } from '../store/toastStore';
 import { useSessionStore } from '../store/sessionStore';
 import ThemeToggle from '../components/ui/theme-toggle';
 import JsonLd from './json-ld';
@@ -81,39 +78,19 @@ const FAQS = [
   { q: 'How is this different from ChatGPT?', a: 'ChatGPT doesn\u2019t know how Upwork and Fiverr work. It doesn\u2019t know the character limits, the platform differences, or your work history. Pitchr does, every time.' },
   { q: 'Can I cancel a monthly plan?', a: 'Yes, anytime from your dashboard. You keep access until the end of your paid period.' },
   { q: 'What payment methods are accepted?', a: 'Flutterwave, card, bank transfer, and USSD. Everything in naira. No dollar card needed.' },
-  { q: 'Do I need an account to try it?', a: 'No. Generate a single proposal with a session payment (\u20A6500). No account required. Upgrade to monthly when you\u2019re ready.' },
+  { q: 'Do I need an account to try it?', a: 'Yes. Create a free account, then purchase a session (\u20A6500) or subscribe monthly. Your proposals and payment history are saved to your account.' },
 ];
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState<'session' | 'monthly'>('session');
   const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
-  const [email, setEmail] = useState('');
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const addToast = useToastStore((s) => s.addToast);
   const token = useSessionStore((s) => s.token);
   const hydrated = useSessionStore((s) => s.hydrated);
   const rehydrate = useSessionStore((s) => s.rehydrate);
   const hasSession = hydrated && token !== null;
 
   useEffect(() => { setMounted(true); rehydrate(); }, [rehydrate]);
-
-  async function handleBuySession(plan: 'flash' | 'power') {
-    if (!email) {
-      addToast('Please enter your email for the receipt', 'warning');
-      return;
-    }
-    setPaymentLoading(true);
-    try {
-      const result = await initSessionPayment(plan, email);
-      window.location.href = result.payment_link;
-    } catch (err: unknown) {
-      const message = err instanceof AxiosError ? err.response?.data?.message : 'Payment failed';
-      addToast(message || 'Payment failed', 'error');
-    } finally {
-      setPaymentLoading(false);
-    }
-  }
 
   return (
     <main className="min-h-screen bg-background">
@@ -183,7 +160,7 @@ export default function LandingPage() {
               </a>
             </div>
             <div className="flex items-center justify-center gap-6 mt-10 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-brand-500" /> No account needed</span>
+              <span className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-brand-500" /> Create a free account</span>
               <span className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-brand-500" /> Pay as you go</span>
               <span className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-brand-500" /> Naira only</span>
             </div>
@@ -275,21 +252,7 @@ export default function LandingPage() {
             </div>
           ) : tab === 'session' ? (
             <div className="max-w-xl mx-auto">
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-foreground mb-1.5">Email for receipt</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2.5 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-brand-500 bg-background"
-                  placeholder="your@email.com"
-                  required
-                />
-                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                  Flutterwave needs your email to send a payment receipt
-                </p>
-              </div>
+              <p className="text-center text-sm text-muted-foreground mb-6">Sign in to get started. You'll be redirected to our secure checkout.</p>
               <div className="grid md:grid-cols-2 gap-6">
                 {PRICING_SESSION.map(({ name, price, features, badge, featured }) => (
                   <div key={name} className={`rounded-xl p-6 border relative ${featured ? 'border-brand-500 ring-1 ring-brand-500 bg-card' : 'border-border bg-card'}`}>
@@ -299,17 +262,9 @@ export default function LandingPage() {
                     <ul className="text-sm text-muted-foreground mb-5 space-y-1 list-disc list-inside">
                       {features.map((f, i) => <li key={i}>{f}</li>)}
                     </ul>
-                    <button
-                      onClick={() => handleBuySession(name.toLowerCase() as 'flash' | 'power')}
-                      disabled={paymentLoading}
-                      className={`block w-full text-center py-2.5 rounded-lg text-sm font-medium transition-all ${
-                        featured
-                          ? 'bg-brand-600 text-white hover:bg-brand-700'
-                          : 'bg-brand-600 text-white hover:bg-brand-700'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {paymentLoading ? 'Processing...' : `Get ${name}`}
-                    </button>
+                    <Link href="/auth/login" className="block w-full text-center py-2.5 rounded-lg text-sm font-medium transition-all bg-brand-600 text-white hover:bg-brand-700">
+                      Sign In to Get {name}
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -396,7 +351,7 @@ export default function LandingPage() {
       <section className="py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to win more clients?</h2>
-          <p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Generate your first proposal in 30 seconds. No account required.</p>
+          <p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {!mounted ? (
               <a href="#pricing" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">

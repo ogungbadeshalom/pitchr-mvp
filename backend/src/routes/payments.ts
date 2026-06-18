@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { initSessionPayment, initSubscriptionPayment, verifyWebhookSignature, getSessionPrice, getSubscriptionPrice, getAnnualPrice } from '../services/paymentService';
+import { initSessionPayment, initSubscriptionPayment, verifyWebhookSignature, getSessionPrice, getSubscriptionPrice, getAnnualPrice, verifyFlutterwaveTransaction } from '../services/paymentService';
 import { generateSessionToken, getSessionLimit, getSessionDuration } from '../services/sessionService';
 import { sendReceipt } from '../services/emailService';
 import { createSession, createPayment, updatePaymentStatus, updateUserSubscription, cancelUserSubscription, createAuditLog, findUserByEmail, findUserById, findPaymentByReference } from '../database/queries';
@@ -14,7 +14,7 @@ const router = Router();
 
 const initSessionSchema = z.object({
   plan: z.enum(['flash', 'power']),
-  email: z.string().email(),
+  email: z.string().email().optional(),
 });
 
 const initSubscriptionSchema = z.object({
@@ -26,7 +26,7 @@ const confirmSubscriptionSchema = z.object({
   reference: z.string().startsWith('PROP_SUB_'),
 });
 
-router.post('/init-session', async (req, res, next) => {
+router.post('/init-session', requireAuth, async (req, res, next) => {
   try {
     const parsed = initSessionSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -34,10 +34,16 @@ router.post('/init-session', async (req, res, next) => {
     }
 
     const { plan, email } = parsed.data;
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const result = await initSessionPayment(plan, email, frontendUrl);
+    const userId = (req as any).userId;
+    const user = await findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
+    }
 
-    await createPayment(null, null, getSessionPrice(plan), 'one_time', result.reference);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const result = await initSessionPayment(plan, user.email, frontendUrl);
+
+    await createPayment(userId, null, getSessionPrice(plan), 'one_time', result.reference);
 
     res.json(result);
   } catch (err) {
@@ -136,9 +142,38 @@ router.post('/confirm-subscription', requireAuth, async (req, res, next) => {
       return res.status(402).json({ error: 'PAYMENT_NOT_FOUND', message: 'No payment record found for this reference.' });
     }
 
-    // 5. Real mode: payment exists but not completed — reject
+    // 5. Real mode: payment exists but not completed — verify with Flutterwave
     if (payment && payment.status === 'pending') {
-      return res.status(402).json({ error: 'PAYMENT_PENDING', message: 'Your payment is still being processed. Please wait for confirmation.' });
+      const verified = await verifyFlutterwaveTransaction(reference);
+
+      if (verified && verified.status === 'successful') {
+        await updatePaymentStatus(reference, 'completed');
+        logger.info('Flutterwave verified: activating subscription', { reference });
+
+        const days = billingPeriod === 'annual' ? 365 : 30;
+        const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+        await updateUserSubscription(userId, plan, expiresAt, billingPeriod);
+        await createAuditLog(userId, 'subscription_created', 'users', userId, { plan });
+
+        const user = await findUserById(userId);
+        if (!user) return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
+
+        const price = billingPeriod === 'annual' ? getAnnualPrice(plan) : getSubscriptionPrice(plan);
+        sendReceipt(user.email, plan, price, reference).catch(() => {});
+
+        const safeUser = {
+          id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name,
+          subscription_tier: user.subscription_tier, subscription_started_at: user.subscription_started_at,
+          subscription_ended_at: user.subscription_ended_at, proposal_count_this_month: user.proposal_count_this_month,
+          proposal_limit_this_month: user.proposal_limit_this_month, billing_period: user.billing_period, created_at: user.created_at,
+        };
+        return res.json({ message: 'Subscription activated', user: safeUser });
+      }
+
+      return res.status(402).json({
+        error: 'PAYMENT_PENDING',
+        message: 'Your payment is still processing. This usually completes within 30 seconds. Please try again.',
+      });
     }
 
     // 6. No payment record — forged reference
@@ -167,6 +202,8 @@ router.post('/webhook', async (req, res) => {
   }
 
   const { event, data } = req.body;
+
+  logger.info('Webhook received', { event, tx_ref: data?.tx_ref, status: data?.status });
 
   if (event === 'charge.completed' && data.status === 'successful') {
     const { tx_ref, customer } = data;
