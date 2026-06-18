@@ -123,7 +123,6 @@ function SubscriptionInner() {
 
           if (res.ok) {
             useSessionStore.getState().setSession(data.token, data.plan, data.expiresAt, data.limit);
-            setClaimedToken(data.token);
             setPayStatus('session_ok');
             addToast('Session activated!', 'success');
           } else {
