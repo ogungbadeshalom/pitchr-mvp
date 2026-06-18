@@ -119,7 +119,7 @@ export async function createPayment(
 
 export async function updatePaymentStatus(reference: string, status: string): Promise<void> {
   await query(
-    `UPDATE payments SET status = $1, completed_at = CASE WHEN $1 = 'completed' THEN NOW() ELSE completed_at END WHERE flutterwave_reference = $2`,
+    `UPDATE payments SET status = $1, completed_at = NOW() WHERE flutterwave_reference = $2 AND status = 'pending'`,
     [status, reference]
   );
 }
