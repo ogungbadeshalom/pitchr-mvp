@@ -74,7 +74,7 @@ export async function findSessionByPaymentReference(reference: string): Promise<
 
 export async function findActiveSessionByUserId(userId: string): Promise<Session | null> {
   const result = await query(
-    `SELECT * FROM sessions WHERE user_id = $1 AND expires_at > NOW() AND proposals_used < proposals_limit AND payment_status = 'completed' ORDER BY created_at DESC LIMIT 1`,
+    `SELECT * FROM sessions WHERE user_id = $1 AND expires_at > NOW() AND proposals_used < proposals_limit ORDER BY created_at DESC LIMIT 1`,
     [userId]
   );
   return result.rows[0] || null;
