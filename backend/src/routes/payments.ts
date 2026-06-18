@@ -8,6 +8,7 @@ import { query } from '../config/database';
 import { requireAuth } from '../middleware/auth';
 import { ValidationError } from '../utils/errors';
 import { getFlutterwaveConfig } from '../config/flutterwave';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -112,7 +113,7 @@ router.post('/confirm-subscription', requireAuth, async (req, res, next) => {
       const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 
       await updateUserSubscription(userId, plan, expiresAt, billingPeriod);
-      try { await updatePaymentStatus(reference, 'completed'); } catch { /* ok */ }
+      try { await updatePaymentStatus(reference, 'completed'); } catch (err) { logger.error('Failed to update payment status in confirm-subscription', { reference, error: String(err) }); }
       await createAuditLog(userId, 'subscription_created', 'users', userId, { plan });
 
       const user = await findUserById(userId);

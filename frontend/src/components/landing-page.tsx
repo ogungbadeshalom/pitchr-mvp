@@ -285,6 +285,10 @@ export default function LandingPage() {
                   placeholder="your@email.com"
                   required
                 />
+                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  Flutterwave needs your email to send a payment receipt
+                </p>
               </div>
               <div className="grid md:grid-cols-2 gap-6">
                 {PRICING_SESSION.map(({ name, price, features, badge, featured }) => (
