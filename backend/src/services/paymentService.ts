@@ -108,43 +108,55 @@ export async function verifyFlutterwaveTransaction(txRef: string): Promise<{ sta
     return { status: 'successful', amount: 500, email: 'mock@pitchr.ng' };
   }
 
-  try {
-    const response = await fetch(
-      `${cfg.baseUrl}/transactions/verify_by_reference?tx_ref=${encodeURIComponent(txRef)}`,
-      {
-        headers: { Authorization: `Bearer ${cfg.secretKey}` },
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 2000));
+
+    try {
+      const response = await fetch(
+        `${cfg.baseUrl}/transactions/verify_by_reference?tx_ref=${encodeURIComponent(txRef)}`,
+        {
+          headers: { Authorization: `Bearer ${cfg.secretKey}` },
+        }
+      );
+
+      if (!response.ok) {
+        const body = await response.text().catch(() => '');
+        logger.warn('Flutterwave verify failed', { status: response.status, txRef, attempt, body: body.slice(0, 200) });
+        continue;
       }
-    );
 
-    if (!response.ok) {
-      logger.warn('Flutterwave verify failed', { status: response.status, txRef });
-      return null;
-    }
-
-    const data = await response.json() as {
-      status: string;
-      message?: string;
-      data?: { status: string; amount: number; tx_ref: string; customer?: { email: string; name: string } };
-    };
-
-    if (data.status === 'success' && data.data) {
-      logger.info('Flutterwave verify: transaction found', {
-        txRef,
-        txStatus: data.data.status,
-        amount: data.data.amount,
-      });
-      return {
-        status: data.data.status,
-        amount: data.data.amount,
-        email: data.data.customer?.email || '',
+      const data = await response.json() as {
+        status: string;
+        message?: string;
+        data?: { status: string; amount: number; tx_ref: string; customer?: { email: string; name: string } };
       };
-    }
 
-    return null;
-  } catch (error) {
-    logger.error('Flutterwave verify error', { txRef, error: String(error) });
-    return null;
+      if (data.status === 'success' && data.data) {
+        logger.info('Flutterwave verify: transaction found', {
+          txRef,
+          txStatus: data.data.status,
+          amount: data.data.amount,
+          attempt,
+        });
+        return {
+          status: data.data.status,
+          amount: data.data.amount,
+          email: data.data.customer?.email || '',
+        };
+      }
+
+      if (data.status !== 'success') {
+        logger.warn('Flutterwave verify: API returned non-success', { txRef, status: data.status, message: data.message, attempt });
+      }
+
+      return null;
+    } catch (error) {
+      logger.error('Flutterwave verify error', { txRef, error: String(error), attempt });
+      if (attempt >= 2) return null;
+    }
   }
+
+  return null;
 }
 
 export function verifyWebhookSignature(body: string, signature: string): boolean {
