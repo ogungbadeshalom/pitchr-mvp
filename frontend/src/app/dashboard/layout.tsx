@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUserStore } from '../../store/userStore'
+import { useSessionStore } from '../../store/sessionStore'
 import ThemeToggle from '../../components/ui/theme-toggle'
 
 const NAV_ITEMS = [
@@ -39,6 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={() => {
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signout`, { method: 'POST', credentials: 'include' });
+                useSessionStore.getState().clearSession();
                 window.location.href = '/auth/login';
               }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"

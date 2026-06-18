@@ -54,7 +54,7 @@ router.post('/generate', sessionRateLimit, async (req, res, next) => {
         const session = await validateAndUseSession(session_token);
         sessionId = session.id;
       }
-    } else if (!isMockMode()) {
+    } else {
       const authToken = req.cookies?.pitchr_token || req.headers.authorization?.replace('Bearer ', '');
       const decoded = verifyToken(authToken);
       if (!decoded) {
@@ -63,18 +63,45 @@ router.post('/generate', sessionRateLimit, async (req, res, next) => {
 
       const user = await findUserById(decoded.userId);
       if (!user || user.subscription_tier === 'free') {
-        throw new ValidationError('Session token required. Purchase a session or subscribe to generate proposals.');
+        throw new UnauthorizedError('Session token required. Purchase a session or subscribe to generate proposals.');
       }
 
       if (user.subscription_ended_at && new Date() > new Date(user.subscription_ended_at)) {
         throw new UnauthorizedError('Your subscription has expired.');
       }
 
-      if (user.proposal_limit_this_month > 0 && user.proposal_count_this_month >= user.proposal_limit_this_month) {
+      const result = await query(
+        `UPDATE users
+         SET proposal_count_this_month = CASE
+           WHEN proposal_limit_this_month = 0 THEN proposal_count_this_month + 1
+           WHEN EXTRACT(MONTH FROM COALESCE(subscription_started_at, created_at)) != EXTRACT(MONTH FROM NOW())
+             OR EXTRACT(YEAR FROM COALESCE(subscription_started_at, created_at)) != EXTRACT(YEAR FROM NOW())
+           THEN 1
+           ELSE proposal_count_this_month + 1
+         END,
+         subscription_started_at = CASE
+           WHEN subscription_started_at IS NOT NULL
+             AND (EXTRACT(MONTH FROM subscription_started_at) != EXTRACT(MONTH FROM NOW())
+               OR EXTRACT(YEAR FROM subscription_started_at) != EXTRACT(YEAR FROM NOW()))
+           THEN NOW()
+           ELSE subscription_started_at
+         END
+         WHERE id = $1
+         AND deleted_at IS NULL
+         AND (
+           proposal_limit_this_month = 0
+           OR proposal_count_this_month < proposal_limit_this_month
+           OR EXTRACT(MONTH FROM COALESCE(subscription_started_at, created_at)) != EXTRACT(MONTH FROM NOW())
+           OR EXTRACT(YEAR FROM COALESCE(subscription_started_at, created_at)) != EXTRACT(YEAR FROM NOW())
+         )
+         RETURNING proposal_count_this_month`,
+        [user.id]
+      );
+
+      if (result.rowCount === 0 || result.rows.length === 0) {
         throw new UnauthorizedError('Monthly proposal limit reached.');
       }
 
-      await query('UPDATE users SET proposal_count_this_month = proposal_count_this_month + 1 WHERE id = $1', [user.id]);
       userId = user.id;
     }
 
