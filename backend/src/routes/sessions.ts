@@ -84,6 +84,7 @@ router.post('/claim', async (req, res, next) => {
       const expiresAt = new Date(Date.now() + duration);
 
       const session = await createSession(token, plan, 'receipt@pitchr.ng', expiresAt, limit, reference);
+      await query('UPDATE sessions SET payment_status = $1 WHERE id = $2', ['completed', session.id]);
       await createAuditLog(null, 'session_claimed', 'sessions', '', { plan, token, reference });
       logger.info('Session claimed (mock mode)', { plan, reference });
 
@@ -117,6 +118,7 @@ router.post('/claim', async (req, res, next) => {
         const expiresAt = new Date(Date.now() + duration);
 
         const session = await createSession(token, plan, verified.email || 'user@pitchr.ng', expiresAt, limit, reference, payment.user_id || undefined);
+        await query('UPDATE sessions SET payment_status = $1 WHERE id = $2', ['completed', session.id]);
         await createAuditLog(null, 'session_claimed', 'sessions', '', { plan, token, reference });
         logger.info('Session created after Flutterwave verification', { plan, reference });
 
