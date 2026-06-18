@@ -1,9 +1,13 @@
 pitchr.com.ng {
+    header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    header X-Content-Type-Options "nosniff"
+    header X-Frame-Options "DENY"
     reverse_proxy /api* localhost:5001
     reverse_proxy localhost:3000
 }
 
 api.pitchr.com.ng {
+    header X-Content-Type-Options "nosniff"
     reverse_proxy localhost:5001
 }
 

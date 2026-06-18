@@ -37,11 +37,6 @@ export default function JsonLd() {
         description: 'Unlimited proposals',
       },
     ],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '500',
-    },
     provider: {
       '@type': 'Organization',
       name: 'Pitchr',

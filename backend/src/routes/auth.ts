@@ -5,10 +5,11 @@ import { findUserByEmail, findUserByEmailWithPassword, findUserById, upsertUser 
 import { signToken } from '../config/jwt';
 import { AppError } from '../utils/errors';
 import { sendWelcomeEmail } from '../services/emailService';
+import { authRateLimit } from '../middleware/rateLimit';
 
 const router = Router();
 
-router.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/signup', authRateLimit, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, firstName, lastName } = req.body;
     if (!email || !password) {
@@ -44,7 +45,7 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction) =
   }
 });
 
-router.post('/signin', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/signin', authRateLimit, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
