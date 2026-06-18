@@ -23,7 +23,7 @@ Write proposals that actually get replies. Pitchr is built for Nigerian freelanc
 | AI | DeepSeek API |
 | Payments | Flutterwave |
 | Email | Zeptomail |
-| Deployment | Coolify |
+| Deployment | Docker Compose (Hetzner VPS + Caddy) |
 
 ## Prerequisites
 
@@ -105,7 +105,7 @@ Set these placeholder values in `backend/.env` to skip real API calls:
 | `ZEPTOMAIL_API_KEY` | `placeholder` | Skips email sending (logs instead) |
 | `GOOGLE_CLIENT_ID` | `placeholder` | Disables Google OAuth |
 
-Config values are lazy-loaded via getter functions — changes take effect without a server restart.
+Config values are lazy-loaded via getter functions. Note: Flutterwave and DeepSeek configs are cached on first call — a server restart is required for env changes to take effect. Email config is not cached.
 
 ## Google OAuth Setup (Optional)
 
@@ -120,22 +120,21 @@ Config values are lazy-loaded via getter functions — changes take effect witho
 
 ### Session (Pay as You Go)
 
-No account required. Enter your email, pay with Flutterwave, and get a session token stored in your browser.
+Requires an account. Sign in, pay with Flutterwave, and generate proposals.
 
 | Plan | Price | Proposals | Duration |
 |---|---|---|---|
 | Flash | ₦500 | 5 | 30 minutes |
 | Power | ₦1,200 | 20 | 4 hours |
 
-### Subscription (Monthly)
+### Subscription (Monthly/Annual)
 
 Requires an account. Sign up, subscribe, and generate proposals all month.
 
-| Plan | Price | Proposals |
-|---|---|---|
-| Starter | ₦2,000/mo | 10 per month |
-| Pro | ₦3,500/mo | Unlimited |
-| Ultra | ₦5,000/mo | Unlimited + 3 team seats |
+| Plan | Monthly | Annual | Proposals |
+|---|---|---|---|
+| Starter | ₦1,500/mo | ₦15,000/yr | 30 per month |
+| Pro | ₦3,500/mo | ₦35,000/yr | Unlimited |
 
 ### Session persistence
 
@@ -164,7 +163,7 @@ Session data is saved to `localStorage`. Close the tab and come back — if the 
 │   │   ├── lib/             # API client, SuperTokens config
 │   │   └── store/           # Zustand stores
 │   └── .env.local
-├── docker-compose.yml       # PostgreSQL + SuperTokens
+├── docker-compose.yml       # PostgreSQL + SuperTokens + Backend + Frontend + Caddy
 └── AGENTS.md                # Development reference
 ```
 
@@ -193,23 +192,28 @@ Session data is saved to `localStorage`. Close the tab and come back — if the 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | GET | `/api/health` | None | Database health check |
-| POST | `/api/auth/signup` | None | Create account |
-| POST | `/api/auth/signin` | None | Sign in |
+| POST | `/api/auth/signup` | Rate-limited | Create account |
+| POST | `/api/auth/signin` | Rate-limited | Sign in |
 | POST | `/api/auth/signout` | None | Clear session |
 | GET | `/api/user` | Required | Get user profile + subscription |
 | PATCH | `/api/user/profile` | Required | Update profile |
 | GET | `/api/proposals` | Required | List user's proposals |
 | POST | `/api/proposals/generate` | Session token or auth | Generate a proposal |
+| GET | `/api/sessions/active` | Required | Get active session (cross-device) |
 | POST | `/api/sessions/claim` | None | Claim a paid session |
-| POST | `/api/payments/init-session` | None | Get Flutterwave payment link |
+| POST | `/api/payments/init-session` | Required | Get Flutterwave payment link |
 | POST | `/api/payments/init-subscription` | Required | Get subscription payment link |
 | POST | `/api/payments/confirm-subscription` | Required | Activate subscription |
 | POST | `/api/payments/cancel-subscription` | Required | Downgrade to free |
 | POST | `/api/payments/webhook` | Signature | Flutterwave webhook |
+| GET | `/api/admin/analytics` | Admin | Dashboard stats |
+| GET | `/api/admin/users` | Admin | Paginated user list |
+| PATCH | `/api/admin/users/:id` | Admin | Update user subscription/ban |
+| GET | `/api/admin/transactions` | Admin | Paginated payments |
 
 ## Deployment
 
-The project deploys via Coolify on push to the `main` branch. GitHub Actions runs CI (backend build + test, frontend build).
+The project deploys via Docker Compose on a Hetzner VPS with Caddy as the TLS reverse proxy. See `pitchr-deployment-guide.md` for full instructions.
 
 ### Verify before pushing
 

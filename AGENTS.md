@@ -74,27 +74,32 @@ Set these keys to skip real API calls:
 - `ZEPTOMAIL_API_KEY=placeholder` → skips email sending (logs instead)
 - `GOOGLE_CLIENT_ID=placeholder` → disables Google OAuth
 
-All configs are **lazy-loaded via getter functions** (`getDeepseekConfig()`, `getFlutterwaveConfig()`, etc.) — env changes take effect without server restart.
+All configs are **lazy-loaded via getter functions** (`getDeepseekConfig()`, `getFlutterwaveConfig()`, etc.). Note: Flutterwave and DeepSeek configs are cached on first call — a server restart is required for env changes to take effect. Email config is not cached.
 
 ## Routes (Backend)
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | GET | `/api/health` | none | DB health check |
-| POST | `/api/auth/signup` | none | Create account (bcrypt, JWT cookie) |
-| POST | `/api/auth/signin` | none | Sign in, returns `{ user, token }` |
+| POST | `/api/auth/signup` | rateLimited | Create account (bcrypt, JWT cookie) |
+| POST | `/api/auth/signin` | rateLimited | Sign in, returns `{ user, token }` |
 | POST | `/api/auth/signout` | none | Clears cookie |
 | POST | `/api/auth/google-finish` | none | Completes Google OAuth, issues JWT cookie |
 | GET | `/api/user` | `requireAuth` | Returns all user fields including subscription |
 | PATCH | `/api/user/profile` | `requireAuth` | Update first_name/last_name |
 | GET | `/api/proposals` | `requireAuth` | User's proposals (dashboard) |
-| POST | `/api/proposals/generate` | sessionToken or auth | Rate-limited, checks limits |
-| POST | `/api/sessions/claim` | none | Creates session with `payment_status=completed` |
-| POST | `/api/payments/init-session` | none | Returns Flutterwave payment link |
+| POST | `/api/proposals/generate` | sessionToken or auth | Rate-limited, checks limits, auto-resets monthly |
+| GET | `/api/sessions/active` | `requireAuth` | Returns user's active session (cross-device sync) |
+| POST | `/api/sessions/claim` | none | Verifies payment with Flutterwave, creates session |
+| POST | `/api/payments/init-session` | `requireAuth` | Returns Flutterwave payment link (uses user's email) |
 | POST | `/api/payments/init-subscription` | `requireAuth` | Returns Flutterwave payment link |
-| POST | `/api/payments/confirm-subscription` | `requireAuth` | Activates subscription in DB |
+| POST | `/api/payments/confirm-subscription` | `requireAuth` | Activates subscription after Flutterwave verification |
 | POST | `/api/payments/cancel-subscription` | `requireAuth` | Sets tier to 'free' |
 | POST | `/api/payments/webhook` | signature | Flutterwave webhook handler |
+| GET | `/api/admin/analytics` | `requireAdmin` | Dashboard stats: users, proposals, revenue |
+| GET | `/api/admin/users` | `requireAdmin` | Paginated user list with search |
+| PATCH | `/api/admin/users/:id` | `requireAdmin` | Update user subscription, limits, ban |
+| GET | `/api/admin/transactions` | `requireAdmin` | Paginated payment transaction history |
 
 ## Auth Flow
 
@@ -124,6 +129,8 @@ power: 20 proposals, 4 hour duration
 // Subscription limits (backend/src/database/queries.ts)
 starter: 30 proposals/month
 pro:      0 = unlimited
+
+// Limits auto-reset at month boundaries via atomic SQL in the generate route.
 ```
 
 ## Payment Reference Format
@@ -160,11 +167,11 @@ cd backend && npm test              # all tests
 cd backend && npm run test:watch    # watch mode
 ```
 
-CI: GitHub Actions runs backend build+test, frontend build. Deploy: Coolify webhook on push to `main`.
+CI: GitHub Actions runs backend build+test, frontend build. Deploy: `git pull && docker compose up -d --build` on VPS.
 
 ## Known Gotchas
 
-- **Signout uses `window.location.href`** (full page navigation) — do not change to `router.push`. In-memory stores reset on full navigation, no need to call `clearUser()`/`clearSession()`.
+- **Signout uses `window.location.href`** (full page navigation) — do not change to `router.push`. In-memory stores reset on full navigation, but `clearSession()` MUST be called to clear `localStorage`. Without it, the landing page shows "Continue" after signout.
 - **Dashboard reads directly from store** (`subscriptionTier`, `proposalCount`, `proposalLimit`), NOT from a separate `stats` state. The store is populated by `useEffect` fetch on mount.
 - **`confirm-subscription` requires auth** — the JWT cookie must be present. Works because user initiates payment while logged in and Flutterwave redirects back to same domain.
 - **`cancelUserSubscription` sets tier to 'free'** — does NOT auto-renew or prorate.

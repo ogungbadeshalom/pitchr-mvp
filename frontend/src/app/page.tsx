@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import LandingPage from '../components/landing-page';
 
 export const metadata: Metadata = {
-  title: 'AI Proposal Generator for Nigerian Freelancers',
+  title: 'Tailored AI Proposal Generator for Freelancers',
   description: 'Write winning Upwork and Fiverr proposals in 30 seconds. AI-powered, no templates, no clichés. Pay as you go from ₦500. Built for Nigerian freelancers.',
   openGraph: {
-    title: 'Pitchr — AI Proposal Generator for Nigerian Freelancers',
+    title: 'Pitchr — Tailored AI Proposal Generator for Freelancers',
     description: 'Write winning Upwork and Fiverr proposals in 30 seconds. AI-powered, no templates, no clichés. Pay as you go from ₦500.',
     type: 'website',
     images: [
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pitchr — AI Proposal Generator for Nigerian Freelancers',
+    title: 'Pitchr — Tailored AI Proposal Generator for Freelancers',
     description: 'Write winning Upwork and Fiverr proposals in 30 seconds. Pay as you go from ₦500.',
     images: ['/images/P.png'],
   },

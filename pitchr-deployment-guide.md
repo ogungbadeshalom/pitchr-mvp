@@ -116,6 +116,7 @@ Fill in every value:
 | `DEEPSEEK_API_KEY` | Your key from [platform.deepseek.com](https://platform.deepseek.com) |
 | `FLUTTERWAVE_PUBLIC_KEY` | Your live public key from Flutterwave dashboard |
 | `FLUTTERWAVE_SECRET_KEY` | Your live secret key from Flutterwave dashboard |
+| `SUPERTOKENS_API_KEY` | Generate with `openssl rand -hex 32`, same as docker-compose.yml |
 | `GOOGLE_CLIENT_ID` | From Google Cloud Console (or keep `placeholder` to disable) |
 | `GOOGLE_CLIENT_SECRET` | From Google Cloud Console (or keep `placeholder`) |
 | `ZEPTOMAIL_API_KEY` | Your key from ZeptoMail dashboard (or keep `placeholder`) |
@@ -186,8 +187,8 @@ Only do this if you set real Google credentials in `.env`.
 2. Create a project → **APIs & Services** → **Credentials**
 3. Create **OAuth 2.0 Client ID** (Web application)
 4. Add these **Authorized redirect URIs**:
-   - `https://api.pitchr.com.ng/auth/callback/google`
-   - `http://localhost:3567/auth/callback/google`
+   - `https://api.pitchr.com.ng/api/auth/callback/google` (SuperTokens handles the callback)
+   - `https://pitchr.com.ng/auth/callback` (frontend redirect page)
 5. Copy Client ID and Client Secret into your `.env` on the VPS
 6. Restart: `docker compose restart backend supertokens`
 
