@@ -252,7 +252,7 @@ export default function LandingPage() {
             </div>
           ) : tab === 'session' ? (
             <div className="max-w-xl mx-auto">
-              <p className="text-center text-sm text-muted-foreground mb-6">Sign in to get started. You'll be redirected to our secure checkout.</p>
+              <p className="text-center text-sm text-muted-foreground mb-6">Sign in to get started. You&apos;ll be redirected to our secure checkout.</p>
               <div className="grid md:grid-cols-2 gap-6">
                 {PRICING_SESSION.map(({ name, price, features, badge, featured }) => (
                   <div key={name} className={`rounded-xl p-6 border relative ${featured ? 'border-brand-500 ring-1 ring-brand-500 bg-card' : 'border-border bg-card'}`}>
