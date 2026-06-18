@@ -11,7 +11,20 @@ const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
   failed: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300',
   cancelled: 'bg-slate-50 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300',
+  abandoned: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
 };
+
+function getTxStatus(tx: Transaction): { label: string; color: string } {
+  if (tx.status === 'completed') return { label: 'Completed', color: STATUS_COLORS.completed };
+  if (tx.status === 'failed') return { label: 'Failed', color: STATUS_COLORS.failed };
+  if (tx.status === 'cancelled') return { label: 'Cancelled', color: STATUS_COLORS.cancelled };
+  if (tx.status === 'pending') {
+    const age = Date.now() - new Date(tx.created_at).getTime();
+    if (age > 60 * 60 * 1000) return { label: 'Abandoned', color: STATUS_COLORS.abandoned };
+    return { label: 'Pending', color: STATUS_COLORS.pending };
+  }
+  return { label: tx.status, color: STATUS_COLORS.pending };
+}
 
 export default function AdminTransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -76,7 +89,9 @@ export default function AdminTransactionsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.map((tx) => (
+                  {transactions.map((tx) => {
+                    const statusInfo = getTxStatus(tx);
+                    return (
                     <tr key={tx.id} className="border-b border-brand-50 dark:border-brand-800 last:border-0 hover:bg-muted/50 transition-colors">
                       <td className="px-4 py-3">
                         <code className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded font-mono">{tx.flutterwave_reference?.slice(0, 24)}...</code>
@@ -103,8 +118,8 @@ export default function AdminTransactionsPage() {
                         {formatNaira(tx.amount)}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${STATUS_COLORS[tx.status] || STATUS_COLORS.pending}`}>
-                          {tx.status}
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${statusInfo.color}`}>
+                          {statusInfo.label}
                         </span>
                         {tx.completed_at && (
                           <p className="text-xs text-muted-foreground mt-0.5">
@@ -119,7 +134,8 @@ export default function AdminTransactionsPage() {
                         })}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

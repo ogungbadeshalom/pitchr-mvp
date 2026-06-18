@@ -48,7 +48,12 @@ router.post('/claim', async (req, res, next) => {
     // 3. In mock mode (no real Flutterwave), create session immediately
     const isMock = getFlutterwaveConfig().secretKey === 'sk_placeholder';
     if (isMock && payment) {
-      await updatePaymentStatus(reference, 'completed');
+      try {
+        await updatePaymentStatus(reference, 'completed');
+        logger.info('Payment status updated to completed', { reference });
+      } catch (err) {
+        logger.error('Failed to update payment status', { reference, error: String(err) });
+      }
       const plan = isFlash ? 'flash' : 'power';
       const token = generateSessionToken();
       const limit = getSessionLimit(plan);

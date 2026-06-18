@@ -21,7 +21,7 @@ function SessionSuccessInner() {
 
     (async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sessions/claim`, {
+        const res = await fetch('/api/sessions/claim', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reference }),
@@ -47,6 +47,13 @@ function SessionSuccessInner() {
 
     return () => { cancelled = true; };
   }, [searchParams, router]);
+
+  // Auto-redirect to session after success
+  useEffect(() => {
+    if (status !== 'success') return;
+    const t = setTimeout(() => router.push('/session'), 1500);
+    return () => clearTimeout(t);
+  }, [status, router]);
 
   if (status === 'processing') {
     return (
@@ -93,12 +100,12 @@ function SessionSuccessInner() {
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">Payment Successful!</h1>
-        <p className="text-muted-foreground mb-6">Your session is ready. Start generating winning proposals now.</p>
+        <p className="text-muted-foreground mb-6">Your session is ready. Redirecting to the proposal generator...</p>
         <button
           onClick={() => router.push('/session')}
           className="bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 transition-colors"
         >
-          Start Generating
+          Start Generating Now
         </button>
       </div>
     </div>
