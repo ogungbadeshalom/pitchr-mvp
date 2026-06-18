@@ -26,6 +26,7 @@ router.get('/active', requireAuth, async (req, res, next) => {
         proposalsUsed: session.proposals_used,
         proposalsLimit: session.proposals_limit,
       },
+      server_time: Date.now(),
     });
   } catch (err) {
     next(err);
