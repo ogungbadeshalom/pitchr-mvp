@@ -35,10 +35,6 @@ function loadFromStorage(): Partial<SessionState> {
       localStorage.removeItem(STORAGE_KEY);
       return {};
     }
-    if (data.expiresAt < Date.now()) {
-      localStorage.removeItem(STORAGE_KEY);
-      return {};
-    }
     return { token: data.token, plan: data.plan, expiresAt: data.expiresAt, proposalsUsed: data.proposalsUsed, proposalsLimit: data.proposalsLimit, hydrated: true };
   } catch {
     return {};
