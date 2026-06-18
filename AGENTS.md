@@ -1,3 +1,20 @@
+## Agent Instructions
+
+**CRITICAL:** Before starting ANY task — bug fixes, features, refactoring, debugging, UI work, deployment — you MUST evaluate whether any available skill applies. If a skill has even a 1% chance of relevance, invoke it immediately. Do not skip this step.
+
+- **systematic-debugging**: Use for ANY bug, test failure, or unexpected behavior. Investigate root cause before proposing fixes.
+- **test-driven-development**: Use before writing implementation code for any feature or bugfix.
+- **brainstorming**: Use before creative work — features, components, functionality changes.
+- **frontend-design**: Use for visual design, UI changes, styling work.
+- **verification-before-completion**: Use before claiming work is complete — run checks, confirm output.
+- **writing-plans**: Use for multi-step tasks before touching code.
+- **vercel-react-best-practices**: Use when writing, reviewing, or refactoring React/Next.js code.
+- **ui-ux-pro-max**: UI/UX design intelligence — use for UI patterns, component design.
+
+**Rule:** When in doubt, invoke the skill. Skills override default behavior. User instructions always take highest priority.
+
+---
+
 # Pitchr — AI Proposal Generator (MVP)
 
 ## Architecture
