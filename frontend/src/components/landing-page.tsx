@@ -132,7 +132,7 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6 dark:bg-brand-900/30 dark:text-brand-300">
               <IconSparkles className="w-4 h-4" />
-              AI Proposal Generator for Nigerian Freelancers
+              Tailored AI Proposal Generator for Freelancers
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.08] mb-6">
               Write proposals that<br />actually get replies.
