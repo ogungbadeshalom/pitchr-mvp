@@ -22,7 +22,6 @@ export default function SessionPage() {
   const [showPricing, setShowPricing] = useState(false);
   const [pricingTab, setPricingTab] = useState<'session' | 'monthly'>('session');
   const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
-  const [email, setEmail] = useState('');
   const [profileText, setProfileText] = useState('');
   const [profileOpen, setProfileOpen] = useState(false);
   const { token } = useSessionStore();
@@ -59,7 +58,6 @@ export default function SessionPage() {
             u.id, u.email, u.first_name || null, u.last_name || null,
             u.subscription_tier, u.proposal_count_this_month, u.proposal_limit_this_month
           );
-          setEmail(u.email || '');
           if (u.profile_text) {
             setProfileText(u.profile_text);
             localStorage.setItem('pitchr_profile', JSON.stringify(u.profile_text));
@@ -98,10 +96,6 @@ export default function SessionPage() {
   }
 
   async function handleSubscribe(planName: string) {
-    if (!email) {
-      addToast('Please sign in first to subscribe', 'warning');
-      return;
-    }
     setLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/init-subscription`, {
@@ -124,12 +118,9 @@ export default function SessionPage() {
   }
 
   async function handleBuySession(plan: 'flash' | 'power') {
-    if (!email) {
-      addToast('Please enter your email for the receipt', 'warning');
-      return;
-    }
+    const userEmail = useUserStore.getState().email;
     try {
-      const result = await initSessionPayment(plan, email);
+      const result = await initSessionPayment(plan, userEmail);
       window.location.href = result.payment_link;
     } catch (err: unknown) {
       const message = err instanceof AxiosError ? err.response?.data?.message : 'Payment failed';
@@ -358,29 +349,16 @@ export default function SessionPage() {
             </div>
 
             {pricingTab === 'session' ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1.5">Email for receipt</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-brand-500 bg-white dark:bg-card"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-card border border-brand-100 dark:border-brand-800 rounded-xl p-6 hover:shadow-md transition-shadow flex flex-col">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Flash</p>
-                    <p className="text-3xl font-bold text-foreground">₦500</p>
-                    <p className="text-xs text-muted-foreground mb-3">5 proposals · 30 min</p>
-                    <ul className="text-xs text-muted-foreground space-y-1.5 mb-5 flex-1 list-disc list-inside">
-                      <li>5 AI proposals written from your job</li>
-                      <li>Upwork & Fiverr optimized formats</li>
-                      <li>No account needed — pay and go</li>
-                      <li>Results in under 30 seconds</li>
-                    </ul>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white dark:bg-card border border-brand-100 dark:border-brand-800 rounded-xl p-6 hover:shadow-md transition-shadow flex flex-col">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Flash</p>
+                  <p className="text-3xl font-bold text-foreground">₦500</p>
+                  <p className="text-xs text-muted-foreground mb-3">5 proposals · 30 min</p>
+                  <ul className="text-xs text-muted-foreground space-y-1.5 mb-5 flex-1 list-disc list-inside">
+                    <li>5 AI proposals written from your job</li>
+                    <li>Upwork & Fiverr optimized formats</li>
+                    <li>Results in under 30 seconds</li>
+                  </ul>
                     <Button className="w-full" variant="secondary" onClick={() => handleBuySession('flash')}>
                       Get Flash
                     </Button>
@@ -404,7 +382,6 @@ export default function SessionPage() {
                     </Button>
                   </div>
                 </div>
-              </div>
             ) : (
               <div>
                 <div className="flex items-center justify-center mb-6">

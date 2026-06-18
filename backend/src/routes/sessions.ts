@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { generateSessionToken, getSessionLimit, getSessionDuration } from '../services/sessionService';
 import { createSession, updatePaymentStatus, createAuditLog, findSessionByPaymentReference, findPaymentByReference } from '../database/queries';
+import { verifyFlutterwaveTransaction } from '../services/paymentService';
 import { query } from '../config/database';
 import { ValidationError } from '../utils/errors';
 import { logger } from '../utils/logger';
@@ -78,11 +79,39 @@ router.post('/claim', async (req, res, next) => {
       return res.status(402).json({ error: 'PAYMENT_NOT_FOUND', message: 'No payment record found for this reference.' });
     }
 
-    // 5. Real mode: payment exists but not yet completed — check with Flutterwave
+    // 5. Real mode: payment exists but not yet completed — verify with Flutterwave directly
     if (payment && payment.status === 'pending') {
-      // Payment initiated but webhook not received yet — user must wait
-      logger.warn('Session claim rejected: payment not confirmed', { reference, status: payment.status });
-      return res.status(402).json({ error: 'PAYMENT_PENDING', message: 'Your payment is still being processed. Please wait.' });
+      logger.info('Verifying pending payment with Flutterwave', { reference });
+      const verified = await verifyFlutterwaveTransaction(reference);
+
+      if (verified && verified.status === 'successful') {
+        await updatePaymentStatus(reference, 'completed');
+        logger.info('Flutterwave verified: payment completed, creating session', { reference });
+
+        const plan = isFlash ? 'flash' : 'power';
+        const token = generateSessionToken();
+        const limit = getSessionLimit(plan);
+        const duration = getSessionDuration(plan);
+        const expiresAt = new Date(Date.now() + duration);
+
+        const session = await createSession(token, plan, verified.email || 'user@pitchr.ng', expiresAt, limit, reference);
+        await createAuditLog(null, 'session_claimed', 'sessions', '', { plan, token, reference });
+        logger.info('Session created after Flutterwave verification', { plan, reference });
+
+        return res.json({
+          token,
+          plan,
+          expiresAt: expiresAt.getTime(),
+          limit,
+        });
+      }
+
+      // Flutterwave couldn't verify or says pending — tell user to wait
+      logger.warn('Flutterwave verify: payment still pending or unavailable', { reference, flwResult: verified?.status || 'null' });
+      return res.status(402).json({
+        error: 'PAYMENT_PENDING',
+        message: 'Your payment is still processing. This usually completes within 30 seconds. Please wait and try again.',
+      });
     }
 
     // 6. No payment record at all — forged reference
