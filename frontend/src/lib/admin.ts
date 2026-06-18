@@ -49,6 +49,35 @@ export interface UsersResponse {
   limit: number;
 }
 
+export interface Transaction {
+  id: string;
+  user_id: string | null;
+  session_id: string | null;
+  amount: number;
+  currency: string;
+  payment_type: string;
+  payment_method: string;
+  flutterwave_reference: string;
+  status: string;
+  created_at: string;
+  completed_at: string | null;
+  user_email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+}
+
+export interface TransactionsResponse {
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export async function fetchTransactions(page = 1, limit = 20): Promise<TransactionsResponse> {
+  const res = await adminApi.get('/api/admin/transactions', { params: { page, limit } });
+  return res.data;
+}
+
 export async function fetchAnalytics(): Promise<AnalyticsResponse> {
   const res = await adminApi.get('/api/admin/analytics');
   return res.data;

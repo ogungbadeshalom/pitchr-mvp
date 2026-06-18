@@ -11,7 +11,7 @@ router.get('/analytics', requireAdmin, async (req: Request, res: Response, next:
         SELECT
           (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL)::int AS total_users,
           (SELECT COUNT(*) FROM proposals)::int AS total_proposals,
-          (SELECT COALESCE(SUM(amount), 0))::float AS total_revenue,
+          (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE status = 'completed')::float AS total_revenue,
           (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND created_at > NOW() - INTERVAL '24 hours')::int AS signups_24h,
           (SELECT COUNT(*) FROM proposals WHERE created_at > NOW() - INTERVAL '24 hours')::int AS proposals_24h,
           (SELECT COUNT(*) FROM payments WHERE status = 'completed' AND created_at > NOW() - INTERVAL '24 hours')::int AS payments_24h,
@@ -127,6 +127,35 @@ router.patch('/users/:id', requireAdmin, async (req: Request, res: Response, nex
     );
 
     res.json({ user: result.rows[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/transactions', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const offset = (page - 1) * limit;
+
+    const [countResult, dataResult] = await Promise.all([
+      query(`SELECT COUNT(*)::int AS total FROM payments`),
+      query(
+        `SELECT p.*, u.email AS user_email, u.first_name, u.last_name
+         FROM payments p
+         LEFT JOIN users u ON p.user_id = u.id
+         ORDER BY p.created_at DESC
+         LIMIT $1 OFFSET $2`,
+        [limit, offset]
+      ),
+    ]);
+
+    res.json({
+      transactions: dataResult.rows,
+      total: countResult.rows[0].total,
+      page,
+      limit,
+    });
   } catch (err) {
     next(err);
   }
