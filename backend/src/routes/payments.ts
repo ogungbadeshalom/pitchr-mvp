@@ -95,8 +95,11 @@ router.post('/confirm-subscription', requireAuth, async (req, res, next) => {
 
     const userId = (req as any).userId;
 
-    // 1. Check if payment record exists
+    // 1. Check if payment record exists AND belongs to this user
     const payment = await findPaymentByReference(reference);
+    if (payment && payment.user_id && payment.user_id !== userId) {
+      return res.status(403).json({ error: 'FORBIDDEN', message: 'This payment does not belong to your account.' });
+    }
 
     // 2. If already completed (webhook processed it), return success
     if (payment && payment.status === 'completed') {
