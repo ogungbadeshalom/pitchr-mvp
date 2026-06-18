@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useUserStore } from '../../store/userStore';
 import { useSessionStore } from '../../store/sessionStore';
+import { fetchActiveSession } from '../../lib/api';
 
 interface Proposal {
   id: string;
@@ -21,11 +22,16 @@ export default function DashboardPage() {
     Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, { credentials: 'include' }).then(r => r.json()),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/proposals`, { credentials: 'include' }).then(r => r.json()),
-    ]).then(([userData, proposalsData]) => {
+      fetchActiveSession(),
+    ]).then(([userData, proposalsData, session]) => {
       if (cancelled) return;
       if (userData.user) {
         const u = userData.user;
         setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0, u.billing_period);
+      }
+      if (session) {
+        const s = useSessionStore.getState();
+        s.setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit);
       }
       setRecentProposals((proposalsData.proposals || []).slice(0, 5));
     }).catch(() => {});

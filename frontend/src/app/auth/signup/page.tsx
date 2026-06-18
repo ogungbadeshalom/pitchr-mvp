@@ -6,9 +6,11 @@ import Image from 'next/image';
 import { Button } from '../../../components/ui/button';
 import { useToastStore } from '../../../store/toastStore';
 import { useUserStore } from '../../../store/userStore';
+import { useSessionStore } from '../../../store/sessionStore';
 import { initSuperTokens } from '../../../lib/supertokens';
 import { getAuthorisationURLWithQueryParamsAndSetState } from 'supertokens-web-js/recipe/thirdparty';
 import ThemeToggle from '../../../components/ui/theme-toggle';
+import { fetchActiveSession } from '../../../lib/api';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -23,6 +25,7 @@ export default function SignupPage() {
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
   const setUser = useUserStore((s) => s.setUser);
+  const setSession = useSessionStore((s) => s.setSession);
 
   async function handleGoogleSignUp() {
     initSuperTokens();
@@ -82,6 +85,7 @@ export default function SignupPage() {
           const u = data.user;
           setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0);
         }
+        fetchActiveSession().then(s => { if (s) setSession(s.token, s.plan, s.expiresAt, s.proposalsLimit); }).catch(() => {});
         router.push('/dashboard');
       } else {
         const data = await response.json();

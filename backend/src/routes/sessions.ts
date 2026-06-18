@@ -1,14 +1,36 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { generateSessionToken, getSessionLimit, getSessionDuration } from '../services/sessionService';
-import { createSession, updatePaymentStatus, createAuditLog, findSessionByPaymentReference, findPaymentByReference } from '../database/queries';
+import { createSession, updatePaymentStatus, createAuditLog, findSessionByPaymentReference, findPaymentByReference, findActiveSessionByUserId } from '../database/queries';
 import { verifyFlutterwaveTransaction } from '../services/paymentService';
 import { query } from '../config/database';
 import { ValidationError } from '../utils/errors';
 import { logger } from '../utils/logger';
 import { getFlutterwaveConfig } from '../config/flutterwave';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
+
+router.get('/active', requireAuth, async (req, res, next) => {
+  try {
+    const userId = (req as any).userId;
+    const session = await findActiveSessionByUserId(userId);
+    if (!session) {
+      return res.json({ session: null });
+    }
+    res.json({
+      session: {
+        token: session.token,
+        plan: session.plan,
+        expiresAt: new Date(session.expires_at).getTime(),
+        proposalsUsed: session.proposals_used,
+        proposalsLimit: session.proposals_limit,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 const claimSchema = z.object({
   reference: z.string(),
@@ -94,7 +116,7 @@ router.post('/claim', async (req, res, next) => {
         const duration = getSessionDuration(plan);
         const expiresAt = new Date(Date.now() + duration);
 
-        const session = await createSession(token, plan, verified.email || 'user@pitchr.ng', expiresAt, limit, reference);
+        const session = await createSession(token, plan, verified.email || 'user@pitchr.ng', expiresAt, limit, reference, payment.user_id || undefined);
         await createAuditLog(null, 'session_claimed', 'sessions', '', { plan, token, reference });
         logger.info('Session created after Flutterwave verification', { plan, reference });
 

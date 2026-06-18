@@ -210,16 +210,17 @@ router.post('/webhook', async (req, res) => {
 
     await updatePaymentStatus(tx_ref, 'completed');
 
-    if (tx_ref.startsWith('PROP_flash_') || tx_ref.startsWith('PROP_power_')) {
+      if (tx_ref.startsWith('PROP_flash_') || tx_ref.startsWith('PROP_power_')) {
       const plan = tx_ref.startsWith('PROP_flash_') ? 'flash' : 'power';
       const token = generateSessionToken();
       const limit = getSessionLimit(plan);
       const duration = getSessionDuration(plan);
       const expiresAt = new Date(Date.now() + duration);
+      const user = await findUserByEmail(customer.email);
 
-      const session = await createSession(token, plan, customer.email, expiresAt, limit, tx_ref);
+      const session = await createSession(token, plan, customer.email, expiresAt, limit, tx_ref, user?.id);
       await query('UPDATE sessions SET payment_status = $1 WHERE id = $2', ['completed', session.id]);
-      await createAuditLog(null, 'session_created', 'sessions', '', { plan, token });
+      await createAuditLog(user?.id || null, 'session_created', 'sessions', '', { plan, token });
       sendReceipt(customer.email, `session_${plan}`, data.amount, tx_ref).catch(() => {});
     }
 
