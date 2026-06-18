@@ -118,7 +118,7 @@ export default function SessionPage() {
   }
 
   async function handleBuySession(plan: 'flash' | 'power') {
-    const userEmail = useUserStore.getState().email;
+    const userEmail = useUserStore.getState().email || '';
     try {
       const result = await initSessionPayment(plan, userEmail);
       window.location.href = result.payment_link;
