@@ -52,11 +52,12 @@ export async function createSession(
   email: string,
   expiresAt: Date,
   proposalsLimit: number,
-  paymentReference?: string
+  paymentReference?: string,
+  userId?: string
 ): Promise<Session> {
   const result = await query(
-    `INSERT INTO sessions (token, plan, email, expires_at, proposals_limit, payment_reference) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [token, plan, email, expiresAt, proposalsLimit, paymentReference || null]
+    `INSERT INTO sessions (token, plan, email, expires_at, proposals_limit, payment_reference, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [token, plan, email, expiresAt, proposalsLimit, paymentReference || null, userId || null]
   );
   return result.rows[0];
 }
@@ -68,6 +69,14 @@ export async function findSessionByToken(token: string): Promise<Session | null>
 
 export async function findSessionByPaymentReference(reference: string): Promise<Session | null> {
   const result = await query('SELECT * FROM sessions WHERE payment_reference = $1', [reference]);
+  return result.rows[0] || null;
+}
+
+export async function findActiveSessionByUserId(userId: string): Promise<Session | null> {
+  const result = await query(
+    `SELECT * FROM sessions WHERE user_id = $1 AND expires_at > NOW() AND proposals_used < proposals_limit AND payment_status = 'completed' ORDER BY created_at DESC LIMIT 1`,
+    [userId]
+  );
   return result.rows[0] || null;
 }
 

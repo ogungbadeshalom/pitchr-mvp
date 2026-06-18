@@ -7,7 +7,7 @@ import { useUserStore } from '../../store/userStore';
 import { useToastStore } from '../../store/toastStore';
 import { useSession } from '../../hooks/useSession';
 import { useCopy } from '../../hooks/useCopy';
-import { generateProposal, initSessionPayment } from '../../lib/api';
+import { generateProposal, initSessionPayment, fetchActiveSession } from '../../lib/api';
 import { Button } from '../../components/ui/button';
 import SessionTimer from '../../components/session-timer';
 import ThemeToggle from '../../components/ui/theme-toggle';
@@ -65,6 +65,12 @@ export default function SessionPage() {
         }
       })
       .catch(() => {});
+
+    fetchActiveSession().then(session => {
+      if (session) {
+        useSessionStore.getState().setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit);
+      }
+    }).catch(() => {});
   }, [setUser]);
 
   async function handleGenerate(e: FormEvent) {

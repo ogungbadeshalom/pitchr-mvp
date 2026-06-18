@@ -32,4 +32,15 @@ export async function confirmSubscription(reference: string) {
   return response.data;
 }
 
+export async function fetchActiveSession(): Promise<{
+  token: string;
+  plan: 'flash' | 'power';
+  expiresAt: number;
+  proposalsUsed: number;
+  proposalsLimit: number;
+} | null> {
+  const response = await api.get('/api/sessions/active');
+  return response.data.session || null;
+}
+
 export default api;
