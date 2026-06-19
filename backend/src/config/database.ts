@@ -1,5 +1,7 @@
 import { Pool } from 'pg';
 import { logger } from '../utils/logger';
+import fs from 'fs';
+import path from 'path';
 
 let pool: Pool | null = null;
 
@@ -27,10 +29,8 @@ export async function query(text: string, params?: unknown[]) {
 }
 
 export async function runMigrations() {
-  const fs = await import('fs');
-  const path = await import('path');
-  const devDir = path.default.join(__dirname, '../database/migrations');
-  const prodDir = path.default.join(__dirname, '../../src/database/migrations');
+  const devDir = path.join(__dirname, '../database/migrations');
+  const prodDir = path.join(__dirname, '../../src/database/migrations');
   const migrationDir = fs.existsSync(devDir) ? devDir : prodDir;
   if (!fs.existsSync(migrationDir)) {
     logger.error('Migration directory not found', { dir: migrationDir });
@@ -39,7 +39,7 @@ export async function runMigrations() {
   const files = fs.readdirSync(migrationDir).sort();
   for (const file of files) {
     if (file.endsWith('.sql')) {
-      const sql = fs.readFileSync(path.default.join(migrationDir, file), 'utf-8');
+      const sql = fs.readFileSync(path.join(migrationDir, file), 'utf-8');
       await query(sql);
       logger.info(`Migration ${file} applied`);
     }
