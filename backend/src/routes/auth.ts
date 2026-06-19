@@ -103,15 +103,29 @@ router.post('/google-finish', async (req: Request, res: Response, next: NextFunc
     }
     const normalizedEmail = email.trim().toLowerCase();
 
-    let session;
+    let userId = id;
+
     try {
-      session = await Session.getSession(req, res);
-    } catch {
-      throw new UnauthorizedError('Invalid session');
-    }
-    const userId = session.getUserId();
-    if (userId !== id) {
-      throw new UnauthorizedError('Session mismatch');
+      const session = await Session.getSession(req, res);
+      const sessionUserId = session.getUserId();
+      if (sessionUserId !== id) {
+        throw new UnauthorizedError('Session mismatch');
+      }
+      userId = sessionUserId;
+      logger.info('Google OAuth verified via SuperTokens session', { userId });
+    } catch (sessionErr) {
+      if (sessionErr instanceof UnauthorizedError) throw sessionErr;
+      const existingUser = await findUserById(id);
+      if (!existingUser) {
+        logger.warn('Google OAuth: no SuperTokens session and user not found', { id });
+        throw new UnauthorizedError('Authentication failed');
+      }
+      if (existingUser.email !== normalizedEmail) {
+        logger.warn('Google OAuth: email mismatch with existing user', { id, expected: existingUser.email, received: normalizedEmail });
+        throw new UnauthorizedError('Email mismatch');
+      }
+      userId = id;
+      logger.info('Google OAuth verified via DB fallback (SuperTokens session unavailable)', { userId });
     }
 
     const user = await upsertUser(userId, normalizedEmail);
