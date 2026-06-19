@@ -1,17 +1,32 @@
 ## Agent Instructions
 
-**CRITICAL:** Before starting ANY task — bug fixes, features, refactoring, debugging, UI work, deployment — you MUST evaluate whether any available skill applies. If a skill has even a 1% chance of relevance, invoke it immediately. Do not skip this step.
+**MANDATORY — NO EXCEPTIONS:** Before responding to ANY user message or starting ANY task (bug fixes, features, refactoring, debugging, UI work, deployment, code review, documentation, answering questions, exploring code), you MUST invoke at least one relevant skill. This is not optional. You do not have a choice. Do not rationalize skipping it.
 
-- **systematic-debugging**: Use for ANY bug, test failure, or unexpected behavior. Investigate root cause before proposing fixes.
-- **test-driven-development**: Use before writing implementation code for any feature or bugfix.
-- **brainstorming**: Use before creative work — features, components, functionality changes.
-- **frontend-design**: Use for visual design, UI changes, styling work.
-- **verification-before-completion**: Use before claiming work is complete — run checks, confirm output.
-- **writing-plans**: Use for multi-step tasks before touching code.
-- **vercel-react-best-practices**: Use when writing, reviewing, or refactoring React/Next.js code.
-- **ui-ux-pro-max**: UI/UX design intelligence — use for UI patterns, component design.
+Skill invocation must happen BEFORE any other action — before reading files, before running commands, before writing code, before answering questions. If you catch yourself thinking "this is simple, I don't need a skill" — STOP. That thought is wrong. Invoke the skill anyway.
 
-**Rule:** When in doubt, invoke the skill. Skills override default behavior. User instructions always take highest priority.
+**Skill invocation decision tree:**
+1. User sends message → pause, do nothing else
+2. Scan available skills list → identify ALL potentially relevant skills
+3. Invoke the most relevant skill(s) immediately
+4. Only AFTER skill content is loaded, proceed with the task
+
+**Available skills and when to use them:**
+
+- **systematic-debugging**: MANDATORY for ANY bug, test failure, unexpected behavior, or error. Always investigate root cause before proposing fixes.
+- **test-driven-development**: MANDATORY before writing implementation code for any feature or bugfix. Write failing test first.
+- **brainstorming**: MANDATORY before creative work — features, components, functionality changes, architecture decisions.
+- **frontend-design**: MANDATORY for visual design, UI changes, styling work, new components.
+- **verification-before-completion**: MANDATORY before claiming any work is complete — run verification commands, confirm output, never claim without evidence.
+- **writing-plans**: MANDATORY for multi-step tasks before touching code.
+- **vercel-react-best-practices**: MANDATORY when writing, reviewing, or refactoring React/Next.js code.
+- **ui-ux-pro-max**: MANDATORY for UI/UX design decisions, component patterns, interaction design.
+- **dispatching-parallel-agents**: Use when 2+ independent tasks can run in parallel.
+- **subagent-driven-development**: Use when executing implementation plans with independent tasks.
+- **using-superpowers**: Loaded automatically. Always follow superpowers skill framework.
+
+**Rule:** Skills override default behavior. User instructions always take highest priority. When multiple skills apply, invoke process skills first (debugging, brainstorming), then implementation skills.
+
+**Consequence:** Skipping skills leads to missed root causes, rework, and broken code. Every task benefits from structured skill workflows. There is no task too small for skills.
 
 # OpenCode Agent Instructions
 
