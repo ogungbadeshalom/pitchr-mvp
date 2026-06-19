@@ -5,8 +5,10 @@ import { useToastStore } from '../../../store/toastStore';
 interface ReferralLink {
   code: string;
   marketer_name: string;
+  type: string;
   signups: number;
   total_revenue: number;
+  commission_rate: number;
   commission_owed: number;
 }
 
@@ -14,6 +16,7 @@ export default function ReferralsPage() {
   const [links, setLinks] = useState<ReferralLink[]>([]);
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
+  const [linkType, setLinkType] = useState('affiliate');
   const [creating, setCreating] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
 
@@ -34,7 +37,7 @@ export default function ReferralsPage() {
       const res = await fetch('/api/admin/referral-links', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim(), marketer_name: name.trim() }),
+        body: JSON.stringify({ code: code.trim(), marketer_name: name.trim(), type: linkType }),
         credentials: 'include',
       });
       if (res.ok) {
@@ -89,6 +92,17 @@ export default function ReferralsPage() {
             className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-white dark:bg-card"
           />
         </div>
+        <div className="w-full sm:w-auto">
+          <label className="block text-xs font-medium text-muted-foreground mb-1">Type</label>
+          <select
+            value={linkType}
+            onChange={(e) => setLinkType(e.target.value)}
+            className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-white dark:bg-card"
+          >
+            <option value="affiliate">Affiliate (5%)</option>
+            <option value="marketer">Marketer (10%)</option>
+          </select>
+        </div>
         <div className="flex-1">
           <label className="block text-xs font-medium text-muted-foreground mb-1">Marketer Name</label>
           <input
@@ -118,14 +132,16 @@ export default function ReferralsPage() {
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Code</th>
               <th className="text-right px-4 py-3 font-medium text-muted-foreground">Signups</th>
               <th className="text-right px-4 py-3 font-medium text-muted-foreground">Revenue</th>
-              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Commission (10%)</th>
+              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Type</th>
+              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Rate</th>
+              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Commission</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {links.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-12 text-muted-foreground">
+                <td colSpan={8} className="text-center py-12 text-muted-foreground">
                   No referral links yet. Create one above.
                 </td>
               </tr>
@@ -138,6 +154,12 @@ export default function ReferralsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">{l.signups}</td>
                   <td className="px-4 py-3 text-right">₦{l.total_revenue.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${l.type === 'marketer' ? 'bg-brand-50 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300'}`}>
+                      {l.type === 'marketer' ? 'Marketer' : 'Affiliate'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">{l.type === 'marketer' ? '10%' : '5%'}</td>
                   <td className="px-4 py-3 text-right font-semibold text-brand-600">₦{l.commission_owed.toLocaleString()}</td>
                   <td className="px-4 py-3 text-right">
                     <button
