@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useToastStore } from '../../../store/toastStore';
+import { useCopy } from '../../../hooks/useCopy';
 
 interface Proposal {
   id: string;
@@ -15,6 +16,7 @@ export default function ProposalsPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
   const addToast = useToastStore((s) => s.addToast);
+  const { copy, copied } = useCopy();
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +96,18 @@ export default function ProposalsPage() {
                 <pre className="mt-3 p-4 bg-muted/30 border border-border rounded-lg text-sm whitespace-pre-wrap font-sans text-foreground/80 leading-relaxed">
                   {p.generated_proposal}
                 </pre>
+                <div className="mt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => copy(p.generated_proposal, 'Proposal copied')}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-muted border border-input hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:border-brand-300 transition-colors"
+                  >
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    {copied ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
               </details>
             </div>
           ))}
