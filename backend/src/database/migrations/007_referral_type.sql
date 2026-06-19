@@ -1,0 +1,1 @@
+ALTER TABLE referral_links ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'affiliate';
