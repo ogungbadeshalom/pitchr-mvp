@@ -13,6 +13,28 @@
 
 **Rule:** When in doubt, invoke the skill. Skills override default behavior. User instructions always take highest priority.
 
+# OpenCode Agent Instructions
+
+## 🎯 Operational Mode
+- **Look Before You Leap**: Always use `explore` or `scout` subagents to read existing code before writing patches.
+- **Scope Contraction**: Write code in small, focused modules. Do not exceed 300 lines per file.
+- **No Sweeping Changes**: Avoid repo-wide rewrites unless explicitly ordered.
+
+## 🛠 Tech Stack & Coding Constraints
+- **Language**: TypeScript (Strict Mode).
+- **State Management**: MobX using `useLocalStore`.
+- **Styling**: Emotion `css={{}}` prop format. Strictly use design tokens from `DynamicStyles.tsx`.
+- **Error Handling**: Fail fast. Avoid generic try/catch blocks that hide broken functionality.
+- **Type Safety**: Avoid using `any`. Rely on downstream type inference.
+
+## ❌ Strict Don'ts
+- **No Prose/Filler**: Never write Markdown TODO lists; track work programmatically.
+- **No Comments**: Code must be self-explanatory. Avoid inline comments.
+- **No Hardcoding**: Do not hardcode colors, dimensions, or magic strings.
+
+## 🧪 Verification & Definition of Done
+- **Evidence First**: You must run the localized test suite (`pnpm test`) to verify changes before declaring a task complete.
+- **Linter Check**: Run `pnpm lint` and resolve formatting natively before finalizing diffs.
 ---
 
 # Pitchr — AI Proposal Generator (MVP)
