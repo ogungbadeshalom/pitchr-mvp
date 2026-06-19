@@ -78,6 +78,7 @@ export default function ReferralsPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Referrals</h1>
           <p className="text-sm text-muted-foreground mt-1">Track marketer commissions and referral performance</p>
+          <p className="text-xs text-muted-foreground mt-1">Format: <code className="bg-muted px-1.5 py-0.5 rounded text-brand-600">https://pitchr.com.ng?ref=</code></p>
         </div>
       </div>
 
@@ -150,7 +151,8 @@ export default function ReferralsPage() {
                 <tr key={l.code} className="border-b border-brand-50 dark:border-brand-800/50 hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 font-medium text-foreground">{l.marketer_name}</td>
                   <td className="px-4 py-3">
-                    <code className="text-xs bg-muted px-2 py-1 rounded">{l.code}</code>
+                    <code className="text-xs bg-muted px-2 py-1 rounded select-all" title="pitchr.com.ng?ref={l.code}">{l.code}</code>
+                    <span className="text-xs text-muted-foreground ml-1.5">pitchr.com.ng?ref={l.code}</span>
                   </td>
                   <td className="px-4 py-3 text-right">{l.signups}</td>
                   <td className="px-4 py-3 text-right">₦{l.total_revenue.toLocaleString()}</td>
