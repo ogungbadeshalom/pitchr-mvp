@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS referral_links (
   code TEXT PRIMARY KEY,
   marketer_name TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'affiliate',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

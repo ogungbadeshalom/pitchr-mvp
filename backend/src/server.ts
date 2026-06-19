@@ -12,6 +12,7 @@ import paymentsRouter from './routes/payments';
 import sessionsRouter from './routes/sessions';
 import userRouter from './routes/user';
 import adminRouter from './routes/admin';
+import affiliateRouter from './routes/affiliate';
 
 export function createApp() {
   initSuperTokens();
@@ -41,9 +42,10 @@ export function createApp() {
   app.use('/api/payments', paymentsRouter);
   app.use('/api/sessions', sessionsRouter);
   app.use('/api/user', userRouter);
-  app.use('/api/admin', adminRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/affiliate', affiliateRouter);
 
-  app.use(errorHandler);
+app.use(errorHandler);
 
   return app;
 }

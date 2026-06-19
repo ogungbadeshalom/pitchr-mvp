@@ -206,14 +206,15 @@ router.get('/referral-links', requireAdmin, async (_req: Request, res: Response,
 
 router.post('/referral-links', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { code, marketer_name } = req.body;
+    const { code, marketer_name, type } = req.body;
     if (!code || typeof code !== 'string' || code.trim() === '') {
       throw new AppError('Referral code is required', 'VALIDATION_ERROR', 400);
     }
     if (!marketer_name || typeof marketer_name !== 'string' || marketer_name.trim() === '') {
       throw new AppError('Marketer name is required', 'VALIDATION_ERROR', 400);
     }
-    await createReferralLink(code.trim().toLowerCase(), marketer_name.trim());
+    const linkType = (type === 'marketer') ? 'marketer' : 'affiliate';
+    await createReferralLink(code.trim().toLowerCase(), marketer_name.trim(), linkType);
     const links = await listReferralLinks();
     res.status(201).json({ links });
   } catch (err) {
