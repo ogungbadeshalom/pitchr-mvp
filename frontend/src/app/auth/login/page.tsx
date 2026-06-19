@@ -31,7 +31,6 @@ export default function LoginPage() {
       const authUrl = await getAuthorisationURLWithQueryParamsAndSetState({
         thirdPartyId: 'google',
         frontendRedirectURI: `${window.location.origin}/auth/callback`,
-        redirectURIOnProviderDashboard: `${window.location.origin}/auth/callback`,
       });
       window.location.href = authUrl;
     } catch {
