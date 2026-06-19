@@ -15,8 +15,7 @@ router.get('/', requireAuth, async (req, res, next) => {
       return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
     }
     const profile = await getFreelancerProfile(userId);
-    const { password_hash: _, google_oauth_id: _2, avatar_url: _3, deleted_at: _4, ...safeUser } = user as any;
-    res.json({ user: { ...safeUser, profile_text: profile?.profile_text || '' } });
+    res.json({ user: { ...user, profile_text: profile?.profile_text || '' } });
   } catch (err) {
     next(err);
   }
@@ -47,6 +46,7 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
       throw new ValidationError('No fields to update');
     }
 
+    updates.push(`updated_at = NOW()`);
     values.push(userId);
     const result = await query(
       `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx} RETURNING id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at`,
@@ -63,7 +63,7 @@ router.patch('/profile', requireAuth, async (req, res, next) => {
 });
 
 const freelancerProfileSchema = z.object({
-  profile_text: z.string().max(5000, 'Profile must be under 5000 characters'),
+  profile_text: z.string().min(1, 'Profile text cannot be empty').max(5000, 'Profile must be under 5000 characters'),
 });
 
 router.get('/profile/freelancer', requireAuth, async (req, res, next) => {

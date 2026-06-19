@@ -10,11 +10,11 @@ describe('getProposalLimit', () => {
     expect(getProposalLimit('pro')).toBe(0);
   });
 
-  it('should return 0 for free', () => {
-    expect(getProposalLimit('free')).toBe(0);
+  it('should return 5 for free (safe default)', () => {
+    expect(getProposalLimit('free')).toBe(5);
   });
 
-  it('should return 0 for unknown plan', () => {
-    expect(getProposalLimit('unknown')).toBe(0);
+  it('should return 5 for unknown plan', () => {
+    expect(getProposalLimit('unknown')).toBe(5);
   });
 });

@@ -17,7 +17,7 @@ Write proposals that actually get replies. Pitchr is built for Nigerian freelanc
 | Layer | Technology |
 |---|---|
 | Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS, Zustand |
-| Backend | Express, TypeScript, tsx runner |
+| Backend | Express, TypeScript, tsx (dev) / Node.js (production) |
 | Database | PostgreSQL 15 |
 | Auth | Custom JWT + SuperTokens (Google OAuth) |
 | AI | DeepSeek API |
@@ -36,7 +36,7 @@ Write proposals that actually get replies. Pitchr is built for Nigerian freelanc
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Shalomhatesjavascript/pitchr-mvp.git
+git clone https://github.com/ogungbadeshalom/pitchr-mvp.git
 cd pitchr-mvp
 ```
 
@@ -63,7 +63,7 @@ The backend starts on port 5001. Migrations run automatically on first start.
 
 ```bash
 cd frontend
-cp .env.local.example .env.local
+cp .env.example .env.local
 npm install
 npm run dev
 ```
@@ -114,6 +114,7 @@ Config values are lazy-loaded via getter functions. Note: Flutterwave and DeepSe
 3. Add authorized redirect URIs:
    - `http://localhost:3567/auth/callback/google`
    - `http://localhost:3000/auth/callback`
+   (Production: `https://api.pitchr.com.ng/api/auth/callback/google` and `https://pitchr.com.ng/auth/callback`)
 4. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env`
 
 ## Usage
@@ -184,7 +185,7 @@ Session data is saved to `localStorage`. Close the tab and come back — if the 
 | Command | Description |
 |---|---|
 | `npm run dev` | Next.js dev server (port 3000) |
-| `npm run build` | Production build (includes lint + typecheck) |
+| `npm run build` | Production build (includes linting) |
 | `npm start` | Start production server |
 
 ## API Routes

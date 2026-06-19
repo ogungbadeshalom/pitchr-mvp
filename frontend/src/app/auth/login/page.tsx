@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
@@ -47,8 +48,8 @@ export default function LoginPage() {
       setFieldErrors((p) => ({ ...p, email: 'Enter a valid email address' }));
       return false;
     }
-    if (name === 'password' && value.length < 6) {
-      setFieldErrors((p) => ({ ...p, password: 'Password must be at least 6 characters' }));
+    if (name === 'password' && value.length < 8) {
+      setFieldErrors((p) => ({ ...p, password: 'Password must be at least 8 characters' }));
       return false;
     }
     setFieldErrors((p) => ({ ...p, [name]: '' }));
@@ -66,8 +67,9 @@ export default function LoginPage() {
     const passValid = validateField('password', password);
     if (!emailValid || !passValid) return;
 
+    setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`, {
+      const response = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -80,7 +82,8 @@ export default function LoginPage() {
           const u = data.user;
           setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0);
         }
-        fetchActiveSession().then(s => { if (s) setSession(s.token, s.plan, s.expiresAt, s.proposalsLimit); }).catch(() => {});
+        const session = await fetchActiveSession().catch(() => null);
+        if (session) setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit, session.proposalsUsed);
         router.push('/dashboard');
       } else {
         const data = await response.json();
@@ -88,6 +91,8 @@ export default function LoginPage() {
       }
     } catch {
       setError('Connection error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -141,6 +146,7 @@ export default function LoginPage() {
                     fieldErrors.password ? 'border-red-400 focus:border-red-500' : 'border-input focus:border-brand-500'
                   }`}
                   placeholder="Enter your password"
+                  minLength={8}
                   required
                 />
                 {fieldErrors.password && <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>}
@@ -167,13 +173,25 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 gap-2">
-              Sign In
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                <polyline points="10 17 15 12 10 7"/>
-                <line x1="15" y1="12" x2="3" y2="12"/>
-              </svg>
+            <Button type="submit" disabled={loading} className="w-full shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 gap-2">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg aria-hidden="true" className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  Signing in...
+                </span>
+              ) : (
+                <>
+                  Sign In
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                  </svg>
+                </>
+              )}
             </Button>
           </form>
 

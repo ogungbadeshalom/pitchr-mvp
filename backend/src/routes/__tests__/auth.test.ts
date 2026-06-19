@@ -71,7 +71,7 @@ describe('POST /api/auth/signup', () => {
     const res = await request(createAuthApp()).post('/api/auth/signup').send({ email: 'new@test.com', password: 'test1234!', firstName: 'T', lastName: 'U' });
     expect(res.status).toBe(201);
     expect(res.body.user.subscription_tier).toBe('free');
-    expect(res.body.token).toBe('test-jwt-token');
+    expect(mocks.signToken).toHaveBeenCalledWith('new-id');
   });
 });
 
@@ -103,7 +103,7 @@ describe('POST /api/auth/signin', () => {
     const res = await request(createAuthApp()).post('/api/auth/signin').send({ email: 'a@b.com', password: 'correct' });
     expect(res.status).toBe(200);
     expect(res.body.user.subscription_tier).toBe('starter');
-    expect(res.body.token).toBe('test-jwt-token');
+    expect(mocks.signToken).toHaveBeenCalledWith('u1');
   });
 });
 

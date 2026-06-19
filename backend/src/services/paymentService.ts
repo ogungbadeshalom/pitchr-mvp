@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { getFlutterwaveConfig } from '../config/flutterwave';
 import { logger } from '../utils/logger';
 import { PaymentError } from '../utils/errors';
@@ -18,20 +19,26 @@ const ANNUAL_PRICES: Record<string, number> = {
 };
 
 export function getSessionPrice(plan: string): number {
+  if (!SESSION_PRICES[plan]) logger.warn(`Unknown session plan "${plan}", falling back to default price`);
   return SESSION_PRICES[plan] || 500;
 }
 
 export function getSubscriptionPrice(plan: string): number {
+  if (!SUBSCRIPTION_PRICES[plan]) logger.warn(`Unknown subscription plan "${plan}", falling back to default price`);
   return SUBSCRIPTION_PRICES[plan] || 1500;
 }
 
 export function getAnnualPrice(plan: string): number {
+  if (!ANNUAL_PRICES[plan]) logger.warn(`Unknown annual plan "${plan}", falling back to default price`);
   return ANNUAL_PRICES[plan] || 15000;
 }
 
 async function callFlutterwave(amount: number, txRef: string, email: string, name: string, redirectUrl: string) {
   const cfg = getFlutterwaveConfig();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
   const response = await fetch(`${cfg.baseUrl}/payments`, {
+    signal: controller.signal,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -50,8 +57,11 @@ async function callFlutterwave(amount: number, txRef: string, email: string, nam
       redirect_url: redirectUrl,
     }),
   });
+  clearTimeout(timeout);
 
   if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    logger.error('Flutterwave API error', { status: response.status, body: body.slice(0, 500) });
     throw new Error(`Flutterwave error: ${response.status}`);
   }
 
@@ -73,7 +83,8 @@ export async function initSessionPayment(plan: string, email: string, frontendUr
 
   try {
     const redirectUrl = `${frontendUrl}/session/success?reference=${txRef}`;
-    return await callFlutterwave(amount, txRef, email, email.split('@')[0], redirectUrl);
+    const name = email ? email.split('@')[0] : 'Customer';
+    return await callFlutterwave(amount, txRef, email, name, redirectUrl);
   } catch (error) {
     logger.error('Flutterwave payment init failed', { error: String(error) });
     throw new PaymentError('Failed to initiate payment. Please try again.');
@@ -94,7 +105,8 @@ export async function initSubscriptionPayment(plan: string, email: string, front
 
   try {
     const redirectUrl = `${frontendUrl}/dashboard/subscription?reference=${txRef}`;
-    return await callFlutterwave(amount, txRef, email, email.split('@')[0], redirectUrl);
+    const name = email ? email.split('@')[0] : 'Customer';
+    return await callFlutterwave(amount, txRef, email, name, redirectUrl);
   } catch (error) {
     logger.error('Flutterwave subscription payment init failed', { error: String(error) });
     throw new PaymentError('Failed to initiate payment. Please try again.');
@@ -105,6 +117,9 @@ export async function verifyFlutterwaveTransaction(txRef: string): Promise<{ sta
   const cfg = getFlutterwaveConfig();
 
   if (cfg.secretKey === 'sk_placeholder') {
+    if (process.env.NODE_ENV === 'production') {
+      throw new PaymentError('Flutterwave not configured in production');
+    }
     return { status: 'successful', amount: 500, email: 'mock@pitchr.ng' };
   }
 
@@ -122,6 +137,7 @@ export async function verifyFlutterwaveTransaction(txRef: string): Promise<{ sta
       if (!response.ok) {
         const body = await response.text().catch(() => '');
         logger.warn('Flutterwave verify failed', { status: response.status, txRef, attempt, body: body.slice(0, 200) });
+        if (response.status >= 400 && response.status < 500) return null;
         continue;
       }
 
@@ -160,8 +176,11 @@ export async function verifyFlutterwaveTransaction(txRef: string): Promise<{ sta
 }
 
 export function verifyWebhookSignature(body: string, signature: string): boolean {
-  if (getFlutterwaveConfig().secretKey === 'sk_placeholder') return true;
-  const crypto = require('crypto');
+  if (getFlutterwaveConfig().secretKey === 'sk_placeholder') {
+    if (process.env.NODE_ENV !== 'production') return true;
+    logger.error('Webhook verification impossible: Flutterwave not configured in production');
+    return false;
+  }
   const hash = crypto.createHmac('sha256', getFlutterwaveConfig().secretKey)
     .update(body)
     .digest('hex');

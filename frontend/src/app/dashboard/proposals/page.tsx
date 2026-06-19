@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useToastStore } from '../../../store/toastStore';
 
 interface Proposal {
   id: string;
@@ -12,13 +13,27 @@ interface Proposal {
 
 export default function ProposalsPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/proposals`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(data => setProposals(data.proposals || []))
-      .catch(() => {});
-  }, []);
+    let cancelled = false;
+    fetch('/api/proposals', { credentials: 'include' })
+      .then(async (r) => {
+        if (!r.ok) throw new Error('Failed to load');
+        return r.json();
+      })
+      .then(data => {
+        if (!cancelled) setProposals(data.proposals || []);
+      })
+      .catch(() => {
+        if (!cancelled) addToast('Failed to load proposals', 'error');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [addToast]);
 
   return (
     <div>
@@ -40,7 +55,11 @@ export default function ProposalsPage() {
         </Link>
       </div>
 
-      {proposals.length === 0 ? (
+      {loading ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading proposals...</div>
+        </div>
+      ) : proposals.length === 0 ? (
         <div className="bg-white dark:bg-card border border-brand-100 dark:border-brand-800 rounded-xl p-12 text-center">
           <div className="w-14 h-14 rounded-xl bg-brand-50 dark:bg-brand-900/50 flex items-center justify-center mx-auto mb-4">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-400">

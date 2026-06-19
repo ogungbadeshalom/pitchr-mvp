@@ -4,7 +4,7 @@ const mockFind = vi.hoisted(() => ({ fn: vi.fn(), inc: vi.fn() }));
 
 vi.mock('../../database/queries', () => ({
   findSessionByToken: mockFind.fn,
-  incrementSessionProposalsUsed: mockFind.inc,
+  atomicIncrementSessionProposals: mockFind.inc,
 }));
 
 import { generateSessionToken, getSessionLimit, getSessionDuration, validateAndUseSession } from '../sessionService';
@@ -97,10 +97,13 @@ describe('validateAndUseSession', () => {
       proposals_used: 2, proposals_limit: 5,
       payment_reference: null, payment_status: 'completed',
     };
+    const updatedSession = { ...session, proposals_used: 3 };
     mockFind.fn.mockResolvedValue(session as any);
+    mockFind.inc.mockResolvedValue(updatedSession as any);
 
     const result = await validateAndUseSession('t');
     expect(result.id).toBe('1');
+    expect(result.proposals_used).toBe(3);
     expect(mockFind.inc).toHaveBeenCalledWith('1');
   });
 });

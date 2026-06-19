@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { findSessionByToken, incrementSessionProposalsUsed } from '../database/queries';
-import { UnauthorizedError } from '../utils/errors';
+import { findSessionByToken, atomicIncrementSessionProposals } from '../database/queries';
+import { UnauthorizedError, PaymentError } from '../utils/errors';
 import type { Session } from '../types';
 
 const SESSION_LIMITS: Record<string, number> = {
@@ -31,6 +31,7 @@ export async function validateAndUseSession(token: string): Promise<Session> {
   if (session.payment_status !== 'completed') throw new UnauthorizedError('Session not paid');
   if (new Date() > new Date(session.expires_at)) throw new UnauthorizedError('Session expired');
   if (session.proposals_used >= session.proposals_limit) throw new UnauthorizedError('Proposal limit reached');
-  await incrementSessionProposalsUsed(session.id);
-  return session;
+  const updated = await atomicIncrementSessionProposals(session.id);
+  if (!updated) throw new PaymentError('Session limit reached or session expired');
+  return updated;
 }

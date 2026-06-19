@@ -12,7 +12,7 @@ export default function PwaSetup() {
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').catch(err => console.error('SW registration failed:', err));
     }
 
     const handler = (e: Event) => {
@@ -34,13 +34,6 @@ export default function PwaSetup() {
       setShowInstall(false);
       setDeferredPrompt(null);
     });
-
-    try {
-      const last = localStorage.getItem('pitchr_pwa_dismissed');
-      if (last && Date.now() - Number(last) < 7 * 24 * 60 * 60 * 1000) {
-        setShowInstall(false);
-      }
-    } catch {}
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);

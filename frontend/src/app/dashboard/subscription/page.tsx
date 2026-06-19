@@ -86,18 +86,24 @@ function SubscriptionInner() {
   const [cancelling, setCancelling] = useState(false);
   const [payStatus, setPayStatus] = useState<'processing' | 'session_ok' | 'sub_ok' | 'error' | null>(hasRef ? 'processing' : null);
   const [payError, setPayError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 10;
 
   useEffect(() => {
     if (reference) return;
     (async () => {
       try {
         const res = await fetch('/api/user', { credentials: 'include' });
-        if (!res.ok) { router.push('/auth/login'); return; }
+        if (!res.ok) {
+          addToast('Please sign in to continue', 'info');
+          router.push('/auth/login');
+          return;
+        }
       } catch {
         router.push('/auth/login');
       }
     })();
-  }, [reference, router]);
+  }, [reference, router, addToast]);
 
   useEffect(() => {
     if (!reference) return;
@@ -113,12 +119,16 @@ function SubscriptionInner() {
     }
 
     (async () => {
-      try {
+      // Retry up to 10 times with 3s delay (~30s max) for payment verification
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (attempt > 0) await new Promise(r => setTimeout(r, 3000));
+        try {
         if (isFlash || isPower) {
           const res = await fetch('/api/sessions/claim', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ reference }),
+            credentials: 'include',
           });
           const data = await res.json();
 
@@ -128,6 +138,11 @@ function SubscriptionInner() {
             addToast('Session activated!', 'success');
           } else {
             const msg = data.message || 'Payment could not be verified.';
+            const isPending = msg.toLowerCase().includes('pending');
+            if (isPending && attempt < MAX_RETRIES - 1) {
+              setRetryCount(attempt + 1);
+              continue;
+            }
             setPayError(msg);
             setPayStatus('error');
           }
@@ -155,13 +170,24 @@ function SubscriptionInner() {
             addToast('Subscription activated!', 'success');
           } else {
             const msg = data.message || 'Payment could not be verified.';
+            const isPending = msg.toLowerCase().includes('pending');
+            if (isPending && attempt < MAX_RETRIES - 1) {
+              setRetryCount(attempt + 1);
+              continue;
+            }
             setPayError(msg);
             setPayStatus('error');
           }
         }
-      } catch {
-        setPayError('Connection error verifying payment.');
-        setPayStatus('error');
+        return;
+        } catch {
+          if (attempt < MAX_RETRIES - 1) {
+            setRetryCount(attempt + 1);
+            continue;
+          }
+          setPayError('Connection error verifying payment.');
+          setPayStatus('error');
+        }
       }
     })();
   }, [reference, router, addToast, setUser]);
@@ -246,7 +272,7 @@ function SubscriptionInner() {
           </svg>
         </div>
         <h2 className="text-xl font-bold text-foreground mb-2">Verifying your payment...</h2>
-        <p className="text-sm text-muted-foreground">Please wait while we confirm your payment with Flutterwave.</p>
+        <p className="text-sm text-muted-foreground">Please wait while we confirm your payment with Flutterwave.{retryCount > 0 ? ` (Attempt ${retryCount}/${MAX_RETRIES})` : ''}</p>
       </div>
     );
   }

@@ -18,7 +18,7 @@ interface SessionState {
   expiresAt: number | null;
   proposalsUsed: number;
   proposalsLimit: number;
-  setSession: (token: string, plan: 'flash' | 'power', expiresAt: number, limit: number) => void;
+  setSession: (token: string, plan: 'flash' | 'power', expiresAt: number, limit: number, proposalsUsed?: number) => void;
   incrementUsed: () => void;
   clearSession: () => void;
   rehydrate: () => void;
@@ -63,17 +63,18 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   hydrated: false,
   ...loadFromStorage(),
 
-  setSession: (token, plan, expiresAt, limit) => {
-    const data = { token, plan, expiresAt, proposalsUsed: 0, proposalsLimit: limit };
+  setSession: (token, plan, expiresAt, limit, proposalsUsed = 0) => {
+    const data = { token, plan, expiresAt, proposalsUsed, proposalsLimit: limit };
     set({ ...data, hydrated: true });
     saveToStorage(data);
   },
 
   incrementUsed: () => {
     const s = get();
+    if (!s.token || !s.plan || !s.expiresAt) return;
     const updated = { proposalsUsed: s.proposalsUsed + 1 };
     set(updated);
-    saveToStorage({ token: s.token!, plan: s.plan!, expiresAt: s.expiresAt!, proposalsLimit: s.proposalsLimit, ...updated });
+    saveToStorage({ token: s.token, plan: s.plan, expiresAt: s.expiresAt, proposalsLimit: s.proposalsLimit, ...updated });
   },
 
   clearSession: () => {

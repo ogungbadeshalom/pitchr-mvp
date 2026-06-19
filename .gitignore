@@ -3,6 +3,13 @@ dist/
 .next/
 .env
 .env.local
+.env.production
 logs/
 *.log
+coverage/
 .superpowers/
+.playwright-mcp/
+.vscode/
+.idea/
+*.swp
+*.swo

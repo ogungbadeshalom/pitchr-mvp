@@ -47,7 +47,7 @@ cd backend && npm run build        # tsc → dist/
 
 # Frontend
 cd frontend && npm run dev         # next dev (port 3000)
-cd frontend && npm run build       # next build (includes lint + typecheck)
+cd frontend && npm run build       # next build (includes linting)
 
 # Database
 docker compose up -d               # postgres:15 + supertokens-postgresql:7.0
@@ -59,7 +59,7 @@ docker compose up -d               # postgres:15 + supertokens-postgresql:7.0
 
 1. `docker compose up -d` — starts Postgres on 5432 + SuperTokens on 3567
 2. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env`
-3. Add `http://localhost:3567/auth/callback/google` and `http://localhost:3000/auth/callback` as Authorized redirect URIs in Google Cloud Console
+3. Add `http://localhost:3567/auth/callback/google` and `http://localhost:3000/auth/callback` as Authorized redirect URIs in Google Cloud Console (production: use `https://api.pitchr.com.ng/api/auth/callback/google` and `https://pitchr.com.ng/auth/callback`)
 4. `cd backend && npm run dev` — auto-runs migrations on start
 5. `cd frontend && npm run dev`
 6. Open `http://localhost:3000`
@@ -154,7 +154,7 @@ PROP_SUB_pro_annual_<timestamp>     → subscription (annual)
 
 ## Database
 
-Postgres 15 via docker-compose. Schema in `backend/src/database/schema.sql`. Migrations in `src/database/migrations/001_init.sql` auto-run on server start.
+Postgres 15 via docker-compose. Schema in `backend/src/database/schema.sql`. Migrations in `src/database/migrations/` (001-004) auto-run on server start.
 
 Tables: `users`, `sessions`, `proposals`, `payments`, `audit_logs`
 

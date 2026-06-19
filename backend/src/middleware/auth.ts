@@ -3,7 +3,7 @@ import { verifyToken } from '../config/jwt';
 import { UnauthorizedError } from '../utils/errors';
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const token = req.cookies?.pitchr_token || req.headers.authorization?.replace('Bearer ', '');
+  const token = req.cookies?.pitchr_token || req.headers.authorization?.replace(/^Bearer\s+/i, '');
   if (!token) {
     return next(new UnauthorizedError('Authentication required'));
   }

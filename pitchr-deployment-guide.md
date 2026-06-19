@@ -72,6 +72,7 @@ sh get-docker.sh
 # Verify
 docker --version
 docker compose version
+# If the above fails on older Docker, use: docker-compose --version
 ```
 
 ---
@@ -129,7 +130,7 @@ Fill in every value:
 nano Caddyfile
 ```
 
-Replace `pitchr.com.ng` with **your actual domain** (e.g. `yourname.ng`).
+Replace `pitchr.com.ng` with **your actual domain** (e.g. `yourname.ng`). Also update `FRONTEND_URL` and `API_URL` in `.env` to match.
 
 ### 4.4 Launch Everything
 
@@ -140,9 +141,10 @@ docker compose up -d
 This single command:
 1. Pulls PostgreSQL 15 and SuperTokens images
 2. Builds the backend from `./backend/Dockerfile` (TypeScript → JavaScript)
-3. Builds the frontend from `./frontend/Dockerfile` (Next.js static export)
-4. Starts Caddy with auto SSL via Let's Encrypt
-5. Connects everything on one Docker network
+3. Builds the frontend from `./frontend/Dockerfile` (Next.js standalone output — Node.js server)
+4. Runs database migrations automatically on backend startup
+5. Starts Caddy with auto SSL via Let's Encrypt
+6. Connects everything on one Docker network
 
 **First build takes 2–5 minutes.** Subsequent runs are instant (cached).
 
@@ -170,7 +172,7 @@ You should see all 5 containers showing `Up` or `healthy`:
 For payment notifications to work:
 
 1. Go to [Flutterwave Dashboard](https://dashboard.flutterwave.com) → **Settings** → **Webhooks**
-2. Add webhook URL: `https://api.pitchr.com.ng/api/payments/webhook`
+2. Add webhook URL: `https://api.yourdomain.com.ng/api/payments/webhook`
 
 The webhook handler:
 - Activates session payments (creates session token with expiry)
@@ -263,19 +265,7 @@ Expected output:
 
 If you see `database: "connected"`, everything is wired up correctly.
 
-### 10.2 Set Up DNS
-
-In your domain registrar, add these **A records** pointing to your VPS IP:
-
-| Type | Name | Value |
-|------|------|-------|
-| A | `@` | `your-vps-ip` |
-| A | `api` | `your-vps-ip` |
-| A | `www` | `your-vps-ip` |
-
-Once DNS propagates, Caddy auto-provisions SSL — your site will be HTTPS.
-
-### 10.3 Set Up Flutterwave Webhook
+### 10.2 Set Up Flutterwave Webhook
 
 In Flutterwave Dashboard → Settings → Webhooks, add:
 ```
@@ -284,9 +274,9 @@ https://api.yourdomain.com.ng/api/payments/webhook
 
 This lets Pitchr handle payment confirmations automatically (session activation, subscription activation, email receipts).
 
-### 10.4 Test the Full Flow
+### 10.3 Test the Full Flow
 
-- Open `http://your-vps-ip` in a browser
+- Open `https://your-domain` in a browser (Caddy requires a domain name for SSL)
 - Sign up with email
 - Buy a Flash Session (₦500) — test payment with Flutterwave test card
 - Generate a proposal — paste any job description
@@ -294,7 +284,7 @@ This lets Pitchr handle payment confirmations automatically (session activation,
 - Test dark mode toggle
 - Test on mobile
 
-### 10.5 Updating After Code Changes
+### 10.4 Updating After Code Changes
 
 ```bash
 ssh root@your-vps-ip
@@ -303,7 +293,7 @@ git pull
 docker compose up -d --build
 ```
 
-### 10.6 Monitoring
+### 10.5 Monitoring
 
 ```bash
 # Check logs for errors
@@ -322,7 +312,7 @@ dpkg-reconfigure --priority=low unattended-upgrades
 
 ---
 
-## 12. Troubleshooting
+## 11. Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
@@ -336,7 +326,7 @@ dpkg-reconfigure --priority=low unattended-upgrades
 
 ---
 
-## 13. Monthly Cost
+## 12. Monthly Cost
 
 | Item | Cost |
 |------|------|

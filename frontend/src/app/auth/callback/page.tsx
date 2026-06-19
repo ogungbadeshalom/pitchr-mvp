@@ -2,14 +2,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '../../../store/userStore';
-import { useSessionStore } from '../../../store/sessionStore';
 import { initSuperTokens } from '../../../lib/supertokens';
 import { signInAndUp } from 'supertokens-web-js/recipe/thirdparty';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const setUser = useUserStore((s) => s.setUser);
-  const clearSession = useSessionStore((s) => s.clearSession);
   const [message] = useState('Completing authentication...');
 
   useEffect(() => {
@@ -38,7 +36,7 @@ export default function AuthCallbackPage() {
                 u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0
               );
             }
-            clearSession();
+            // Dashboard fetches fresh session from server on mount — no need to clearSession here
             router.push('/dashboard');
             return;
           }
@@ -48,7 +46,7 @@ export default function AuthCallbackPage() {
       }
       router.push('/dashboard');
     })();
-  }, [router, setUser, clearSession]);
+  }, [router, setUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 via-white to-teal-50">

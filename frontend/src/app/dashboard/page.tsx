@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useUserStore } from '../../store/userStore';
 import { useSessionStore } from '../../store/sessionStore';
+import { useToastStore } from '../../store/toastStore';
 import { fetchActiveSession } from '../../lib/api';
 
 interface Proposal {
@@ -16,27 +17,40 @@ export default function DashboardPage() {
   const { firstName, lastName, email, subscriptionTier, proposalCount, proposalLimit, setUser } = useUserStore();
   const { plan: sessionPlan, expiresAt, proposalsUsed, proposalsLimit } = useSessionStore();
   const [recentProposals, setRecentProposals] = useState<Proposal[]>([]);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/proposals`, { credentials: 'include' }).then(r => r.json()),
+      fetch('/api/user', { credentials: 'include' }),
+      fetch('/api/proposals', { credentials: 'include' }),
       fetchActiveSession(),
-    ]).then(([userData, proposalsData, session]) => {
+    ]).then(async ([userRes, proposalsRes, session]) => {
       if (cancelled) return;
+      if (!userRes.ok) {
+        addToast('Failed to load user data', 'error');
+        return;
+      }
+      const userData = await userRes.json();
       if (userData.user) {
         const u = userData.user;
         setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0, u.billing_period);
       }
       if (session) {
         const s = useSessionStore.getState();
-        s.setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit);
+        s.setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit, session.proposalsUsed);
       }
+      if (!proposalsRes.ok) {
+        addToast('Failed to load proposals', 'error');
+        return;
+      }
+      const proposalsData = await proposalsRes.json();
       setRecentProposals((proposalsData.proposals || []).slice(0, 5));
-    }).catch(() => {});
+    }).catch(() => {
+      addToast('Connection error', 'error');
+    });
     return () => { cancelled = true; };
-  }, [setUser]);
+  }, [setUser, addToast]);
 
   const displayName = firstName
     ? `${firstName}${lastName ? ` ${lastName}` : ''}`

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSessionStore } from '../../store/sessionStore';
@@ -32,6 +32,7 @@ export default function SessionPage() {
   const setUser = useUserStore((s) => s.setUser);
   const addToast = useToastStore((s) => s.addToast);
   const { copy } = useCopy();
+  const profileDebounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const hasSubscription = subscriptionTier !== 'free';
   const canGenerate = isValid || hasSubscription;
@@ -49,9 +50,14 @@ export default function SessionPage() {
     if (stored) {
       try { setProfileText(JSON.parse(stored)); } catch {}
     }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(data => {
+    let cancelled = false;
+    Promise.all([
+      fetch('/api/user', { credentials: 'include' }),
+      fetchActiveSession(),
+    ]).then(async ([userRes, session]) => {
+      if (cancelled) return;
+      if (userRes.ok) {
+        const data = await userRes.json();
         if (data.user) {
           const u = data.user;
           setUser(
@@ -63,15 +69,17 @@ export default function SessionPage() {
             localStorage.setItem('pitchr_profile', JSON.stringify(u.profile_text));
           }
         }
-      })
-      .catch(() => {});
-
-    fetchActiveSession().then(session => {
-      if (session) {
-        useSessionStore.getState().setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit);
+      } else {
+        addToast('Failed to load user data', 'error');
       }
-    }).catch(() => {});
-  }, [setUser]);
+      if (session) {
+        useSessionStore.getState().setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit, session.proposalsUsed);
+      }
+    }).catch(() => {
+      if (!cancelled) addToast('Connection error', 'error');
+    });
+    return () => { cancelled = true; };
+  }, [setUser, addToast]);
 
   async function handleGenerate(e: FormEvent) {
     e.preventDefault();
@@ -219,12 +227,15 @@ export default function SessionPage() {
                       <p className="text-xs text-muted-foreground mb-2">
                         Paste your freelancer profile — experience, key skills, notable results with numbers, and background. The AI uses this to personalize your proposals.
                       </p>
-                      <textarea
-                        value={profileText}
-                        onChange={(e) => {
-                          setProfileText(e.target.value);
-                          localStorage.setItem('pitchr_profile', JSON.stringify(e.target.value));
-                        }}
+                       <textarea
+                         value={profileText}
+                         onChange={(e) => {
+                           setProfileText(e.target.value);
+                           if (profileDebounceRef.current) clearTimeout(profileDebounceRef.current);
+                           profileDebounceRef.current = setTimeout(() => {
+                             localStorage.setItem('pitchr_profile', JSON.stringify(e.target.value));
+                           }, 300);
+                         }}
                         className="w-full h-28 p-3 border border-input rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-ring focus:border-brand-500 transition-shadow text-sm bg-white dark:bg-card"
                         placeholder="4 years React/Node.js developer. Cut load times 85% for a fintech. Built dashboards used by 500+ daily users..."
                       />

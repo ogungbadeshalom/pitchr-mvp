@@ -41,6 +41,7 @@ function TrendChart({ data, valueKey, color, format, label }: {
 }) {
   const max = Math.max(1, ...data.map(d => d[valueKey] || 0));
   const total = data.reduce((sum, d) => sum + (d[valueKey] || 0), 0);
+  // Show last 7 days of the trend data
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -93,19 +94,22 @@ export default function AdminPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         const data = await fetchAnalytics();
+        if (cancelled) return;
         setOverview(data.overview);
         setSignupTrend(data.signup_trend);
         setProposalTrend(data.proposal_trend);
         setRevenueTrend(data.revenue_trend);
       } catch {
-        setError('Failed to load analytics. You may not have admin access.');
+        if (!cancelled) setError('Failed to load analytics. You may not have admin access.');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) {

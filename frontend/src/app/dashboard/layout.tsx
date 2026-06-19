@@ -38,10 +38,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="hidden sm:inline">New Proposal</span>
             </Link>
             <button
-              onClick={() => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signout`, { method: 'POST', credentials: 'include' });
+              onClick={async () => {
+                await fetch('/api/auth/signout', { method: 'POST', credentials: 'include' }).catch(() => {});
                 useSessionStore.getState().clearSession();
-                window.location.href = '/auth/login';
+                window.location.href = '/';
               }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
