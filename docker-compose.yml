@@ -52,8 +52,8 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-pitchr}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pitchr}
       SUPERTOKENS_URI: http://supertokens:3567
-      FRONTEND_URL: ${FRONTEND_URL}
-      API_URL: ${API_URL}
+      FRONTEND_URL: ${FRONTEND_URL:-https://pitchr.com.ng}
+      API_URL: ${API_URL:-https://api.pitchr.com.ng}
     deploy:
       resources:
         limits:
