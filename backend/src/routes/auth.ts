@@ -42,6 +42,16 @@ router.post('/signup', authRateLimit, async (req: Request, res: Response, next: 
       [normalizedEmail, passwordHash, firstName || null, lastName || null]
     );
     const user = result.rows[0];
+
+    const refCode = req.cookies?.pitchr_ref;
+    if (refCode && typeof refCode === 'string') {
+      const existing = (await query('SELECT code FROM referral_links WHERE code = $1', [refCode.toLowerCase()])).rows[0];
+      if (existing) {
+        await query('UPDATE users SET referred_by = $1 WHERE id = $2', [existing.code, user.id]);
+        logger.info('Referral captured on signup', { userId: user.id, referralCode: existing.code });
+      }
+    }
+
     const token = signToken(user.id);
     res.cookie('pitchr_token', token, {
       httpOnly: true,
@@ -132,6 +142,16 @@ router.post('/google-finish', async (req: Request, res: Response, next: NextFunc
     if (!user) {
       throw new AppError('User not found', 'NOT_FOUND', 404);
     }
+
+    const refCode = req.cookies?.pitchr_ref;
+    if (refCode && typeof refCode === 'string') {
+      const existing = (await query('SELECT code FROM referral_links WHERE code = $1', [refCode.toLowerCase()])).rows[0];
+      if (existing) {
+        await query('UPDATE users SET referred_by = $1 WHERE id = $2', [existing.code, user.id]);
+        logger.info('Referral captured on Google signup', { userId: user.id, referralCode: existing.code });
+      }
+    }
+
     const token = signToken(user.id);
     res.cookie('pitchr_token', token, {
       httpOnly: true,

@@ -1,7 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { requireAdmin } from '../middleware/admin';
 import { query } from '../config/database';
-import { createAuditLog } from '../database/queries';
+import { createAuditLog, listReferralLinks, createReferralLink, deleteReferralLink } from '../database/queries';
+import { AppError } from '../utils/errors';
 
 const router = Router();
 
@@ -189,6 +190,42 @@ router.get('/transactions', requireAdmin, async (req: Request, res: Response, ne
       page,
       limit,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/referral-links', requireAdmin, async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const links = await listReferralLinks();
+    res.json({ links });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/referral-links', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code, marketer_name } = req.body;
+    if (!code || typeof code !== 'string' || code.trim() === '') {
+      throw new AppError('Referral code is required', 'VALIDATION_ERROR', 400);
+    }
+    if (!marketer_name || typeof marketer_name !== 'string' || marketer_name.trim() === '') {
+      throw new AppError('Marketer name is required', 'VALIDATION_ERROR', 400);
+    }
+    await createReferralLink(code.trim().toLowerCase(), marketer_name.trim());
+    const links = await listReferralLinks();
+    res.status(201).json({ links });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/referral-links/:code', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code } = req.params;
+    await deleteReferralLink(code.toLowerCase());
+    res.json({ message: 'Referral link removed' });
   } catch (err) {
     next(err);
   }

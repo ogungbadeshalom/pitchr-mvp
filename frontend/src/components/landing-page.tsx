@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useSessionStore } from '../store/sessionStore';
 import ThemeToggle from '../components/ui/theme-toggle';
 import JsonLd from './json-ld';
@@ -90,8 +91,17 @@ export default function LandingPage() {
   const hydrated = useSessionStore((s) => s.hydrated);
   const rehydrate = useSessionStore((s) => s.rehydrate);
   const hasSession = hydrated && token !== null;
+  const searchParams = useSearchParams();
 
   useEffect(() => { setMounted(true); rehydrate(); }, [rehydrate]);
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref && ref.trim()) {
+      const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `pitchr_ref=${ref.trim().toLowerCase()}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+  }, [searchParams]);
 
   return (
     <main className="min-h-screen bg-background">

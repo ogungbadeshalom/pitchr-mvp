@@ -197,3 +197,36 @@ export async function createAuditLog(
     [userId, action, resource, resourceId, metadata ?? null]
   );
 }
+
+export async function createReferralLink(code: string, marketerName: string): Promise<void> {
+  await query('INSERT INTO referral_links (code, marketer_name) VALUES ($1, $2)', [code.toLowerCase(), marketerName]);
+}
+
+export async function deleteReferralLink(code: string): Promise<void> {
+  await query('DELETE FROM referral_links WHERE code = $1', [code.toLowerCase()]);
+}
+
+export interface ReferralLinkRow {
+  code: string;
+  marketer_name: string;
+  signups: number;
+  total_revenue: number;
+  commission_owed: number;
+}
+
+export async function listReferralLinks(): Promise<ReferralLinkRow[]> {
+  const result = await query(`
+    SELECT
+      rl.code,
+      rl.marketer_name,
+      COUNT(u.id)::int AS signups,
+      COALESCE(SUM(p.amount), 0)::int AS total_revenue,
+      COALESCE(SUM(p.amount) * 0.1, 0)::int AS commission_owed
+    FROM referral_links rl
+    LEFT JOIN users u ON u.referred_by = rl.code
+    LEFT JOIN payments p ON p.user_id = u.id AND p.status = 'completed'
+    GROUP BY rl.code, rl.marketer_name
+    ORDER BY rl.created_at DESC
+  `);
+  return result.rows;
+}
