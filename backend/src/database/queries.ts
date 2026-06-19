@@ -198,8 +198,8 @@ export async function createAuditLog(
   );
 }
 
-export async function createReferralLink(code: string, marketerName: string): Promise<void> {
-  await query('INSERT INTO referral_links (code, marketer_name) VALUES ($1, $2)', [code.toLowerCase(), marketerName]);
+export async function createReferralLink(code: string, marketerName: string, type: string = 'affiliate'): Promise<void> {
+  await query('INSERT INTO referral_links (code, marketer_name, type) VALUES ($1, $2, $3)', [code.toLowerCase(), marketerName, type]);
 }
 
 export async function deleteReferralLink(code: string): Promise<void> {
@@ -209,8 +209,10 @@ export async function deleteReferralLink(code: string): Promise<void> {
 export interface ReferralLinkRow {
   code: string;
   marketer_name: string;
+  type: string;
   signups: number;
   total_revenue: number;
+  commission_rate: number;
   commission_owed: number;
 }
 
@@ -219,13 +221,15 @@ export async function listReferralLinks(): Promise<ReferralLinkRow[]> {
     SELECT
       rl.code,
       rl.marketer_name,
+      rl.type,
       COUNT(u.id)::int AS signups,
       COALESCE(SUM(p.amount), 0)::int AS total_revenue,
-      COALESCE(SUM(p.amount) * 0.1, 0)::int AS commission_owed
+      CASE WHEN rl.type = 'marketer' THEN 0.10 ELSE 0.05 END AS commission_rate,
+      COALESCE(SUM(p.amount) * CASE WHEN rl.type = 'marketer' THEN 0.10 ELSE 0.05 END, 0)::int AS commission_owed
     FROM referral_links rl
     LEFT JOIN users u ON u.referred_by = rl.code
     LEFT JOIN payments p ON p.user_id = u.id AND p.status = 'completed'
-    GROUP BY rl.code, rl.marketer_name
+    GROUP BY rl.code, rl.marketer_name, rl.type
     ORDER BY rl.created_at DESC
   `);
   return result.rows;
