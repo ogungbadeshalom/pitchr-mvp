@@ -27,7 +27,7 @@ export function initSuperTokens() {
     },
     appInfo: {
       appName: 'Pitchr',
-      apiDomain: process.env.API_URL || 'http://localhost:5001',
+      apiDomain: process.env.FRONTEND_URL || 'http://localhost:3000',
       websiteDomain: process.env.FRONTEND_URL || 'http://localhost:3000',
       apiBasePath: '/api/auth',
       websiteBasePath: '/auth',

@@ -189,7 +189,7 @@ Only do this if you set real Google credentials in `.env`.
 2. Create a project → **APIs & Services** → **Credentials**
 3. Create **OAuth 2.0 Client ID** (Web application)
 4. Add these **Authorized redirect URIs**:
-   - `https://api.pitchr.com.ng/api/auth/callback/google` (SuperTokens handles the callback)
+   - `https://pitchr.com.ng/api/auth/callback/google` (SuperTokens backend callback)
    - `https://pitchr.com.ng/auth/callback` (frontend redirect page)
 5. Copy Client ID and Client Secret into your `.env` on the VPS
 6. Restart: `docker compose restart backend supertokens`

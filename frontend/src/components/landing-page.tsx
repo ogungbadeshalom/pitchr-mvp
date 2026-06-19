@@ -58,7 +58,7 @@ const HOW_IT_WORKS = [
 ];
 
 const PRICING_SESSION = [
-  { name: 'Flash', price: '500', features: ['5 AI proposals written from your job', 'Upwork & Fiverr optimized formats', 'No account needed — pay and go', 'Results in under 30 seconds'], badge: null, featured: false },
+  { name: 'Flash', price: '500', features: ['5 AI proposals written from your job', 'Upwork & Fiverr optimized formats', 'Results in under 30 seconds', '30-minute access window'], badge: null, featured: false },
   { name: 'Power', price: '1,200', features: ['20 AI proposals tailored to each job', 'Re-spin for different hooks and angles', 'Upwork & Fiverr optimized formats', 'Priority generation speed', '4-hour window — use at your pace'], badge: 'Best value', featured: true },
 ];
 

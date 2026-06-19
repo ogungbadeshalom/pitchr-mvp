@@ -26,7 +26,7 @@ const SESSION_PLANS: Plan[] = [
     price: '₦500',
     label: 'one-time',
     proposals: '5 proposals',
-    features: ['5 AI proposals written from your job', 'Upwork & Fiverr optimized formats', 'No account needed — pay and go', 'Results in under 30 seconds'],
+    features: ['5 AI proposals written from your job', 'Upwork & Fiverr optimized formats', 'Results in under 30 seconds', '30-minute access window'],
   },
   {
     id: 'power',

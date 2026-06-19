@@ -59,7 +59,7 @@ docker compose up -d               # postgres:15 + supertokens-postgresql:7.0
 
 1. `docker compose up -d` — starts Postgres on 5432 + SuperTokens on 3567
 2. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env`
-3. Add `http://localhost:3567/auth/callback/google` and `http://localhost:3000/auth/callback` as Authorized redirect URIs in Google Cloud Console (production: use `https://api.pitchr.com.ng/api/auth/callback/google` and `https://pitchr.com.ng/auth/callback`)
+3. Add `http://localhost:3000/api/auth/callback/google` and `http://localhost:3000/auth/callback` as Authorized redirect URIs in Google Cloud Console (production: use `https://pitchr.com.ng/api/auth/callback/google` and `https://pitchr.com.ng/auth/callback`)
 4. `cd backend && npm run dev` — auto-runs migrations on start
 5. `cd frontend && npm run dev`
 6. Open `http://localhost:3000`
