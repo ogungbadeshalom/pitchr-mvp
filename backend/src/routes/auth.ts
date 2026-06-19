@@ -115,16 +115,16 @@ router.post('/google-finish', async (req: Request, res: Response, next: NextFunc
       logger.info('Google OAuth verified via SuperTokens session', { userId });
     } catch (sessionErr) {
       if (sessionErr instanceof UnauthorizedError) throw sessionErr;
-      const existingUser = await findUserById(id);
+      const existingUser = await findUserById(id) || await findUserByEmail(normalizedEmail);
       if (!existingUser) {
-        logger.warn('Google OAuth: no SuperTokens session and user not found', { id });
+        logger.warn('Google OAuth: no SuperTokens session and user not found', { id, email: normalizedEmail });
         throw new UnauthorizedError('Authentication failed');
       }
       if (existingUser.email !== normalizedEmail) {
         logger.warn('Google OAuth: email mismatch with existing user', { id, expected: existingUser.email, received: normalizedEmail });
         throw new UnauthorizedError('Email mismatch');
       }
-      userId = id;
+      userId = existingUser.id;
       logger.info('Google OAuth verified via DB fallback (SuperTokens session unavailable)', { userId });
     }
 
