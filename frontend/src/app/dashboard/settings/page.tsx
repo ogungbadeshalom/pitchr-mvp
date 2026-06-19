@@ -13,6 +13,18 @@ export default function SettingsPage() {
   const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
+    fetch('/api/user', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.user) {
+          const u = data.user;
+          setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0, u.billing_period);
+        }
+      })
+      .catch(() => {});
+  }, [setUser]);
+
+  useEffect(() => {
     if (storeFirstName && !firstName) setFirstName(storeFirstName);
     if (storeLastName && !lastName) setLastName(storeLastName);
   }, [storeFirstName, storeLastName, firstName, lastName]);
