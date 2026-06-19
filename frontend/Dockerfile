@@ -1,4 +1,5 @@
 FROM node:20-alpine AS builder
+# NEXT_PUBLIC_* vars are build-time only — rebuild image to change
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 WORKDIR /app

@@ -40,24 +40,24 @@ export function initSuperTokens() {
             signUpPOST: async (input) => {
               const response = await originalImplementation.signUpPOST!(input);
               if (response.status === 'OK') {
-                try {
-                  const firstName = input.formFields?.find((f: { id: string }) => f.id === 'first_name')?.value;
-                  const lastName = input.formFields?.find((f: { id: string }) => f.id === 'last_name')?.value;
-                  await upsertUser(response.user.id, response.user.emails[0], firstName, lastName);
-                } catch (err) {
-                  logger.error('Failed to create user in database', err);
+                if (!response.user.emails?.length) {
+                  logger.error('No email returned from SuperTokens signup');
+                  throw new Error('No email returned from SuperTokens');
                 }
+                const firstName = input.formFields?.find((f: { id: string }) => f.id === 'first_name')?.value;
+                const lastName = input.formFields?.find((f: { id: string }) => f.id === 'last_name')?.value;
+                await upsertUser(response.user.id, response.user.emails[0], firstName, lastName);
               }
               return response;
             },
             signInPOST: async (input) => {
               const response = await originalImplementation.signInPOST!(input);
               if (response.status === 'OK') {
-                try {
-                  await upsertUser(response.user.id, response.user.emails[0]);
-                } catch (err) {
-                  logger.error('Failed to sync user in database', err);
+                if (!response.user.emails?.length) {
+                  logger.error('No email returned from SuperTokens signin');
+                  throw new Error('No email returned from SuperTokens');
                 }
+                await upsertUser(response.user.id, response.user.emails[0]);
               }
               return response;
             },
@@ -77,12 +77,12 @@ export function initSuperTokens() {
             thirdPartySignInUpPOST: async (input) => {
               const response = await originalImplementation.thirdPartySignInUpPOST!(input);
               if (response.status === 'OK') {
-                try {
-                  const user = response.user;
-                  await upsertUser(user.id, user.emails[0]);
-                } catch (err) {
-                  logger.error('Failed to upsert user after Google sign-in', err);
+                const user = response.user;
+                if (!user.emails?.length) {
+                  logger.error('No email returned from SuperTokens Google sign-in');
+                  throw new Error('No email returned from SuperTokens');
                 }
+                await upsertUser(user.id, user.emails[0]);
               }
               return response;
             },

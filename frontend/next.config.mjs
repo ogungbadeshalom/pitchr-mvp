@@ -4,6 +4,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // API rewrites — resolves to backend container hostname in Docker, overridden by Caddy in production
   async rewrites() {
     return [
       {

@@ -21,6 +21,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const addToast = useToastStore((s) => s.addToast);
@@ -70,6 +71,7 @@ export default function SignupPage() {
     const passValid = validateField('password', password);
     if (!firstValid || !lastValid || !emailValid || !passValid) return;
 
+    setLoading(true);
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -84,7 +86,8 @@ export default function SignupPage() {
           const u = data.user;
           setUser(u.id, u.email, u.first_name || null, u.last_name || null, u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0);
         }
-        fetchActiveSession().then(s => { if (s) setSession(s.token, s.plan, s.expiresAt, s.proposalsLimit); }).catch(() => {});
+        const session = await fetchActiveSession().catch(() => null);
+        if (session) setSession(session.token, session.plan, session.expiresAt, session.proposalsLimit, session.proposalsUsed);
         router.push('/dashboard');
       } else {
         const data = await response.json();
@@ -92,6 +95,8 @@ export default function SignupPage() {
       }
     } catch {
       setError('Connection error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -205,14 +210,26 @@ export default function SignupPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="8.5" cy="7" r="4"/>
-                <line x1="20" y1="8" x2="20" y2="14"/>
-                <line x1="23" y1="11" x2="17" y2="11"/>
-              </svg>
-              Create Account
+            <Button type="submit" disabled={loading} className="w-full shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 gap-2">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg aria-hidden="true" className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  Creating account...
+                </span>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                  </svg>
+                  Create Account
+                </>
+              )}
             </Button>
           </form>
 

@@ -19,6 +19,7 @@ function getTxStatus(tx: Transaction): { label: string; color: string } {
   if (tx.status === 'failed') return { label: 'Failed', color: STATUS_COLORS.failed };
   if (tx.status === 'cancelled') return { label: 'Cancelled', color: STATUS_COLORS.cancelled };
   if (tx.status === 'pending') {
+    // Client-side heuristic: pending > 1 hour is shown as abandoned (approximate)
     const age = Date.now() - new Date(tx.created_at).getTime();
     if (age > 60 * 60 * 1000) return { label: 'Abandoned', color: STATUS_COLORS.abandoned };
     return { label: 'Pending', color: STATUS_COLORS.pending };

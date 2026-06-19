@@ -11,7 +11,7 @@ RULES:
 6. Pick 2-3 skills from the user profile that match this specific job. Don't list everything.
 7. No clichés. ("look no further", "perfect fit", "hard worker", "passionate about").
 8. Never end with a question. Close with a confident call to action (call or chat).
-9. dont add dashes in the proposal '-'(be strict about this).
+9. Don't add dashes in the proposal (be strict about this).
 
 
 STRUCTURE:
@@ -73,7 +73,7 @@ export async function generateProposal(params: {
   }
 
   const systemPrompt = buildSystemPrompt(params.profileText);
-  const proposal = await callDeepSeek(systemPrompt, userPrompt, Math.ceil(wordLimit * 1.3));
+  const proposal = await callDeepSeek(systemPrompt, userPrompt, Math.ceil(wordLimit * 2));
 
   return {
     proposal,

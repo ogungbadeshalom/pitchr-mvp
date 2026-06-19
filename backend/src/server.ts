@@ -18,8 +18,16 @@ export function createApp() {
 
   const app = express();
 
+  app.set('trust proxy', 1);
+
+  const frontendUrl = process.env.FRONTEND_URL;
+  if (process.env.NODE_ENV === 'production' && !frontendUrl) {
+    console.error('FRONTEND_URL must be set in production');
+    process.exit(1);
+  }
+
   app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: frontendUrl || 'http://localhost:3000',
     credentials: true,
   }));
   app.use(express.json());

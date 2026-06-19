@@ -52,7 +52,7 @@ function SessionSuccessInner() {
   // Auto-redirect to session after success
   useEffect(() => {
     if (status !== 'success') return;
-    const t = setTimeout(() => router.push('/session'), 1500);
+    const t = setTimeout(() => { try { router.push('/session'); } catch {} }, 1500);
     return () => clearTimeout(t);
   }, [status, router]);
 

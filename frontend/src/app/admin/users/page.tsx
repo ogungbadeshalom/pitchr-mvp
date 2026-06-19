@@ -34,6 +34,15 @@ export default function AdminUsersPage() {
 
   useEffect(() => { load(1, search); }, [load, search]);
 
+  useEffect(() => {
+    if (!editingId) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setEditingId(null);
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [editingId]);
+
   function handleSearch(val: string) {
     if (searchRef.current) clearTimeout(searchRef.current);
     searchRef.current = setTimeout(() => setSearch(val), 300);
@@ -135,8 +144,8 @@ export default function AdminUsersPage() {
                     <tr key={user.id} className={`border-b border-brand-50 dark:border-brand-800 last:border-0 ${user.deleted_at ? 'opacity-50 bg-red-50/30 dark:bg-red-950/10' : ''}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center text-xs font-medium text-brand-700 dark:text-brand-300">
-                            {(user.first_name?.[0] || user.email[0]).toUpperCase()}
+                           <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center text-xs font-medium text-brand-700 dark:text-brand-300">
+                             {((user.first_name?.[0] || user.email?.[0]) || '?').toUpperCase()}
                           </div>
                           <span className="font-medium text-foreground">
                             {user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : '—'}

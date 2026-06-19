@@ -1,9 +1,10 @@
 export default function JsonLd() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pitchr.com.ng';
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: 'Pitchr',
-    url: 'https://pitchr.com.ng',
+    url: siteUrl,
     description: 'AI proposal generator for Nigerian freelancers. Write winning Upwork and Fiverr proposals in 30 seconds.',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
@@ -40,7 +41,7 @@ export default function JsonLd() {
     provider: {
       '@type': 'Organization',
       name: 'Pitchr',
-      url: 'https://pitchr.com.ng',
+      url: siteUrl,
     },
   };
 

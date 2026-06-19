@@ -1,8 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { requireAdmin } from '../middleware/admin';
 import { query } from '../config/database';
+import { createAuditLog } from '../database/queries';
 
 const router = Router();
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const VALID_TIERS = ['free', 'starter', 'pro'];
 
 router.get('/analytics', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -48,7 +52,8 @@ router.get('/analytics', requireAdmin, async (req: Request, res: Response, next:
 router.get('/users', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const search = ((req.query.search as string) || '').trim();
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const pageStr = req.query.page as string;
+    const page = Math.min(Math.max(1, parseInt(pageStr) || 1), 1000);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const offset = (page - 1) * limit;
 
@@ -86,30 +91,47 @@ router.get('/users', requireAdmin, async (req: Request, res: Response, next: Nex
 router.patch('/users/:id', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.params.id;
+    if (!UUID_REGEX.test(userId)) {
+      return res.status(400).json({ error: 'VALIDATION', message: 'Invalid user ID format' });
+    }
+
     const { subscription_tier, proposal_limit_this_month, proposal_count_this_month, deleted_at } = req.body;
 
-    const existing = await query('SELECT id FROM users WHERE id = $1 AND deleted_at IS NULL', [userId]);
-    if (existing.rows.length === 0) {
+    const existingCheck = await query('SELECT id, subscription_tier, proposal_limit_this_month, proposal_count_this_month FROM users WHERE id = $1 AND deleted_at IS NULL', [userId]);
+    if (existingCheck.rows.length === 0) {
       return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
     }
 
+    const existing = existingCheck.rows[0];
     const updates: string[] = [];
     const values: unknown[] = [];
     let idx = 1;
 
     if (subscription_tier !== undefined) {
+      if (!VALID_TIERS.includes(subscription_tier)) {
+        return res.status(400).json({ error: 'VALIDATION', message: `Invalid subscription tier. Must be one of: ${VALID_TIERS.join(', ')}` });
+      }
       updates.push(`subscription_tier = $${idx++}`);
       values.push(subscription_tier);
     }
     if (proposal_limit_this_month !== undefined) {
+      if (typeof proposal_limit_this_month !== 'number' || proposal_limit_this_month < 0) {
+        return res.status(400).json({ error: 'VALIDATION', message: 'proposal_limit_this_month must be a non-negative number' });
+      }
       updates.push(`proposal_limit_this_month = $${idx++}`);
       values.push(proposal_limit_this_month);
     }
     if (proposal_count_this_month !== undefined) {
+      if (typeof proposal_count_this_month !== 'number' || proposal_count_this_month < 0) {
+        return res.status(400).json({ error: 'VALIDATION', message: 'proposal_count_this_month must be a non-negative number' });
+      }
       updates.push(`proposal_count_this_month = $${idx++}`);
       values.push(proposal_count_this_month);
     }
     if (deleted_at !== undefined) {
+      if (deleted_at !== null && isNaN(Date.parse(deleted_at))) {
+        return res.status(400).json({ error: 'VALIDATION', message: 'deleted_at must be a valid timestamp or null' });
+      }
       updates.push(`deleted_at = $${idx++}`);
       values.push(deleted_at);
     }
@@ -118,13 +140,23 @@ router.patch('/users/:id', requireAdmin, async (req: Request, res: Response, nex
       return res.status(400).json({ error: 'VALIDATION', message: 'No fields to update' });
     }
 
-    updates.push(`updated_at = NOW()`);
+    updates.push(`updated_at = $${idx++}`);
+    values.push(new Date());
     values.push(userId);
 
     const result = await query(
       `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx} RETURNING id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, billing_period, deleted_at, created_at`,
       values
     );
+
+    const adminUserId = (req as any).userId;
+    const changes: Record<string, unknown> = {};
+    if (subscription_tier !== undefined && subscription_tier !== existing.subscription_tier) changes.subscription_tier = { from: existing.subscription_tier, to: subscription_tier };
+    if (proposal_limit_this_month !== undefined && proposal_limit_this_month !== existing.proposal_limit_this_month) changes.proposal_limit = { from: existing.proposal_limit_this_month, to: proposal_limit_this_month };
+    if (proposal_count_this_month !== undefined && proposal_count_this_month !== existing.proposal_count_this_month) changes.proposal_count = { from: existing.proposal_count_this_month, to: proposal_count_this_month };
+    if (Object.keys(changes).length > 0) {
+      await createAuditLog(adminUserId, 'admin_edit_user', 'users', userId, changes);
+    }
 
     res.json({ user: result.rows[0] });
   } catch (err) {
@@ -134,7 +166,8 @@ router.patch('/users/:id', requireAdmin, async (req: Request, res: Response, nex
 
 router.get('/transactions', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const pageStr = req.query.page as string;
+    const page = Math.min(Math.max(1, parseInt(pageStr) || 1), 1000);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const offset = (page - 1) * limit;
 

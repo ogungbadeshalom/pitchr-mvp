@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Empty baseURL — relies on Next.js rewrites (Docker) or Caddy proxy (production)
 const adminApi = axios.create({
   baseURL: '',
   headers: { 'Content-Type': 'application/json' },

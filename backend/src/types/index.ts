@@ -7,7 +7,7 @@ export interface User {
   subscription_started_at: Date | null;
   subscription_ended_at: Date | null;
   proposal_count_this_month: number;
-  proposal_limit_this_month: number;
+  proposal_limit_this_month: number | null;
   billing_period: 'monthly' | 'annual' | null;
   created_at: Date;
 }
@@ -17,6 +17,7 @@ export interface Session {
   token: string;
   plan: 'flash' | 'power';
   email: string;
+  user_id?: string | null;
   expires_at: Date;
   proposals_used: number;
   proposals_limit: number;
@@ -43,6 +44,7 @@ export interface Payment {
   amount: number;
   currency: string;
   payment_type: 'one_time' | 'subscription';
+  payment_method?: string | null;
   flutterwave_reference: string;
   status: 'pending' | 'completed' | 'failed';
   created_at: Date;

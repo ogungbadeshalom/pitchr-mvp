@@ -21,8 +21,9 @@ export async function callDeepSeek(
   const cfg = getDeepseekConfig();
 
   try {
+    const timeoutMs = parseInt(process.env.DEEPSEEK_TIMEOUT_MS || '30000', 10);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
     const response = await fetch(`${cfg.baseUrl}/chat/completions`, {
       signal: controller.signal,
       method: 'POST',
@@ -43,10 +44,13 @@ export async function callDeepSeek(
     clearTimeout(timeout);
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      logger.error('DeepSeek API error', { status: response.status, body: body.slice(0, 500) });
       throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`);
     }
 
     const data = (await response.json()) as DeepSeekResponse;
+    if (!data.choices?.length) throw new Error('DeepSeek returned empty response');
     return data.choices[0].message.content;
   } catch (error) {
     const message = error instanceof Error && error.name === 'AbortError'

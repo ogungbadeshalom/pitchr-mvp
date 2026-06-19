@@ -1,4 +1,5 @@
 import { query } from '../config/database';
+import { logger } from '../utils/logger';
 import type { User, Session, Proposal, Payment } from '../types';
 
 export interface UserWithPassword extends User {
@@ -14,17 +15,10 @@ export async function createUser(id: string, email: string, firstName?: string, 
 }
 
 export async function upsertUser(id: string, email: string, firstName?: string, lastName?: string): Promise<User> {
-  const existing = await findUserByEmail(email);
-  if (existing) {
-    const result = await query(
-      `UPDATE users SET first_name = COALESCE($2, users.first_name), last_name = COALESCE($3, users.last_name) WHERE id = $1 RETURNING *`,
-      [existing.id, firstName ?? null, lastName ?? null]
-    );
-    return result.rows[0];
-  }
   const result = await query(
-    `INSERT INTO users (id, email, first_name, last_name) VALUES ($1, $2, $3, $4)
-     ON CONFLICT (id) DO UPDATE SET email = $2, first_name = COALESCE($3, users.first_name), last_name = COALESCE($4, users.last_name)
+    `INSERT INTO users (id, email, first_name, last_name)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (email) DO UPDATE SET first_name = COALESCE(EXCLUDED.first_name, users.first_name), last_name = COALESCE(EXCLUDED.last_name, users.last_name)
      RETURNING *`,
     [id, email, firstName ?? null, lastName ?? null]
   );
@@ -42,7 +36,18 @@ export async function findUserByEmailWithPassword(email: string): Promise<UserWi
 }
 
 export async function findUserById(id: string): Promise<User | null> {
-  const result = await query('SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL', [id]);
+  const result = await query(
+    'SELECT id, email, first_name, last_name, subscription_tier, subscription_started_at, subscription_ended_at, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at FROM users WHERE id = $1 AND deleted_at IS NULL',
+    [id]
+  );
+  return result.rows[0] || null;
+}
+
+export async function findUserForProposalCheck(id: string): Promise<Pick<User, 'id' | 'subscription_tier' | 'subscription_ended_at' | 'proposal_count_this_month' | 'proposal_limit_this_month'> | null> {
+  const result = await query(
+    'SELECT id, subscription_tier, subscription_ended_at, proposal_count_this_month, proposal_limit_this_month FROM users WHERE id = $1 AND deleted_at IS NULL',
+    [id]
+  );
   return result.rows[0] || null;
 }
 
@@ -85,8 +90,14 @@ export async function findPaymentByReference(reference: string): Promise<Payment
   return result.rows[0] || null;
 }
 
-export async function incrementSessionProposalsUsed(id: string): Promise<void> {
-  await query('UPDATE sessions SET proposals_used = proposals_used + 1 WHERE id = $1', [id]);
+export async function atomicIncrementSessionProposals(id: string): Promise<Session | null> {
+  const result = await query(
+    `UPDATE sessions SET proposals_used = proposals_used + 1
+     WHERE id = $1 AND expires_at > NOW() AND proposals_used < proposals_limit
+     RETURNING *`,
+    [id]
+  );
+  return result.rows[0] || null;
 }
 
 export async function saveProposal(
@@ -139,7 +150,11 @@ const PLAN_LIMITS: Record<string, number> = {
 };
 
 export function getProposalLimit(plan: string): number {
-  return PLAN_LIMITS[plan] ?? 0;
+  if (!(plan in PLAN_LIMITS)) {
+    logger.warn(`Unknown plan tier "${plan}", using safe default`);
+    return plan === 'pro' ? 0 : 5;
+  }
+  return PLAN_LIMITS[plan];
 }
 
 export async function updateUserSubscription(userId: string, plan: string, expiresAt: Date, billingPeriod?: string): Promise<void> {

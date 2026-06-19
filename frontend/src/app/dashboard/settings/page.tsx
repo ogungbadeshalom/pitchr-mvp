@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const [lastName, setLastName] = useState(storeLastName || '');
   const [profileText, setProfileText] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
     if (storeFirstName && !firstName) setFirstName(storeFirstName);
@@ -17,13 +18,11 @@ export default function SettingsPage() {
   }, [storeFirstName, storeLastName, firstName, lastName]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile/freelancer`, { credentials: 'include' })
+    fetch('/api/user/profile/freelancer', { credentials: 'include' })
       .then(r => r.json())
       .then(data => { if (data.profile_text !== undefined) setProfileText(data.profile_text); })
-      .catch(() => {});
-  }, []);
-
-  const addToast = useToastStore((s) => s.addToast);
+      .catch(() => { addToast('Failed to load profile', 'error'); });
+  }, [addToast]);
 
   async function handleSaveProfile() {
     setProfileSaving(true);
@@ -125,7 +124,8 @@ export default function SettingsPage() {
         </p>
         <textarea
           value={profileText}
-          onChange={(e) => setProfileText(e.target.value)}
+          onChange={(e) => { if (e.target.value.length <= 5000) setProfileText(e.target.value); }}
+          maxLength={5000}
           className="w-full h-36 p-3 border border-input rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-ring focus:border-brand-500 transition-shadow text-sm bg-white dark:bg-card"
           placeholder="4 years React/Node.js developer. Cut load times 85% for a fintech. Built dashboards used by 500+ daily users. Self-taught, 4 years freelancing on Upwork..."
         />

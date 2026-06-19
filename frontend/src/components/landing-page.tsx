@@ -83,6 +83,7 @@ const FAQS = [
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tab, setTab] = useState<'session' | 'monthly'>('session');
   const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
   const token = useSessionStore((s) => s.token);
@@ -100,30 +101,51 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="font-bold text-xl tracking-tight text-brand-600">Pitchr</Link>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
-            <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
-            <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
+            <Link href="#features" className="hover:text-foreground transition-colors">Features</Link>
+            <Link href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</Link>
+            <Link href="#pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+            <Link href="#faq" className="hover:text-foreground transition-colors">FAQ</Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/auth/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sign In</Link>
+            <Link href="/auth/login" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sign In</Link>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              )}
+            </button>
+            <Link href="/auth/login" className="md:hidden text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sign In</Link>
             {!mounted ? (
-              <a href="#pricing" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-brand-700 transition-all shadow-sm">
-                Try It Now <IconChevronRight className="w-3.5 h-3.5" />
-              </a>
-            ) : hasSession ? (
-              <Link href="/session" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-brand-700 transition-all shadow-sm">
-                Continue <IconChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            ) : (
-              <a href="#pricing" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-brand-700 transition-all shadow-sm">
-                Try It Now <IconChevronRight className="w-3.5 h-3.5" />
-              </a>
-            )}
+                <Link href="#pricing" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-brand-700 transition-all shadow-sm">
+                  Try It Now <IconChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              ) : hasSession ? (
+                <Link href="/session" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-brand-700 transition-all shadow-sm">
+                  Continue <IconChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              ) : (
+                <Link href="#pricing" className="inline-flex items-center gap-1.5 bg-brand-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-brand-700 transition-all shadow-sm">
+                  Try It Now <IconChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              )}
             <ThemeToggle className="w-8 h-8 rounded-lg bg-background border border-border flex items-center justify-center hover:shadow-md hover:border-brand-300 transition-all shrink-0" />
           </div>
         </div>
       </header>
+
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-background border-b border-border px-4 py-4 space-y-2">
+          <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">Features</Link>
+          <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">How It Works</Link>
+          <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">Pricing</Link>
+          <Link href="#faq" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">FAQ</Link>
+        </div>
+      )}
 
       {/* ─── HERO ─── */}
       <section className="relative overflow-hidden">
@@ -143,21 +165,21 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {!mounted ? (
-                <a href="#pricing" className="inline-flex items-center gap-2 bg-brand-600 text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-700 transition-all shadow-md hover:shadow-lg">
+                <Link href="#pricing" className="inline-flex items-center gap-2 bg-brand-600 text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-700 transition-all shadow-md hover:shadow-lg">
                   Generate a Proposal <IconChevronRight className="w-4 h-4" />
-                </a>
+                </Link>
               ) : hasSession ? (
                 <Link href="/session" className="inline-flex items-center gap-2 bg-brand-600 text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-700 transition-all shadow-md hover:shadow-lg">
                   Continue Generating <IconChevronRight className="w-4 h-4" />
                 </Link>
               ) : (
-                <a href="#pricing" className="inline-flex items-center gap-2 bg-brand-600 text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-700 transition-all shadow-md hover:shadow-lg">
+                <Link href="#pricing" className="inline-flex items-center gap-2 bg-brand-600 text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-700 transition-all shadow-md hover:shadow-lg">
                   Generate a Proposal <IconChevronRight className="w-4 h-4" />
-                </a>
+                </Link>
               )}
-              <a href="#features" className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors">
+              <Link href="#features" className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors">
                 See how it works <IconChevronRight className="w-4 h-4" />
-              </a>
+              </Link>
             </div>
             <div className="flex items-center justify-center gap-6 mt-10 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-brand-500" /> Create a free account</span>
@@ -354,19 +376,19 @@ export default function LandingPage() {
           <p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {!mounted ? (
-              <a href="#pricing" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">
+              <Link href="#pricing" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">
                 Generate a Proposal — ₦500 <IconChevronRight className="w-4 h-4" />
-              </a>
+              </Link>
             ) : hasSession ? (
               <Link href="/session" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">
                 Back to Generator <IconChevronRight className="w-4 h-4" />
               </Link>
             ) : (
-              <a href="#pricing" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">
+              <Link href="#pricing" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">
                 Generate a Proposal — ₦500 <IconChevronRight className="w-4 h-4" />
-              </a>
+              </Link>
             )}
-            <a href="#faq" className="inline-flex items-center gap-1 text-brand-100 hover:text-white text-sm font-medium transition-colors">Learn more</a>
+            <Link href="#faq" className="inline-flex items-center gap-1 text-brand-100 hover:text-white text-sm font-medium transition-colors">Learn more</Link>
           </div>
         </div>
       </section>
@@ -377,10 +399,10 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="text-foreground font-bold text-lg">Pitchr</span>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-              <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
-              <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
-              <a href="/auth/signup" className="hover:text-foreground transition-colors">Sign Up</a>
+              <Link href="#features" className="hover:text-foreground transition-colors">Features</Link>
+              <Link href="#pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+              <Link href="#faq" className="hover:text-foreground transition-colors">FAQ</Link>
+              <Link href="/auth/signup" className="hover:text-foreground transition-colors">Sign Up</Link>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
