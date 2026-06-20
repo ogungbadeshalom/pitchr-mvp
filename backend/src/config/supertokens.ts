@@ -1,4 +1,5 @@
 import supertokens from 'supertokens-node';
+import ThirdParty from 'supertokens-node/recipe/thirdparty';
 import ThirdPartyEmailPassword from 'supertokens-node/recipe/thirdpartyemailpassword';
 import Session from 'supertokens-node/recipe/session';
 import { logger } from '../utils/logger';
@@ -31,6 +32,11 @@ export function initSuperTokens() {
       websiteBasePath: '/auth',
     },
     recipeList: [
+      ThirdParty.init({
+        signInAndUpFeature: {
+          providers: [googleProvider()],
+        },
+      }),
       ThirdPartyEmailPassword.init({
         providers: [googleProvider()],
         override: {
