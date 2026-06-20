@@ -1,0 +1,2 @@
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_referred_by_fkey;
+ALTER TABLE users ADD CONSTRAINT users_referred_by_fkey FOREIGN KEY (referred_by) REFERENCES referral_links(code) ON DELETE SET NULL;

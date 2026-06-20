@@ -204,6 +204,7 @@ export async function createReferralLink(code: string, marketerName: string, typ
 }
 
 export async function deleteReferralLink(code: string): Promise<void> {
+  await query('UPDATE users SET referred_by = NULL WHERE referred_by = $1', [code.toLowerCase()]);
   await query('DELETE FROM referral_links WHERE code = $1', [code.toLowerCase()]);
 }
 
