@@ -1,6 +1,4 @@
 import supertokens from 'supertokens-node';
-import EmailPassword from 'supertokens-node/recipe/emailpassword';
-import ThirdParty from 'supertokens-node/recipe/thirdparty';
 import ThirdPartyEmailPassword from 'supertokens-node/recipe/thirdpartyemailpassword';
 import Session from 'supertokens-node/recipe/session';
 import { logger } from '../utils/logger';
@@ -33,12 +31,13 @@ export function initSuperTokens() {
       websiteBasePath: '/auth',
     },
     recipeList: [
-      EmailPassword.init({
+      ThirdPartyEmailPassword.init({
+        providers: [googleProvider()],
         override: {
           apis: (originalImplementation) => ({
             ...originalImplementation,
-            signUpPOST: async (input) => {
-              const response = await originalImplementation.signUpPOST!(input);
+            emailPasswordSignUpPOST: async (input) => {
+              const response = await originalImplementation.emailPasswordSignUpPOST!(input);
               if (response.status === 'OK') {
                 if (!response.user.emails?.length) {
                   logger.error('No email returned from SuperTokens signup');
@@ -50,8 +49,8 @@ export function initSuperTokens() {
               }
               return response;
             },
-            signInPOST: async (input) => {
-              const response = await originalImplementation.signInPOST!(input);
+            emailPasswordSignInPOST: async (input) => {
+              const response = await originalImplementation.emailPasswordSignInPOST!(input);
               if (response.status === 'OK') {
                 if (!response.user.emails?.length) {
                   logger.error('No email returned from SuperTokens signin');
@@ -61,19 +60,6 @@ export function initSuperTokens() {
               }
               return response;
             },
-          }),
-        },
-      }),
-      ThirdParty.init({
-        signInAndUpFeature: {
-          providers: [googleProvider()],
-        },
-      }),
-      ThirdPartyEmailPassword.init({
-        providers: [googleProvider()],
-        override: {
-          apis: (originalImplementation) => ({
-            ...originalImplementation,
             thirdPartySignInUpPOST: async (input) => {
               const response = await originalImplementation.thirdPartySignInUpPOST!(input);
               if (response.status === 'OK') {
