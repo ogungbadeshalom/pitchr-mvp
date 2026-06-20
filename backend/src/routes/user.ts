@@ -90,4 +90,19 @@ router.put('/profile/freelancer', requireAuth, async (req, res, next) => {
   }
 });
 
+router.delete('/', requireAuth, async (req, res, next) => {
+  try {
+    const userId = (req as any).userId;
+    const result = await query('UPDATE users SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL RETURNING id', [userId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
+    }
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('pitchr_token', { httpOnly: true, secure: isProd, sameSite: 'lax' });
+    res.json({ message: 'Account deleted' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

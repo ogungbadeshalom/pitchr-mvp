@@ -1,15 +1,21 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '../../../components/ui/button';
 import { useUserStore } from '../../../store/userStore';
+import { useSessionStore } from '../../../store/sessionStore';
 import { useToastStore } from '../../../store/toastStore';
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { firstName: storeFirstName, lastName: storeLastName, email, setUser } = useUserStore();
+  const clearSession = useSessionStore((s) => s.clearSession);
   const [firstName, setFirstName] = useState(storeFirstName || '');
   const [lastName, setLastName] = useState(storeLastName || '');
   const [profileText, setProfileText] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
@@ -81,6 +87,29 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleDeleteAccount() {
+    if (!deleteConfirmed) return;
+    if (!window.confirm('Are you sure? This will permanently deactivate your account. All your data will be retained but you will not be able to log in again.')) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        addToast('Account deleted', 'success');
+        clearSession();
+        router.push('/');
+      } else {
+        addToast('Failed to delete account', 'error');
+      }
+    } catch {
+      addToast('Connection error', 'error');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="max-w-2xl">
       <div className="mb-6">
@@ -147,6 +176,29 @@ export default function SettingsPage() {
             {profileSaving ? 'Saving...' : 'Save Profile'}
           </Button>
         </div>
+      </div>
+
+      <div className="bg-white dark:bg-card border border-red-200 dark:border-red-900 rounded-xl p-6 mt-4">
+        <h2 className="font-semibold text-red-600 dark:text-red-400 mb-2">Delete Account</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          This will permanently deactivate your account. Your proposals and payment history will be retained but you will no longer be able to log in.
+        </p>
+        <label className="flex items-center gap-2 mb-4 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={deleteConfirmed}
+            onChange={(e) => setDeleteConfirmed(e.target.checked)}
+            className="w-4 h-4 rounded border-input text-red-600 focus:ring-red-500"
+          />
+          <span className="text-sm text-foreground">I understand this action is permanent</span>
+        </label>
+        <Button
+          onClick={handleDeleteAccount}
+          disabled={!deleteConfirmed || deleting}
+          className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+        >
+          {deleting ? 'Deleting...' : 'Delete My Account'}
+        </Button>
       </div>
     </div>
   )
