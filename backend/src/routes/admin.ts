@@ -64,12 +64,12 @@ router.get('/users', requireAdmin, async (req: Request, res: Response, next: Nex
     const searchPattern = `%${search}%`;
 
     if (search) {
-      countQuery = `SELECT COUNT(*)::int AS total FROM users WHERE deleted_at IS NULL AND (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1)`;
-      dataQuery = `SELECT id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at FROM users WHERE deleted_at IS NULL AND (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1) ORDER BY created_at DESC LIMIT $2 OFFSET $3`;
+      countQuery = `SELECT COUNT(*)::int AS total FROM users WHERE (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1)`;
+      dataQuery = `SELECT id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at, deleted_at FROM users WHERE (email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1) ORDER BY created_at DESC LIMIT $2 OFFSET $3`;
       params.push(searchPattern, limit, offset);
     } else {
-      countQuery = `SELECT COUNT(*)::int AS total FROM users WHERE deleted_at IS NULL`;
-      dataQuery = `SELECT id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT $1 OFFSET $2`;
+      countQuery = `SELECT COUNT(*)::int AS total FROM users`;
+      dataQuery = `SELECT id, email, first_name, last_name, subscription_tier, proposal_count_this_month, proposal_limit_this_month, billing_period, created_at, deleted_at FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2`;
       params.push(limit, offset);
     }
 
@@ -98,7 +98,7 @@ router.patch('/users/:id', requireAdmin, async (req: Request, res: Response, nex
 
     const { subscription_tier, proposal_limit_this_month, proposal_count_this_month, deleted_at } = req.body;
 
-    const existingCheck = await query('SELECT id, subscription_tier, proposal_limit_this_month, proposal_count_this_month FROM users WHERE id = $1 AND deleted_at IS NULL', [userId]);
+    const existingCheck = await query('SELECT id, subscription_tier, proposal_limit_this_month, proposal_count_this_month FROM users WHERE id = $1', [userId]);
     if (existingCheck.rows.length === 0) {
       return res.status(404).json({ error: 'NOT_FOUND', message: 'User not found' });
     }

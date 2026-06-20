@@ -36,7 +36,6 @@ export default function AuthCallbackPage() {
                 u.subscription_tier, u.proposal_count_this_month || 0, u.proposal_limit_this_month || 0
               );
             }
-            // Dashboard fetches fresh session from server on mount — no need to clearSession here
             router.push('/dashboard');
             return;
           }
@@ -44,7 +43,7 @@ export default function AuthCallbackPage() {
       } catch {
         // fall through to redirect
       }
-      router.push('/dashboard');
+      router.push('/auth/login?error=google_failed');
     })();
   }, [router, setUser]);
 
