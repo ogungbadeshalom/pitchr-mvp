@@ -124,6 +124,9 @@ All configs are **lazy-loaded via getter functions** (`getDeepseekConfig()`, `ge
 | POST | `/api/auth/google-finish` | none | Completes Google OAuth, issues JWT cookie |
 | GET | `/api/user` | `requireAuth` | Returns all user fields including subscription |
 | PATCH | `/api/user/profile` | `requireAuth` | Update first_name/last_name |
+| DELETE | `/api/user` | `requireAuth` | Hard-deletes account (removes row, proposals cascade, payments set NULL) |
+| GET | `/api/user/profile/freelancer` | `requireAuth` | Get freelancer profile text |
+| PUT | `/api/user/profile/freelancer` | `requireAuth` | Save freelancer profile text |
 | GET | `/api/proposals` | `requireAuth` | User's proposals (dashboard) |
 | POST | `/api/proposals/generate` | sessionToken or auth | Rate-limited, checks limits, auto-resets monthly |
 | GET | `/api/sessions/active` | `requireAuth` | Returns user's active session (cross-device sync) |
@@ -137,6 +140,10 @@ All configs are **lazy-loaded via getter functions** (`getDeepseekConfig()`, `ge
 | GET | `/api/admin/users` | `requireAdmin` | Paginated user list with search |
 | PATCH | `/api/admin/users/:id` | `requireAdmin` | Update user subscription, limits, ban |
 | GET | `/api/admin/transactions` | `requireAdmin` | Paginated payment transaction history |
+| GET | `/api/admin/referral-links` | `requireAdmin` | List referral links with stats |
+| POST | `/api/admin/referral-links` | `requireAdmin` | Create a referral link |
+| DELETE | `/api/admin/referral-links/:code` | `requireAdmin` | Delete referral link (clears user references) |
+| GET | `/api/affiliate/:code` | none | Public: view affiliate earnings by code |
 
 ## Auth Flow
 
@@ -191,7 +198,7 @@ PROP_SUB_pro_annual_<timestamp>     → subscription (annual)
 
 ## Database
 
-Postgres 15 via docker-compose. Schema in `backend/src/database/schema.sql`. Migrations in `src/database/migrations/` (001-004) auto-run on server start.
+Postgres 15 via docker-compose. Schema in `backend/src/database/schema.sql`. Migrations in `src/database/migrations/` (001-008) auto-run on server start.
 
 Tables: `users`, `sessions`, `proposals`, `payments`, `audit_logs`
 

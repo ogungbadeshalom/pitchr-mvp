@@ -196,6 +196,7 @@ Session data is saved to `localStorage`. Close the tab and come back — if the 
 | POST | `/api/auth/signup` | Rate-limited | Create account |
 | POST | `/api/auth/signin` | Rate-limited | Sign in |
 | POST | `/api/auth/signout` | None | Clear session |
+| DELETE | `/api/user` | Required | Hard-delete account |
 | GET | `/api/user` | Required | Get user profile + subscription |
 | PATCH | `/api/user/profile` | Required | Update profile |
 | GET | `/api/proposals` | Required | List user's proposals |
@@ -211,6 +212,10 @@ Session data is saved to `localStorage`. Close the tab and come back — if the 
 | GET | `/api/admin/users` | Admin | Paginated user list |
 | PATCH | `/api/admin/users/:id` | Admin | Update user subscription/ban |
 | GET | `/api/admin/transactions` | Admin | Paginated payments |
+| GET | `/api/admin/referral-links` | Admin | List referral links |
+| POST | `/api/admin/referral-links` | Admin | Create referral link |
+| DELETE | `/api/admin/referral-links/:code` | Admin | Delete referral link |
+| GET | `/api/affiliate/:code` | None | Public affiliate earnings |
 
 ## Deployment
 
