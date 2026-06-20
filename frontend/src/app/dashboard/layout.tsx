@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useUserStore } from '../../store/userStore'
 import { useSessionStore } from '../../store/sessionStore'
 import ThemeToggle from '../../components/ui/theme-toggle'
@@ -15,7 +16,37 @@ const NAV_ITEMS = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { firstName } = useUserStore()
+  const [checking, setChecking] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/user', { credentials: 'include' })
+      .then(res => {
+        if (cancelled) return;
+        if (!res.ok) {
+          router.replace('/auth/login');
+        } else {
+          setChecking(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) router.replace('/auth/login');
+      });
+    return () => { cancelled = true; };
+  }, [router]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-50 dark:from-background dark:via-background dark:to-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-50 dark:from-background dark:via-background dark:to-background">

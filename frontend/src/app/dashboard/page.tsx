@@ -54,7 +54,7 @@ export default function DashboardPage() {
 
   const displayName = firstName
     ? `${firstName}${lastName ? ` ${lastName}` : ''}`
-    : email?.split('@')[0] || 'Freelancer';
+    : email?.split('@')[0] || '';
 
   const hasSession = sessionPlan && expiresAt && Date.now() < expiresAt;
   const hasSubscription = subscriptionTier !== 'free';
