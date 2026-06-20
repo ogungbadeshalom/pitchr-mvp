@@ -15,12 +15,13 @@ export async function createUser(id: string, email: string, firstName?: string, 
 }
 
 export async function upsertUser(id: string, email: string, firstName?: string, lastName?: string): Promise<User> {
+  const normalizedEmail = email.trim().toLowerCase();
   const result = await query(
     `INSERT INTO users (id, email, first_name, last_name)
      VALUES ($1, $2, $3, $4)
-     ON CONFLICT (email) DO UPDATE SET id = $1, first_name = COALESCE(EXCLUDED.first_name, users.first_name), last_name = COALESCE(EXCLUDED.last_name, users.last_name)
+     ON CONFLICT (email) DO UPDATE SET id = $1, email = EXCLUDED.email, first_name = COALESCE(EXCLUDED.first_name, users.first_name), last_name = COALESCE(EXCLUDED.last_name, users.last_name)
      RETURNING *`,
-    [id, email, firstName ?? null, lastName ?? null]
+    [id, normalizedEmail, firstName ?? null, lastName ?? null]
   );
   return result.rows[0];
 }
