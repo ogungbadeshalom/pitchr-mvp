@@ -83,6 +83,10 @@ router.post('/signin', authRateLimit, async (req: Request, res: Response, next: 
     if (!valid) {
       throw new AppError('Invalid email or password', 'UNAUTHORIZED', 401);
     }
+    if (user.deleted_at) {
+      await query('UPDATE users SET deleted_at = NULL WHERE id = $1', [user.id]);
+      user.deleted_at = null;
+    }
     const token = signToken(user.id);
     res.cookie('pitchr_token', token, {
       httpOnly: true,

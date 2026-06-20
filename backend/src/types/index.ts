@@ -10,6 +10,7 @@ export interface User {
   proposal_limit_this_month: number | null;
   billing_period: 'monthly' | 'annual' | null;
   created_at: Date;
+  deleted_at: Date | null;
 }
 
 export interface Session {

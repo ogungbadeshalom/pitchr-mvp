@@ -32,7 +32,7 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 }
 
 export async function findUserByEmailWithPassword(email: string): Promise<UserWithPassword | null> {
-  const result = await query('SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL', [email]);
+  const result = await query('SELECT * FROM users WHERE email = $1', [email]);
   return result.rows[0] || null;
 }
 
