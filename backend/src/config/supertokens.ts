@@ -1,4 +1,5 @@
 import supertokens from 'supertokens-node';
+import ThirdParty from 'supertokens-node/recipe/thirdparty';
 import ThirdPartyEmailPassword from 'supertokens-node/recipe/thirdpartyemailpassword';
 import Session from 'supertokens-node/recipe/session';
 import { logger } from '../utils/logger';
@@ -31,6 +32,28 @@ export function initSuperTokens() {
       websiteBasePath: '/auth',
     },
     recipeList: [
+      ThirdParty.init({
+        signInAndUpFeature: {
+          providers: [googleProvider()],
+        },
+        override: {
+          apis: (originalImplementation) => ({
+            ...originalImplementation,
+            signInUpPOST: async (input: any) => {
+              const response = await originalImplementation.signInUpPOST!(input);
+              if (response.status === 'OK') {
+                const user = response.user;
+                if (!user.emails?.length) {
+                  logger.error('No email returned from SuperTokens Google sign-in');
+                  throw new Error('No email returned from SuperTokens');
+                }
+                await upsertUser(user.id, user.emails[0]);
+              }
+              return response;
+            },
+          }),
+        },
+      }),
       ThirdPartyEmailPassword.init({
         providers: [googleProvider()],
         override: {
