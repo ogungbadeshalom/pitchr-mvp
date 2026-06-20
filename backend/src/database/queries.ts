@@ -223,7 +223,7 @@ export async function listReferralLinks(): Promise<ReferralLinkRow[]> {
       rl.code,
       rl.marketer_name,
       rl.type,
-      COUNT(u.id)::int AS signups,
+      COUNT(DISTINCT u.id)::int AS signups,
       COALESCE(SUM(p.amount), 0)::int AS total_revenue,
       CASE WHEN rl.type = 'marketer' THEN 0.10 ELSE 0.05 END AS commission_rate,
       COALESCE(SUM(p.amount) * CASE WHEN rl.type = 'marketer' THEN 0.10 ELSE 0.05 END, 0)::int AS commission_owed
