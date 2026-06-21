@@ -282,9 +282,9 @@ export default function SessionPage() {
                       onChange={(e) => setLength(e.target.value)}
                       className="w-full p-2.5 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-brand-500 transition-shadow bg-white dark:bg-card"
                     >
-                      <option value="short">Short (Fiverr)</option>
-                      <option value="standard">Standard (Upwork)</option>
-                      <option value="detailed">Detailed (Technical)</option>
+                      <option value="short">Short</option>
+                      <option value="standard">Standard</option>
+                      <option value="detailed">Detailed</option>
                     </select>
                   </div>
                 </div>
