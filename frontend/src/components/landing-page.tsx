@@ -140,19 +140,19 @@ function useInView(threshold = 0.15) {
   return { ref, visible };
 }
 
-function AnimatedSection({ children, className, delay = 0, id }: { children: React.ReactNode; className?: string; delay?: number; id?: string }) {
+function AnimatedSection({ children, className, id }: { children: React.ReactNode; className?: string; id?: string }) {
   const { ref, visible } = useInView();
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} id={id} className={`${className || ''} ${visible ? 'animate-section' : 'opacity-0'}`} style={visible ? { animationDelay: `${delay}s` } : undefined}>
+    <section ref={ref as React.RefObject<HTMLElement>} id={id} className={`${className || ''}`} style={{ opacity: visible ? 1 : 0 }}>
       {children}
     </section>
   );
 }
 
-function AnimatedFooter({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function AnimatedFooter({ children, className }: { children: React.ReactNode; className?: string }) {
   const { ref, visible } = useInView();
   return (
-    <footer ref={ref as React.RefObject<HTMLElement>} className={`${className || ''} ${visible ? 'animate-section' : 'opacity-0'}`} style={visible ? { animationDelay: `${delay}s` } : undefined}>
+    <footer ref={ref as React.RefObject<HTMLElement>} className={`${className || ''}`} style={{ opacity: visible ? 1 : 0 }}>
       {children}
     </footer>
   );
@@ -165,10 +165,11 @@ function FadeItem({ children, delay = 0, className }: { children: React.ReactNod
     transform: visible ? 'none' : 'translateY(28px)',
     transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
   };
-  if (className) {
-    return <div ref={ref as React.RefObject<HTMLDivElement>} className={className} style={baseStyle}>{children}</div>;
-  }
-  return <span ref={ref as React.RefObject<HTMLSpanElement>} style={{ display: 'inline-block', ...baseStyle }}>{children}</span>;
+  return (
+    <div ref={ref as React.RefObject<HTMLDivElement>} className={className || ''} style={baseStyle}>
+      {children}
+    </div>
+  );
 }
 
 export default function LandingPage() {
@@ -301,7 +302,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SOCIAL PROOF BAND ─── */}
-      <AnimatedSection className="border-y border-border bg-muted/50" delay={0.3}>
+      <AnimatedSection className="border-y border-border bg-muted/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <FadeItem delay={0}><span className="flex items-center gap-2"><IconStar className="w-4 h-4 text-amber-400 fill-amber-400" /> Used by freelancers across Nigeria</span></FadeItem>
@@ -367,12 +368,12 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* ─── FEATURES ─── */}
-      <AnimatedSection id="features" className="py-20 md:py-28" delay={0.4}>
+      <AnimatedSection id="features" className="py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Features</p></FadeItem>
-            <FadeItem delay={0.1}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Built for how freelancers actually win.</h2></FadeItem>
-            <FadeItem delay={0.2}><p className="text-lg text-muted-foreground max-w-2xl mx-auto">Every feature is designed around one goal: getting you more replies.</p></FadeItem>
+            <FadeItem><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Built for how freelancers actually win.</h2></FadeItem>
+            <FadeItem><p className="text-lg text-muted-foreground max-w-2xl mx-auto">Every feature is designed around one goal: getting you more replies.</p></FadeItem>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {FEATURES.map(({ icon: Icon, title, desc }, i) => (
@@ -389,11 +390,11 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* ─── HOW IT WORKS ─── */}
-      <AnimatedSection id="how-it-works" className="py-20 md:py-28 bg-muted/70" delay={0.5}>
+      <AnimatedSection id="how-it-works" className="py-20 md:py-28 bg-muted/70">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">How It Works</p></FadeItem>
-            <FadeItem delay={0.1}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Three steps to your next win.</h2></FadeItem>
+            <FadeItem><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Three steps to your next win.</h2></FadeItem>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {HOW_IT_WORKS.map(({ step, title, desc, icon: Icon }, i) => (
@@ -413,7 +414,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* ─── PRICING ─── */}
-      <AnimatedSection id="pricing" className="py-20 md:py-28" delay={0.6}>
+      <AnimatedSection id="pricing" className="py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Pricing</p></FadeItem>
@@ -491,7 +492,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* ─── TESTIMONIALS ─── */}
-      <AnimatedSection className="py-20 md:py-28 bg-muted/70" delay={0.5}>
+      <AnimatedSection className="py-20 md:py-28 bg-muted/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Proof</p></FadeItem>
@@ -514,7 +515,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* ─── FAQ ─── */}
-      <AnimatedSection id="faq" className="py-20 md:py-28" delay={0.5}>
+      <AnimatedSection id="faq" className="py-20 md:py-28">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">FAQ</p></FadeItem>
@@ -537,11 +538,11 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* ─── FINAL CTA ─── */}
-      <AnimatedSection className="py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700" delay={0.5}>
+      <AnimatedSection className="py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <FadeItem delay={0}><h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to win more clients?</h2></FadeItem>
-          <FadeItem delay={0.1}><p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p></FadeItem>
-          <FadeItem delay={0.2}><div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <FadeItem><p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p></FadeItem>
+          <FadeItem><div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {!mounted ? (
               <Link href="#pricing" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">
                 Generate a Proposal — ₦500 <IconChevronRight className="w-4 h-4" />
@@ -561,7 +562,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* ─── FOOTER ─── */}
-      <AnimatedFooter className="bg-card border-t border-border py-12" delay={0.5}>
+      <AnimatedFooter className="bg-card border-t border-border py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeItem delay={0}><div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="text-foreground font-bold text-lg">Pitchr</span>
