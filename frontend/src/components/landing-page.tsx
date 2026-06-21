@@ -212,7 +212,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── BEFORE / AFTER DEMO ─── */}
-      <section className="py-20 md:py-28 bg-white dark:bg-card">
+      <section className="py-20 md:py-28 bg-muted/30 dark:bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">See the difference</p>
@@ -220,48 +220,48 @@ export default function LandingPage() {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Below is a real Upwork job. On the left: a typical proposal. On the right: what Pitchr writes.</p>
           </div>
 
-          <div className="bg-muted/60 border border-border rounded-xl p-5 mb-8 max-w-3xl mx-auto">
+          <div className="bg-card border border-border rounded-xl p-5 mb-8 max-w-3xl mx-auto">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Sample Job (Upwork)</p>
             <p className="text-sm text-foreground leading-relaxed">
               <span className="font-semibold">Looking for a React developer to build a dashboard</span><br />
-              We need a dashboard with real-time charts, user management, and role-based access. Must have experience with Recharts and Next.js. Budget: $2,000. Timeline: 3 weeks.
+              We need a dashboard with real time charts, user management, and role based access. Must have experience with Recharts and Next.js. Budget: $2,000. Timeline: 3 weeks.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-xl p-6 relative">
-              <span className="absolute -top-3 left-4 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-xs font-bold px-3 py-1 rounded-full">Typical Freelancer</span>
+            <div className="bg-card border border-border border-l-4 border-l-red-500 dark:border-l-red-400 rounded-xl p-6 relative">
+              <span className="absolute -top-3 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Typical Freelancer</span>
               <div className="mt-2 space-y-3">
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Dear Sir/Madam,<br /><br />
                   I am writing to express my interest in your project. I have read your job description and I am confident that I can handle this project effectively. I am a hardworking and dedicated freelancer with 5 years of experience. I have strong communication skills and I always deliver on time. Please check my profile for more details. I am passionate about this project and I look forward to hearing from you soon.
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded">Generic opener</span>
-                  <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded">No specifics</span>
-                  <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded">Zero platform knowledge</span>
+                  <span className="text-xs bg-red-100 dark:bg-red-400/15 text-red-700 dark:text-red-300 px-2 py-0.5 rounded font-medium">Generic opener</span>
+                  <span className="text-xs bg-red-100 dark:bg-red-400/15 text-red-700 dark:text-red-300 px-2 py-0.5 rounded font-medium">No specifics</span>
+                  <span className="text-xs bg-red-100 dark:bg-red-400/15 text-red-700 dark:text-red-300 px-2 py-0.5 rounded font-medium">Zero platform knowledge</span>
                 </div>
               </div>
             </div>
-            <div className="bg-brand-50 dark:bg-brand-950 border border-brand-200 dark:border-brand-500/30 rounded-xl p-6 relative">
-              <span className="absolute -top-3 left-4 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">Pitchr</span>
+            <div className="bg-card border border-border border-l-4 border-l-brand-500 dark:border-l-brand-400 rounded-xl p-6 relative">
+              <span className="absolute -top-3 left-4 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">Pitchr</span>
               <div className="mt-2 space-y-3">
-                <p className="text-sm text-gray-800 leading-relaxed dark:text-slate-100">
-                  Your dashboard needs Recharts specifically. I noticed you mentioned it in the job post. I recently shipped a Next.js admin panel with Recharts that handles 10k+ data points in real time. For role based access, I typically implement middleware level guards in Next.js that prevent unauthorized route access before any component renders. <br /><br />
+                <p className="text-sm text-foreground leading-relaxed">
+                  Your dashboard needs Recharts specifically. I noticed you mentioned it in the job post. I recently shipped a Next.js admin panel with Recharts that handles 10k data points in real time. For role based access, I typically implement middleware level guards in Next.js that prevent unauthorized route access before any component renders. <br /><br />
                   I can deliver the full dashboard in 3 weeks. I would start with the chart layer and RBAC system since those are the backbone, then build the user management UI around them. Happy to share the admin panel I mentioned as a reference.
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">Specific tech reference</span>
-                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">Proven experience</span>
-                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">Clear timeline</span>
-                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">No fluff</span>
+                  <span className="text-xs bg-brand-100 dark:bg-brand-400/15 text-brand-700 dark:text-brand-200 px-2 py-0.5 rounded font-medium">Specific tech reference</span>
+                  <span className="text-xs bg-brand-100 dark:bg-brand-400/15 text-brand-700 dark:text-brand-200 px-2 py-0.5 rounded font-medium">Proven experience</span>
+                  <span className="text-xs bg-brand-100 dark:bg-brand-400/15 text-brand-700 dark:text-brand-200 px-2 py-0.5 rounded font-medium">Clear timeline</span>
+                  <span className="text-xs bg-brand-100 dark:bg-brand-400/15 text-brand-700 dark:text-brand-200 px-2 py-0.5 rounded font-medium">No fluff</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="text-center mt-8">
-            <p className="text-sm text-muted-foreground">Pitchr reads the job, references your skills, and writes like you — in 30 seconds.</p>
+            <p className="text-sm text-muted-foreground">Pitchr reads the job, references your skills, and writes like you in 30 seconds.</p>
           </div>
         </div>
       </section>
