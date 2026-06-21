@@ -246,8 +246,8 @@ export default function LandingPage() {
             <div className="bg-brand-50 dark:bg-brand-950 border border-brand-200 dark:border-brand-500/30 rounded-xl p-6 relative">
               <span className="absolute -top-3 left-4 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">Pitchr</span>
               <div className="mt-2 space-y-3">
-                <p className="text-sm text-card-foreground leading-relaxed dark:text-slate-200">
-                  Your dashboard needs Recharts specifically — I noticed you mentioned it in the job post. I recently shipped a Next.js admin panel with Recharts that handles 10k+ data points in real-time. For role-based access, I typically implement middleware-level guards in Next.js that prevent unauthorized route access before any component renders. <br /><br />
+                <p className="text-sm text-gray-800 leading-relaxed dark:text-slate-100">
+                  Your dashboard needs Recharts specifically. I noticed you mentioned it in the job post. I recently shipped a Next.js admin panel with Recharts that handles 10k+ data points in real time. For role based access, I typically implement middleware level guards in Next.js that prevent unauthorized route access before any component renders. <br /><br />
                   I can deliver the full dashboard in 3 weeks. I would start with the chart layer and RBAC system since those are the backbone, then build the user management UI around them. Happy to share the admin panel I mentioned as a reference.
                 </p>
                 <div className="flex flex-wrap gap-1.5">
