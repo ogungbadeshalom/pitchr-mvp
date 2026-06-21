@@ -3,12 +3,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from '../../components/ui/theme-toggle';
+import MaintenanceBanner from '../../components/maintenance-banner';
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Overview', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
   { href: '/admin/users', label: 'Users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
   { href: '/admin/transactions', label: 'Transactions', icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z' },
   { href: '/admin/referrals', label: 'Referrals', icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
+  { href: '/admin/maintenance', label: 'Maintenance', icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -35,6 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        <MaintenanceBanner />
         <nav className="flex gap-1 mb-8 overflow-x-auto pb-2">
           {NAV_ITEMS.map(({ href, label, icon }) => {
             const isActive = pathname === href;
