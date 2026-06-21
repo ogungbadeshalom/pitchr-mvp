@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useSessionStore } from '../store/sessionStore';
@@ -82,8 +82,33 @@ const FAQS = [
   { q: 'Do I need an account to try it?', a: 'Yes. Create a free account, then purchase a session (\u20A6500) or subscribe monthly. Your proposals and payment history are saved to your account.' },
 ];
 
+function WordReveal({ text, className, delay }: { text: string; className?: string; delay?: number }) {
+  return (
+    <span className={className}>
+      {text.split(' ').map((word, i) => (
+        <span
+          key={i}
+          className="word-reveal inline-block"
+          style={{ animationDelay: `${(delay || 0) + i * 0.08}s` }}
+        >
+          {word}{' '}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function AnimatedSection({ children, className, delay }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return (
+    <section className={`animate-section ${className || ''}`} style={{ animationDelay: `${delay || 0}s` }}>
+      {children}
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tab, setTab] = useState<'session' | 'monthly'>('session');
   const [billingTab, setBillingTab] = useState<'monthly' | 'annual'>('monthly');
@@ -94,6 +119,7 @@ export default function LandingPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => { setMounted(true); rehydrate(); }, [rehydrate]);
+  useEffect(() => { const t = setTimeout(() => setHeroReady(true), 100); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     const ref = searchParams.get('ref');
@@ -162,18 +188,22 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-grid opacity-40" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pt-28 md:pb-32">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6 dark:bg-brand-900/30 dark:text-brand-300">
+            <div className="animate-fade-up delay-200 inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6 dark:bg-brand-900/30 dark:text-brand-300">
               <IconSparkles className="w-4 h-4" />
               Tailored AI Proposal Generator for Freelancers
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.08] mb-6">
-              Write proposals that<br />actually get replies.
+              {heroReady ? (
+                <WordReveal text="Write proposals that actually get replies." />
+              ) : (
+                <span className="invisible">Write proposals that actually get replies.</span>
+              )}
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="animate-fade-up delay-300 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
               Paste a job description. Get a winning proposal written specifically for Upwork or Fiverr. 
               No templates, no cliches, no wasted connects. <strong className="text-foreground">30 seconds.</strong>
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="animate-fade-up delay-400 flex flex-col sm:flex-row items-center justify-center gap-4">
               {!mounted ? (
                 <Link href="#pricing" className="inline-flex items-center gap-2 bg-brand-600 text-white px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-700 transition-all shadow-md hover:shadow-lg">
                   Generate a Proposal <IconChevronRight className="w-4 h-4" />
@@ -201,7 +231,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SOCIAL PROOF BAND ─── */}
-      <section className="border-y border-border bg-muted/50">
+      <section className="animate-section border-y border-border bg-muted/50" style={{ animationDelay: '0.5s' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <span className="flex items-center gap-2"><IconStar className="w-4 h-4 text-amber-400 fill-amber-400" /> Used by freelancers across Nigeria</span>
@@ -212,7 +242,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── BEFORE / AFTER DEMO ─── */}
-      <section className="py-20 md:py-28 bg-muted/30 dark:bg-background">
+      <section className="animate-section py-20 md:py-28 bg-muted/30 dark:bg-background" style={{ animationDelay: '0.7s' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">See the difference</p>
@@ -267,7 +297,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FEATURES ─── */}
-      <section id="features" className="py-20 md:py-28">
+      <section id="features" className="animate-section py-20 md:py-28" style={{ animationDelay: '0.9s' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Features</p>
@@ -289,7 +319,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="how-it-works" className="py-20 md:py-28 bg-muted/70">
+      <section id="how-it-works" className="animate-section py-20 md:py-28 bg-muted/70" style={{ animationDelay: '1.1s' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">How It Works</p>
@@ -313,7 +343,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PRICING ─── */}
-      <section id="pricing" className="py-20 md:py-28">
+      <section id="pricing" className="animate-section py-20 md:py-28" style={{ animationDelay: '1.3s' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Pricing</p>
@@ -391,7 +421,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── TESTIMONIALS ─── */}
-      <section className="py-20 md:py-28 bg-muted/70">
+      <section className="animate-section py-20 md:py-28 bg-muted/70" style={{ animationDelay: '1.5s' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Proof</p>
@@ -414,7 +444,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FAQ ─── */}
-      <section id="faq" className="py-20 md:py-28">
+      <section id="faq" className="animate-section py-20 md:py-28" style={{ animationDelay: '1.7s' }}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">FAQ</p>
@@ -435,7 +465,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700">
+      <section className="animate-section py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700" style={{ animationDelay: '1.9s' }}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to win more clients?</h2>
           <p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p>
@@ -459,7 +489,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="bg-card border-t border-border py-12">
+      <footer className="animate-section bg-card border-t border-border py-12" style={{ animationDelay: '2.1s' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="text-foreground font-bold text-lg">Pitchr</span>

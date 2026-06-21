@@ -48,6 +48,25 @@ const config: Config = {
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
       },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "word-up": {
+          "0%": { opacity: "0", transform: "translateY(24px) scale(0.97)", filter: "blur(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)", filter: "blur(0)" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.6s ease-out forwards",
+        "fade-in": "fade-in 0.5s ease-out forwards",
+        "word-up": "word-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+      },
     },
   },
   plugins: [],
