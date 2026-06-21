@@ -82,27 +82,36 @@ const FAQS = [
   { q: 'Do I need an account to try it?', a: 'Yes. Create a free account, then purchase a session (\u20A6500) or subscribe monthly. Your proposals and payment history are saved to your account.' },
 ];
 
-function WordReveal({ text, className, delay }: { text: string; className?: string; delay?: number }) {
+function Typewriter({ texts, className }: { texts: string[]; className?: string }) {
+  const [lineIndex, setLineIndex] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (done) return;
+    const line = texts[lineIndex];
+    if (charCount < line.length) {
+      const timer = setTimeout(() => setCharCount(c => c + 1), 60);
+      return () => clearTimeout(timer);
+    }
+    if (lineIndex < texts.length - 1) {
+      const timer = setTimeout(() => { setLineIndex(i => i + 1); setCharCount(0); }, 400);
+      return () => clearTimeout(timer);
+    }
+    const timer = setTimeout(() => setDone(true), 200);
+    return () => clearTimeout(timer);
+  }, [charCount, lineIndex, texts, done]);
+
   return (
     <span className={className}>
-      {text.split(' ').map((word, i) => (
-        <span
-          key={i}
-          className="word-reveal inline-block"
-          style={{ animationDelay: `${(delay || 0) + i * 0.08}s` }}
-        >
-          {word}{' '}
+      {texts.map((line, i) => (
+        <span key={i} className={i > lineIndex ? 'hidden' : ''}>
+          {i === lineIndex ? line.slice(0, charCount) : line}
+          {i === lineIndex && !done && <span className="inline-block w-[2px] h-[0.85em] bg-brand-500 animate-pulse align-middle ml-0.5" />}
+          {i < lineIndex && <br />}
         </span>
       ))}
     </span>
-  );
-}
-
-function AnimatedSection({ children, className, delay }: { children: React.ReactNode; className?: string; delay?: number }) {
-  return (
-    <section className={`animate-section ${className || ''}`} style={{ animationDelay: `${delay || 0}s` }}>
-      {children}
-    </section>
   );
 }
 
@@ -194,7 +203,7 @@ export default function LandingPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.08] mb-6">
               {heroReady ? (
-                <WordReveal text="Write proposals that actually get replies." />
+                <Typewriter texts={['Write proposals that', 'actually get replies.']} />
               ) : (
                 <span className="invisible">Write proposals that actually get replies.</span>
               )}
