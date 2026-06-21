@@ -77,12 +77,6 @@ html { scroll-behavior: smooth; }
 .delay-600 { animation-delay: 0.6s; }
 .delay-700 { animation-delay: 0.7s; }
 
-.word-reveal {
-  display: inline-block;
-  opacity: 0;
-  animation: word-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -82,35 +82,48 @@ const FAQS = [
   { q: 'Do I need an account to try it?', a: 'Yes. Create a free account, then purchase a session (\u20A6500) or subscribe monthly. Your proposals and payment history are saved to your account.' },
 ];
 
-function Typewriter({ texts, className }: { texts: string[]; className?: string }) {
-  const [lineIndex, setLineIndex] = useState(0);
+function Typewriter({ phrases, className }: { phrases: string[]; className?: string }) {
+  const [phase, setPhase] = useState<'typing' | 'pausing' | 'deleting' | 'done'>('typing');
+  const [phraseIdx, setPhraseIdx] = useState(0);
   const [charCount, setCharCount] = useState(0);
-  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (done) return;
-    const line = texts[lineIndex];
-    if (charCount < line.length) {
-      const timer = setTimeout(() => setCharCount(c => c + 1), 60);
-      return () => clearTimeout(timer);
+    if (phase === 'done') return;
+    const current = phrases[phraseIdx];
+
+    if (phase === 'typing') {
+      if (charCount < current.length) {
+        const t = setTimeout(() => setCharCount(c => c + 1), 60);
+        return () => clearTimeout(t);
+      }
+      const lastPhrase = phraseIdx === phrases.length - 1;
+      if (lastPhrase) {
+        const t = setTimeout(() => setPhase('done'), 400);
+        return () => clearTimeout(t);
+      }
+      const t = setTimeout(() => setPhase('pausing'), 2000);
+      return () => clearTimeout(t);
     }
-    if (lineIndex < texts.length - 1) {
-      const timer = setTimeout(() => { setLineIndex(i => i + 1); setCharCount(0); }, 400);
-      return () => clearTimeout(timer);
+
+    if (phase === 'pausing') {
+      const t = setTimeout(() => setPhase('deleting'), 400);
+      return () => clearTimeout(t);
     }
-    const timer = setTimeout(() => setDone(true), 200);
-    return () => clearTimeout(timer);
-  }, [charCount, lineIndex, texts, done]);
+
+    if (phase === 'deleting') {
+      if (charCount > 0) {
+        const t = setTimeout(() => setCharCount(c => c - 1), 30);
+        return () => clearTimeout(t);
+      }
+      const t = setTimeout(() => { setPhraseIdx(i => i + 1); setPhase('typing'); setCharCount(0); }, 200);
+      return () => clearTimeout(t);
+    }
+  }, [phase, charCount, phraseIdx, phrases]);
 
   return (
     <span className={className}>
-      {texts.map((line, i) => (
-        <span key={i} className={i > lineIndex ? 'hidden' : ''}>
-          {i === lineIndex ? line.slice(0, charCount) : line}
-          {i === lineIndex && !done && <span className="inline-block w-[2px] h-[0.85em] bg-brand-500 animate-pulse align-middle ml-0.5" />}
-          {i < lineIndex && <br />}
-        </span>
-      ))}
+      {phrases[phraseIdx].slice(0, charCount)}
+      {phase !== 'done' && <span className="inline-block w-[2px] h-[0.85em] bg-brand-500 animate-pulse align-middle ml-0.5" />}
     </span>
   );
 }
@@ -203,7 +216,12 @@ export default function LandingPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.08] mb-6">
               {heroReady ? (
-                <Typewriter texts={['Write proposals that', 'actually get replies.']} />
+                <Typewriter phrases={[
+                  'Tired of not getting clients?',
+                  'Sick of wasting connects?',
+                  'Done with templates that sound fake?',
+                  'Write proposals that actually get replies.',
+                ]} />
               ) : (
                 <span className="invisible">Write proposals that actually get replies.</span>
               )}
