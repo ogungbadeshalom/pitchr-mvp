@@ -158,6 +158,19 @@ function AnimatedFooter({ children, className, delay = 0 }: { children: React.Re
   );
 }
 
+function FadeItem({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const { ref, visible } = useInView(0.05);
+  const baseStyle: React.CSSProperties = {
+    opacity: visible ? 1 : 0,
+    transform: visible ? 'none' : 'translateY(28px)',
+    transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
+  };
+  if (className) {
+    return <div ref={ref as React.RefObject<HTMLDivElement>} className={className} style={baseStyle}>{children}</div>;
+  }
+  return <span ref={ref as React.RefObject<HTMLSpanElement>} style={{ display: 'inline-block', ...baseStyle }}>{children}</span>;
+}
+
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [heroReady, setHeroReady] = useState(false);
@@ -291,9 +304,9 @@ export default function LandingPage() {
       <AnimatedSection className="border-y border-border bg-muted/50" delay={0.3}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
-            <span className="flex items-center gap-2"><IconStar className="w-4 h-4 text-amber-400 fill-amber-400" /> Used by freelancers across Nigeria</span>
-            <span className="flex items-center gap-2"><IconUsers className="w-4 h-4 text-brand-500" /> 1 in 8 reply rate (avg is 1 in 20)</span>
-            <span className="flex items-center gap-2"><IconClock className="w-4 h-4 text-brand-500" /> Average setup: 30 seconds</span>
+            <FadeItem delay={0}><span className="flex items-center gap-2"><IconStar className="w-4 h-4 text-amber-400 fill-amber-400" /> Used by freelancers across Nigeria</span></FadeItem>
+            <FadeItem delay={0.12}><span className="flex items-center gap-2"><IconUsers className="w-4 h-4 text-brand-500" /> 1 in 8 reply rate (avg is 1 in 20)</span></FadeItem>
+            <FadeItem delay={0.24}><span className="flex items-center gap-2"><IconClock className="w-4 h-4 text-brand-500" /> Average setup: 30 seconds</span></FadeItem>
           </div>
         </div>
       </AnimatedSection>
@@ -302,21 +315,21 @@ export default function LandingPage() {
       <AnimatedSection className="py-20 md:py-28 bg-muted/30 dark:bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">See the difference</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Not all proposals are created equal.</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Below is a real Upwork job. On the left: a typical proposal. On the right: what Pitchr writes.</p>
+            <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">See the difference</p></FadeItem>
+            <FadeItem delay={0.08}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Not all proposals are created equal.</h2></FadeItem>
+            <FadeItem delay={0.16}><p className="text-lg text-muted-foreground max-w-2xl mx-auto">Below is a real Upwork job. On the left: a typical proposal. On the right: what Pitchr writes.</p></FadeItem>
           </div>
 
-          <div className="bg-card border border-border rounded-xl p-5 mb-8 max-w-3xl mx-auto">
+          <FadeItem delay={0.25} className="bg-card border border-border rounded-xl p-5 mb-8 max-w-3xl mx-auto">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Sample Job (Upwork)</p>
             <p className="text-sm text-foreground leading-relaxed">
               <span className="font-semibold">Looking for a React developer to build a dashboard</span><br />
               We need a dashboard with real time charts, user management, and role based access. Must have experience with Recharts and Next.js. Budget: $2,000. Timeline: 3 weeks.
             </p>
-          </div>
+          </FadeItem>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-card border border-border border-l-4 border-l-red-500 dark:border-l-red-400 rounded-xl p-6 relative">
+            <FadeItem delay={0.35} className="bg-card border border-border border-l-4 border-l-red-500 dark:border-l-red-400 rounded-xl p-6 relative">
               <span className="absolute -top-3 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Typical Freelancer</span>
               <div className="mt-2 space-y-3">
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -329,8 +342,8 @@ export default function LandingPage() {
                   <span className="text-xs bg-red-100 dark:bg-red-400/15 text-red-700 dark:text-red-300 px-2 py-0.5 rounded font-medium">Zero platform knowledge</span>
                 </div>
               </div>
-            </div>
-            <div className="bg-card border border-border border-l-4 border-l-brand-500 dark:border-l-brand-400 rounded-xl p-6 relative">
+            </FadeItem>
+            <FadeItem delay={0.45} className="bg-card border border-border border-l-4 border-l-brand-500 dark:border-l-brand-400 rounded-xl p-6 relative">
               <span className="absolute -top-3 left-4 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">Pitchr</span>
               <div className="mt-2 space-y-3">
                 <p className="text-sm text-foreground leading-relaxed">
@@ -344,12 +357,12 @@ export default function LandingPage() {
                   <span className="text-xs bg-brand-100 dark:bg-brand-400/15 text-brand-700 dark:text-brand-200 px-2 py-0.5 rounded font-medium">No fluff</span>
                 </div>
               </div>
-            </div>
+            </FadeItem>
           </div>
 
-          <div className="text-center mt-8">
+          <FadeItem delay={0.55}><div className="text-center mt-8">
             <p className="text-sm text-muted-foreground">Pitchr reads the job, references your skills, and writes like you in 30 seconds.</p>
-          </div>
+          </div></FadeItem>
         </div>
       </AnimatedSection>
 
@@ -357,19 +370,19 @@ export default function LandingPage() {
       <AnimatedSection id="features" className="py-20 md:py-28" delay={0.4}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Features</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Built for how freelancers actually win.</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Every feature is designed around one goal: getting you more replies.</p>
+            <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Features</p></FadeItem>
+            <FadeItem delay={0.1}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Built for how freelancers actually win.</h2></FadeItem>
+            <FadeItem delay={0.2}><p className="text-lg text-muted-foreground max-w-2xl mx-auto">Every feature is designed around one goal: getting you more replies.</p></FadeItem>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-card border border-border rounded-xl p-6 hover:shadow-md transition-shadow">
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+              <FadeItem key={title} delay={0.3 + i * 0.1} className="bg-card border border-border rounded-xl p-6 hover:shadow-md transition-shadow">
                 <div className="w-10 h-10 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center mb-4 dark:bg-brand-900/30">
                   <Icon className="w-5 h-5" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-              </div>
+              </FadeItem>
             ))}
           </div>
         </div>
@@ -379,12 +392,12 @@ export default function LandingPage() {
       <AnimatedSection id="how-it-works" className="py-20 md:py-28 bg-muted/70" delay={0.5}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">How It Works</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Three steps to your next win.</h2>
+            <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">How It Works</p></FadeItem>
+            <FadeItem delay={0.1}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Three steps to your next win.</h2></FadeItem>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            {HOW_IT_WORKS.map(({ step, title, desc, icon: Icon }) => (
-              <div key={step} className="text-center">
+            {HOW_IT_WORKS.map(({ step, title, desc, icon: Icon }, i) => (
+              <FadeItem key={step} delay={0.2 + i * 0.12} className="text-center">
                 <div className="w-16 h-16 rounded-2xl bg-brand-600 text-white flex items-center justify-center mx-auto mb-5 shadow-md">
                   <Icon className="w-7 h-7" />
                 </div>
@@ -393,7 +406,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-              </div>
+              </FadeItem>
             ))}
           </div>
         </div>
@@ -403,9 +416,9 @@ export default function LandingPage() {
       <AnimatedSection id="pricing" className="py-20 md:py-28" delay={0.6}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Pricing</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Simple, transparent pricing.</h2>
-            <p className="text-lg text-muted-foreground">No lock-in. No hidden fees. Pay only for what you need.</p>
+            <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Pricing</p></FadeItem>
+            <FadeItem delay={0.08}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Simple, transparent pricing.</h2></FadeItem>
+            <FadeItem delay={0.16}><p className="text-lg text-muted-foreground">No lock-in. No hidden fees. Pay only for what you need.</p></FadeItem>
           </div>
           <div className="flex items-center justify-center mb-10">
             <div className="inline-flex bg-muted rounded-lg p-1">
@@ -481,12 +494,12 @@ export default function LandingPage() {
       <AnimatedSection className="py-20 md:py-28 bg-muted/70" delay={0.5}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Proof</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Freelancers are winning with Pitchr.</h2>
+            <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Proof</p></FadeItem>
+            <FadeItem delay={0.08}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Freelancers are winning with Pitchr.</h2></FadeItem>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map(({ initials, name, role, text }) => (
-              <div key={initials} className="bg-card border border-border rounded-xl p-6 relative">
+            {TESTIMONIALS.map(({ initials, name, role, text }, i) => (
+              <FadeItem key={initials} delay={0.2 + i * 0.12} className="bg-card border border-border rounded-xl p-6 relative">
                 <IconQuote className="w-8 h-8 text-brand-100 absolute top-4 right-4 dark:text-brand-900/30" />
                 <div className="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center text-sm font-bold mb-4">{initials}</div>
                 <p className="text-sm text-card-foreground leading-relaxed mb-4">&ldquo;{text}&rdquo;</p>
@@ -494,7 +507,7 @@ export default function LandingPage() {
                   <p className="text-sm font-semibold text-foreground">{name}</p>
                   <p className="text-xs text-muted-foreground">{role}</p>
                 </div>
-              </div>
+              </FadeItem>
             ))}
           </div>
         </div>
@@ -504,18 +517,20 @@ export default function LandingPage() {
       <AnimatedSection id="faq" className="py-20 md:py-28" delay={0.5}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">FAQ</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Questions? Answered.</h2>
+            <FadeItem delay={0}><p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">FAQ</p></FadeItem>
+            <FadeItem delay={0.08}><h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Questions? Answered.</h2></FadeItem>
           </div>
           <div className="space-y-0">
             {FAQS.map(({ q, a }, i) => (
-              <details key={i} className="group border-b border-border last:border-b-0">
-                <summary className="flex items-center justify-between py-5 cursor-pointer text-sm font-medium text-foreground hover:text-brand-600 transition-colors list-none">
-                  {q}
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform" />
-                </summary>
-                <p className="pb-5 text-sm text-muted-foreground leading-relaxed -mt-2">{a}</p>
-              </details>
+              <FadeItem key={i} delay={0.2 + i * 0.08}>
+                <details className="group border-b border-border last:border-b-0">
+                  <summary className="flex items-center justify-between py-5 cursor-pointer text-sm font-medium text-foreground hover:text-brand-600 transition-colors list-none">
+                    {q}
+                    <IconChevronRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform" />
+                  </summary>
+                  <p className="pb-5 text-sm text-muted-foreground leading-relaxed -mt-2">{a}</p>
+                </details>
+              </FadeItem>
             ))}
           </div>
         </div>
@@ -524,9 +539,9 @@ export default function LandingPage() {
       {/* ─── FINAL CTA ─── */}
       <AnimatedSection className="py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700" delay={0.5}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to win more clients?</h2>
-          <p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <FadeItem delay={0}><h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to win more clients?</h2></FadeItem>
+          <FadeItem delay={0.1}><p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p></FadeItem>
+          <FadeItem delay={0.2}><div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {!mounted ? (
               <Link href="#pricing" className="inline-flex items-center gap-2 bg-white text-brand-700 px-7 py-3.5 rounded-xl text-base font-medium hover:bg-brand-50 transition-all shadow-lg">
                 Generate a Proposal — ₦500 <IconChevronRight className="w-4 h-4" />
@@ -541,14 +556,14 @@ export default function LandingPage() {
               </Link>
             )}
             <Link href="#faq" className="inline-flex items-center gap-1 text-brand-100 hover:text-white text-sm font-medium transition-colors">Learn more</Link>
-          </div>
+          </div></FadeItem>
         </div>
       </AnimatedSection>
 
       {/* ─── FOOTER ─── */}
       <AnimatedFooter className="bg-card border-t border-border py-12" delay={0.5}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <FadeItem delay={0}><div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="text-foreground font-bold text-lg">Pitchr</span>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link href="#features" className="hover:text-foreground transition-colors">Features</Link>
@@ -556,11 +571,11 @@ export default function LandingPage() {
               <Link href="#faq" className="hover:text-foreground transition-colors">FAQ</Link>
               <Link href="/auth/signup" className="hover:text-foreground transition-colors">Sign Up</Link>
             </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          </div></FadeItem>
+          <FadeItem delay={0.15}><div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <p>&copy; 2026 Pitchr. Built in Lagos, Nigeria.</p>
             <p>flutterwave · card · ussd · bank transfer</p>
-          </div>
+          </div></FadeItem>
         </div>
       </AnimatedFooter>
     </main>
