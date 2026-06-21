@@ -205,8 +205,63 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <span className="flex items-center gap-2"><IconStar className="w-4 h-4 text-amber-400 fill-amber-400" /> Used by freelancers across Nigeria</span>
-            <span className="flex items-center gap-2"><IconUsers className="w-4 h-4 text-brand-500" /> 500+ proposals generated</span>
+            <span className="flex items-center gap-2"><IconUsers className="w-4 h-4 text-brand-500" /> 1 in 8 reply rate (avg is 1 in 20)</span>
             <span className="flex items-center gap-2"><IconClock className="w-4 h-4 text-brand-500" /> Average setup: 30 seconds</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── BEFORE / AFTER DEMO ─── */}
+      <section className="py-20 md:py-28 bg-white dark:bg-card">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">See the difference</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Not all proposals are created equal.</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Below is a real Upwork job. On the left: a typical proposal. On the right: what Pitchr writes.</p>
+          </div>
+
+          <div className="bg-muted/60 border border-border rounded-xl p-5 mb-8 max-w-3xl mx-auto">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Sample Job (Upwork)</p>
+            <p className="text-sm text-foreground leading-relaxed">
+              <span className="font-semibold">Looking for a React developer to build a dashboard</span><br />
+              We need a dashboard with real-time charts, user management, and role-based access. Must have experience with Recharts and Next.js. Budget: $2,000. Timeline: 3 weeks.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-xl p-6 relative">
+              <span className="absolute -top-3 left-4 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-xs font-bold px-3 py-1 rounded-full">Typical Freelancer</span>
+              <div className="mt-2 space-y-3">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Dear Sir/Madam,<br /><br />
+                  I am writing to express my interest in your project. I have read your job description and I am confident that I can handle this project effectively. I am a hardworking and dedicated freelancer with 5 years of experience. I have strong communication skills and I always deliver on time. Please check my profile for more details. I am passionate about this project and I look forward to hearing from you soon.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded">Generic opener</span>
+                  <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded">No specifics</span>
+                  <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded">Zero platform knowledge</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-brand-50 dark:bg-brand-950/30 border border-brand-200 dark:border-brand-800 rounded-xl p-6 relative">
+              <span className="absolute -top-3 left-4 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">Pitchr</span>
+              <div className="mt-2 space-y-3">
+                <p className="text-sm text-foreground leading-relaxed">
+                  Your dashboard needs Recharts specifically — I noticed you mentioned it in the job post. I recently shipped a Next.js admin panel with Recharts that handles 10k+ data points in real-time. For role-based access, I typically implement middleware-level guards in Next.js that prevent unauthorized route access before any component renders. <br /><br />
+                  I can deliver the full dashboard in 3 weeks. I would start with the chart layer and RBAC system since those are the backbone, then build the user management UI around them. Happy to share the admin panel I mentioned as a reference.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">Specific tech reference</span>
+                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">Proven experience</span>
+                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">Clear timeline</span>
+                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">No fluff</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <p className="text-sm text-muted-foreground">Pitchr reads the job, references your skills, and writes like you — in 30 seconds.</p>
           </div>
         </div>
       </section>
