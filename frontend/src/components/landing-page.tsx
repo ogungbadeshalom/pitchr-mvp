@@ -243,18 +243,18 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-brand-50 dark:bg-brand-950/30 border border-brand-200 dark:border-brand-800 rounded-xl p-6 relative">
+            <div className="bg-brand-50 dark:bg-brand-950 border border-brand-200 dark:border-brand-500/30 rounded-xl p-6 relative">
               <span className="absolute -top-3 left-4 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">Pitchr</span>
               <div className="mt-2 space-y-3">
-                <p className="text-sm text-foreground leading-relaxed">
+                <p className="text-sm text-card-foreground leading-relaxed dark:text-slate-200">
                   Your dashboard needs Recharts specifically — I noticed you mentioned it in the job post. I recently shipped a Next.js admin panel with Recharts that handles 10k+ data points in real-time. For role-based access, I typically implement middleware-level guards in Next.js that prevent unauthorized route access before any component renders. <br /><br />
                   I can deliver the full dashboard in 3 weeks. I would start with the chart layer and RBAC system since those are the backbone, then build the user management UI around them. Happy to share the admin panel I mentioned as a reference.
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">Specific tech reference</span>
-                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">Proven experience</span>
-                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">Clear timeline</span>
-                  <span className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded">No fluff</span>
+                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">Specific tech reference</span>
+                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">Proven experience</span>
+                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">Clear timeline</span>
+                  <span className="text-xs bg-brand-200/70 dark:bg-brand-600/30 text-brand-800 dark:text-brand-200 px-2 py-0.5 rounded">No fluff</span>
                 </div>
               </div>
             </div>
