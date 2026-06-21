@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useSessionStore } from '../store/sessionStore';
@@ -83,25 +83,21 @@ const FAQS = [
 ];
 
 function Typewriter({ phrases, className }: { phrases: string[]; className?: string }) {
-  const [phase, setPhase] = useState<'typing' | 'pausing' | 'deleting' | 'done'>('typing');
+  const [phase, setPhase] = useState<'typing' | 'pausing' | 'deleting'>('typing');
   const [phraseIdx, setPhraseIdx] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
   useEffect(() => {
-    if (phase === 'done') return;
     const current = phrases[phraseIdx];
+    const lastPhrase = phraseIdx === phrases.length - 1;
 
     if (phase === 'typing') {
       if (charCount < current.length) {
         const t = setTimeout(() => setCharCount(c => c + 1), 60);
         return () => clearTimeout(t);
       }
-      const lastPhrase = phraseIdx === phrases.length - 1;
-      if (lastPhrase) {
-        const t = setTimeout(() => setPhase('done'), 400);
-        return () => clearTimeout(t);
-      }
-      const t = setTimeout(() => setPhase('pausing'), 2000);
+      const hold = lastPhrase ? 3000 : 2000;
+      const t = setTimeout(() => setPhase('pausing'), hold);
       return () => clearTimeout(t);
     }
 
@@ -115,7 +111,8 @@ function Typewriter({ phrases, className }: { phrases: string[]; className?: str
         const t = setTimeout(() => setCharCount(c => c - 1), 30);
         return () => clearTimeout(t);
       }
-      const t = setTimeout(() => { setPhraseIdx(i => i + 1); setPhase('typing'); setCharCount(0); }, 200);
+      const nextIdx = lastPhrase ? 0 : phraseIdx + 1;
+      const t = setTimeout(() => { setPhraseIdx(nextIdx); setPhase('typing'); setCharCount(0); }, 200);
       return () => clearTimeout(t);
     }
   }, [phase, charCount, phraseIdx, phrases]);
@@ -123,8 +120,41 @@ function Typewriter({ phrases, className }: { phrases: string[]; className?: str
   return (
     <span className={className}>
       {phrases[phraseIdx].slice(0, charCount)}
-      {phase !== 'done' && <span className="inline-block w-[2px] h-[0.85em] bg-brand-500 animate-pulse align-middle ml-0.5" />}
+      <span className="inline-block w-[2px] h-[0.85em] bg-brand-500 animate-pulse align-middle ml-0.5" />
     </span>
+  );
+}
+
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect(); }
+    }, { threshold });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
+}
+
+function AnimatedSection({ children, className, delay = 0, id }: { children: React.ReactNode; className?: string; delay?: number; id?: string }) {
+  const { ref, visible } = useInView();
+  return (
+    <section ref={ref as React.RefObject<HTMLElement>} id={id} className={`${className || ''} ${visible ? 'animate-section' : 'opacity-0'}`} style={visible ? { animationDelay: `${delay}s` } : undefined}>
+      {children}
+    </section>
+  );
+}
+
+function AnimatedFooter({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const { ref, visible } = useInView();
+  return (
+    <footer ref={ref as React.RefObject<HTMLElement>} className={`${className || ''} ${visible ? 'animate-section' : 'opacity-0'}`} style={visible ? { animationDelay: `${delay}s` } : undefined}>
+      {children}
+    </footer>
   );
 }
 
@@ -258,7 +288,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SOCIAL PROOF BAND ─── */}
-      <section className="animate-section border-y border-border bg-muted/50" style={{ animationDelay: '0.5s' }}>
+      <AnimatedSection className="border-y border-border bg-muted/50" delay={0.3}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <span className="flex items-center gap-2"><IconStar className="w-4 h-4 text-amber-400 fill-amber-400" /> Used by freelancers across Nigeria</span>
@@ -266,10 +296,10 @@ export default function LandingPage() {
             <span className="flex items-center gap-2"><IconClock className="w-4 h-4 text-brand-500" /> Average setup: 30 seconds</span>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── BEFORE / AFTER DEMO ─── */}
-      <section className="animate-section py-20 md:py-28 bg-muted/30 dark:bg-background" style={{ animationDelay: '0.7s' }}>
+      <AnimatedSection className="py-20 md:py-28 bg-muted/30 dark:bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">See the difference</p>
@@ -321,10 +351,10 @@ export default function LandingPage() {
             <p className="text-sm text-muted-foreground">Pitchr reads the job, references your skills, and writes like you in 30 seconds.</p>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── FEATURES ─── */}
-      <section id="features" className="animate-section py-20 md:py-28" style={{ animationDelay: '0.9s' }}>
+      <AnimatedSection id="features" className="py-20 md:py-28" delay={0.4}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Features</p>
@@ -343,10 +373,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="how-it-works" className="animate-section py-20 md:py-28 bg-muted/70" style={{ animationDelay: '1.1s' }}>
+      <AnimatedSection id="how-it-works" className="py-20 md:py-28 bg-muted/70" delay={0.5}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">How It Works</p>
@@ -367,10 +397,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── PRICING ─── */}
-      <section id="pricing" className="animate-section py-20 md:py-28" style={{ animationDelay: '1.3s' }}>
+      <AnimatedSection id="pricing" className="py-20 md:py-28" delay={0.6}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Pricing</p>
@@ -445,10 +475,10 @@ export default function LandingPage() {
           )}
           <p className="text-center text-sm text-muted-foreground mt-6 font-mono">flutterwave · card · ussd · bank transfer · naira only</p>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── TESTIMONIALS ─── */}
-      <section className="animate-section py-20 md:py-28 bg-muted/70" style={{ animationDelay: '1.5s' }}>
+      <AnimatedSection className="py-20 md:py-28 bg-muted/70" delay={0.5}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">Proof</p>
@@ -468,10 +498,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── FAQ ─── */}
-      <section id="faq" className="animate-section py-20 md:py-28" style={{ animationDelay: '1.7s' }}>
+      <AnimatedSection id="faq" className="py-20 md:py-28" delay={0.5}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-sm font-medium text-brand-600 uppercase tracking-wider mb-3">FAQ</p>
@@ -489,10 +519,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── FINAL CTA ─── */}
-      <section className="animate-section py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700" style={{ animationDelay: '1.9s' }}>
+      <AnimatedSection className="py-20 md:py-28 bg-gradient-to-br from-brand-600 to-brand-700" delay={0.5}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to win more clients?</h2>
           <p className="text-lg text-brand-100 mb-8 max-w-lg mx-auto">Create a free account and generate your first proposal in 30 seconds.</p>
@@ -513,10 +543,10 @@ export default function LandingPage() {
             <Link href="#faq" className="inline-flex items-center gap-1 text-brand-100 hover:text-white text-sm font-medium transition-colors">Learn more</Link>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ─── FOOTER ─── */}
-      <footer className="animate-section bg-card border-t border-border py-12" style={{ animationDelay: '2.1s' }}>
+      <AnimatedFooter className="bg-card border-t border-border py-12" delay={0.5}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="text-foreground font-bold text-lg">Pitchr</span>
@@ -532,7 +562,7 @@ export default function LandingPage() {
             <p>flutterwave · card · ussd · bank transfer</p>
           </div>
         </div>
-      </footer>
+      </AnimatedFooter>
     </main>
   );
 }
