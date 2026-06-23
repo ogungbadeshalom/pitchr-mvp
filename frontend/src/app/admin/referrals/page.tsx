@@ -19,6 +19,7 @@ export default function ReferralsPage() {
   const [linkType, setLinkType] = useState('affiliate');
   const [commissionRate, setCommissionRate] = useState('5');
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
   const addToast = useToastStore((s) => s.addToast);
 
   function load() {
@@ -30,24 +31,56 @@ export default function ReferralsPage() {
 
   useEffect(() => { load(); }, []);
 
+  function startEdit(link: ReferralLink) {
+    setCode(link.code);
+    setName(link.marketer_name);
+    setLinkType(link.type);
+    setCommissionRate(String(link.commission_rate));
+    setEditing(link.code);
+  }
+
+  function cancelEdit() {
+    setCode('');
+    setName('');
+    setLinkType('affiliate');
+    setCommissionRate('5');
+    setEditing(null);
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!code.trim() || !name.trim()) return;
     setCreating(true);
     try {
-      const res = await fetch('/api/admin/referral-links', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim(), marketer_name: name.trim(), type: linkType, commission_rate: parseFloat(commissionRate) || 5 }),
-        credentials: 'include',
-      });
-      if (res.ok) {
-        setCode('');
-        setName('');
-        load();
-        addToast('Referral link created', 'success');
+      if (editing) {
+        const res = await fetch(`/api/admin/referral-links/${editing}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ marketer_name: name.trim(), type: linkType, commission_rate: parseFloat(commissionRate) || 5 }),
+          credentials: 'include',
+        });
+        if (res.ok) {
+          cancelEdit();
+          load();
+          addToast('Referral link updated', 'success');
+        } else {
+          addToast('Failed to update', 'error');
+        }
       } else {
-        addToast('Failed to create', 'error');
+        const res = await fetch('/api/admin/referral-links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: code.trim(), marketer_name: name.trim(), type: linkType, commission_rate: parseFloat(commissionRate) || 5 }),
+          credentials: 'include',
+        });
+        if (res.ok) {
+          setCode('');
+          setName('');
+          load();
+          addToast('Referral link created', 'success');
+        } else {
+          addToast('Failed to create', 'error');
+        }
       }
     } catch {
       addToast('Connection error', 'error');
@@ -91,7 +124,8 @@ export default function ReferralsPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="e.g. james"
-            className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-white dark:bg-card"
+            disabled={!!editing}
+            className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-white dark:bg-card disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         <div className="w-full sm:w-auto">
@@ -128,13 +162,22 @@ export default function ReferralsPage() {
             className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-white dark:bg-card"
           />
         </div>
-        <div className="flex items-end">
+        <div className="flex items-end gap-2">
+          {editing && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="w-full sm:w-auto border border-input px-4 py-2 rounded-lg text-sm font-medium hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="submit"
             disabled={creating}
             className="w-full sm:w-auto bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors disabled:opacity-50"
           >
-            {creating ? 'Creating...' : 'Create Link'}
+            {creating ? 'Saving...' : editing ? 'Save Changes' : 'Create Link'}
           </button>
         </div>
       </form>
@@ -178,6 +221,12 @@ export default function ReferralsPage() {
                   <td className="px-4 py-3 text-right">{l.commission_rate}%</td>
                   <td className="px-4 py-3 text-right font-semibold text-brand-600">₦{l.commission_owed.toLocaleString()}</td>
                   <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => startEdit(l)}
+                      className="text-xs text-brand-600 hover:text-brand-700 transition-colors mr-3"
+                    >
+                      Edit
+                    </button>
                     <button
                       onClick={() => handleDelete(l.code)}
                       className="text-xs text-red-500 hover:text-red-700 transition-colors"

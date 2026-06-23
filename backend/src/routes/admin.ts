@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { requireAdmin } from '../middleware/admin';
 import { query } from '../config/database';
-import { createAuditLog, listReferralLinks, createReferralLink, deleteReferralLink } from '../database/queries';
+import { createAuditLog, listReferralLinks, createReferralLink, updateReferralLink, deleteReferralLink } from '../database/queries';
 import { AppError } from '../utils/errors';
 
 const router = Router();
@@ -218,6 +218,37 @@ router.post('/referral-links', requireAdmin, async (req: Request, res: Response,
     await createReferralLink(code.trim().toLowerCase(), marketer_name.trim(), linkType, rate);
     const links = await listReferralLinks();
     res.status(201).json({ links });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.patch('/referral-links/:code', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code } = req.params;
+    const { marketer_name, type, commission_rate } = req.body;
+    const updates: { marketer_name?: string; type?: string; commission_rate?: number } = {};
+    if (marketer_name !== undefined) {
+      if (typeof marketer_name !== 'string' || marketer_name.trim() === '') {
+        throw new AppError('Marketer name must be a non-empty string', 'VALIDATION_ERROR', 400);
+      }
+      updates.marketer_name = marketer_name.trim();
+    }
+    if (type !== undefined) {
+      if (type !== 'affiliate' && type !== 'marketer') {
+        throw new AppError('Type must be affiliate or marketer', 'VALIDATION_ERROR', 400);
+      }
+      updates.type = type;
+    }
+    if (commission_rate !== undefined) {
+      updates.commission_rate = Math.min(100, Math.max(0.01, Number(commission_rate)));
+    }
+    if (Object.keys(updates).length === 0) {
+      throw new AppError('No fields to update', 'VALIDATION_ERROR', 400);
+    }
+    await updateReferralLink(code.toLowerCase(), updates);
+    const links = await listReferralLinks();
+    res.json({ links });
   } catch (err) {
     next(err);
   }

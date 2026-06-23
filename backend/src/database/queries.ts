@@ -203,6 +203,18 @@ export async function createReferralLink(code: string, marketerName: string, typ
   await query('INSERT INTO referral_links (code, marketer_name, type, commission_rate) VALUES ($1, $2, $3, $4)', [code.toLowerCase(), marketerName, type, commissionRate]);
 }
 
+export async function updateReferralLink(code: string, updates: { marketer_name?: string; type?: string; commission_rate?: number }): Promise<void> {
+  const fields: string[] = [];
+  const values: unknown[] = [];
+  let idx = 1;
+  if (updates.marketer_name !== undefined) { fields.push(`marketer_name = $${idx++}`); values.push(updates.marketer_name); }
+  if (updates.type !== undefined) { fields.push(`type = $${idx++}`); values.push(updates.type); }
+  if (updates.commission_rate !== undefined) { fields.push(`commission_rate = $${idx++}`); values.push(updates.commission_rate); }
+  if (fields.length === 0) return;
+  values.push(code.toLowerCase());
+  await query(`UPDATE referral_links SET ${fields.join(', ')} WHERE code = $${idx}`, values);
+}
+
 export async function deleteReferralLink(code: string): Promise<void> {
   await query('UPDATE users SET referred_by = NULL WHERE referred_by = $1', [code.toLowerCase()]);
   await query('DELETE FROM referral_links WHERE code = $1', [code.toLowerCase()]);
