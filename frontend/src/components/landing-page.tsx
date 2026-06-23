@@ -207,6 +207,7 @@ export default function LandingPage() {
             <Link href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</Link>
             <Link href="#pricing" className="hover:text-foreground transition-colors">Pricing</Link>
             <Link href="#faq" className="hover:text-foreground transition-colors">FAQ</Link>
+            <Link href="/affiliate" className="hover:text-foreground transition-colors">Affiliates</Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/auth/login" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sign In</Link>
@@ -246,6 +247,7 @@ export default function LandingPage() {
           <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">How It Works</Link>
           <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">Pricing</Link>
           <Link href="#faq" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">FAQ</Link>
+          <Link href="/affiliate" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-foreground py-2">Affiliates</Link>
         </div>
       )}
 
