@@ -17,6 +17,7 @@ export default function ReferralsPage() {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [linkType, setLinkType] = useState('affiliate');
+  const [commissionRate, setCommissionRate] = useState('5');
   const [creating, setCreating] = useState(false);
   const addToast = useToastStore((s) => s.addToast);
 
@@ -37,7 +38,7 @@ export default function ReferralsPage() {
       const res = await fetch('/api/admin/referral-links', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim(), marketer_name: name.trim(), type: linkType }),
+        body: JSON.stringify({ code: code.trim(), marketer_name: name.trim(), type: linkType, commission_rate: parseFloat(commissionRate) || 5 }),
         credentials: 'include',
       });
       if (res.ok) {
@@ -100,9 +101,22 @@ export default function ReferralsPage() {
             onChange={(e) => setLinkType(e.target.value)}
             className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-white dark:bg-card"
           >
-            <option value="affiliate">Affiliate (5%)</option>
-            <option value="marketer">Marketer (10%)</option>
+            <option value="affiliate">Affiliate</option>
+            <option value="marketer">Marketer</option>
           </select>
+        </div>
+        <div className="w-full sm:w-auto">
+          <label className="block text-xs font-medium text-muted-foreground mb-1">Commission (%)</label>
+          <input
+            type="number"
+            value={commissionRate}
+            onChange={(e) => setCommissionRate(e.target.value)}
+            min="0.01"
+            max="100"
+            step="0.01"
+            placeholder="5"
+            className="w-20 px-3 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-white dark:bg-card"
+          />
         </div>
         <div className="flex-1">
           <label className="block text-xs font-medium text-muted-foreground mb-1">Marketer Name</label>
@@ -161,7 +175,7 @@ export default function ReferralsPage() {
                       {l.type === 'marketer' ? 'Marketer' : 'Affiliate'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">{l.type === 'marketer' ? '10%' : '5%'}</td>
+                  <td className="px-4 py-3 text-right">{l.commission_rate}%</td>
                   <td className="px-4 py-3 text-right font-semibold text-brand-600">₦{l.commission_owed.toLocaleString()}</td>
                   <td className="px-4 py-3 text-right">
                     <button

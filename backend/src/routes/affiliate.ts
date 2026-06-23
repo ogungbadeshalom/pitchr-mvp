@@ -9,7 +9,7 @@ router.get('/:code', async (req: Request, res: Response, next: NextFunction) => 
     const lower = code.toLowerCase();
 
     const linkResult = await query(
-      'SELECT code, marketer_name, type FROM referral_links WHERE code = $1',
+      'SELECT code, marketer_name, type, commission_rate FROM referral_links WHERE code = $1',
       [lower]
     );
     if (linkResult.rows.length === 0) {
@@ -28,14 +28,14 @@ router.get('/:code', async (req: Request, res: Response, next: NextFunction) => 
     `, [lower]);
 
     const { signups, total_revenue } = statsResult.rows[0];
-    const rate = link.type === 'marketer' ? 0.10 : 0.05;
-    const commission_owed = Math.floor(total_revenue * rate);
+    const rate = Number(link.commission_rate);
+    const commission_owed = Math.floor(total_revenue * (rate / 100));
 
     res.json({
       code: link.code,
       marketer_name: link.marketer_name,
       type: link.type,
-      rate: link.type === 'marketer' ? 10 : 5,
+      rate: Math.round(rate),
       signups,
       total_revenue,
       commission_owed,
