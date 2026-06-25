@@ -23,6 +23,16 @@ describe('getDeepseekConfig', () => {
     expect(cfg.baseUrl).toBe('https://custom.example.com');
     vi.unstubAllEnvs();
   });
+
+  it('should read model and temperature from env', async () => {
+    vi.stubEnv('DEEPSEEK_MODEL', 'deepseek-v4-flash');
+    vi.stubEnv('DEEPSEEK_TEMPERATURE', '0.3');
+    const { getDeepseekConfig } = await import('../deepseek');
+    const cfg = getDeepseekConfig();
+    expect(cfg.model).toBe('deepseek-v4-flash');
+    expect(cfg.temperature).toBe(0.3);
+    vi.unstubAllEnvs();
+  });
 });
 
 describe('getFlutterwaveConfig', () => {

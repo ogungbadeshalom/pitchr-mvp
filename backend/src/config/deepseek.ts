@@ -5,8 +5,8 @@ export function getDeepseekConfig() {
     _config = {
       apiKey: process.env.DEEPSEEK_API_KEY || '',
       baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
-      model: 'deepseek-chat',
-      temperature: 0.7,
+      model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
+      temperature: parseFloat(process.env.DEEPSEEK_TEMPERATURE || '0.7'),
     };
   }
   return _config;
