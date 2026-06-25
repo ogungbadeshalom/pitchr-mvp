@@ -63,29 +63,19 @@ export async function callDeepSeek(
       usage: data.usage,
     });
 
-    let content = rawContent;
+    let content = rawContent
+      .replace(/<think>[\s\S]*?<\/think>/g, '')
+      .replace(/<\/?think>/g, '')
+      .trim();
 
-    const thinkMatch = content.match(/(.*?)\s*<\/think>/s);
-    const hasThinkTags = thinkMatch !== null;
-
-    if (hasThinkTags) {
-      content = content.replace(/.*?<\/think>\s*/s, '');
+    if (!content && reasoning) {
+      content = reasoning
+        .replace(/<think>[\s\S]*?<\/think>/g, '')
+        .replace(/<\/?think>/g, '')
+        .trim();
     }
 
-    const greetIdx = content.search(/\bHi\b/);
-    if (greetIdx > 0) {
-      content = content.slice(greetIdx);
-    } else if (hasThinkTags && !content.trim()) {
-      const thinking = thinkMatch![1].replace(/<\/?think>/g, '').trim();
-      const innerGreet = thinking.search(/\bHi\b/);
-      if (innerGreet > -1) {
-        content = thinking.slice(innerGreet);
-      }
-    }
-
-    content = content.trim();
-
-    if (!content) throw new Error('AI returned empty content — increase max_tokens or check model availability');
+    if (!content) throw new Error('AI returned empty content — try increasing DEEPSEEK_MAX_TOKENS');
     return content;
   } catch (error) {
     const message = error instanceof Error && error.name === 'AbortError'

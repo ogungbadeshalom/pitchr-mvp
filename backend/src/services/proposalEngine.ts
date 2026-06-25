@@ -118,7 +118,9 @@ export async function generateProposal(params: {
   }
 
   const systemPrompt = buildSystemPrompt(params.length, params.profileText);
-  const proposal = await callDeepSeek(systemPrompt, userPrompt, 4096);
+  const maxTokensEnv = parseInt(process.env.DEEPSEEK_MAX_TOKENS || '0', 10);
+  const maxTokens = maxTokensEnv > 0 ? maxTokensEnv : Math.max(1024, Math.ceil(wordLimit * 2));
+  const proposal = await callDeepSeek(systemPrompt, userPrompt, maxTokens);
 
   return {
     proposal,
