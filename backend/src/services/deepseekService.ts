@@ -51,7 +51,21 @@ export async function callDeepSeek(
 
     const data = (await response.json()) as DeepSeekResponse;
     if (!data.choices?.length) throw new Error('DeepSeek returned empty response');
-    return data.choices[0].message.content;
+
+    const content = data.choices[0].message.content;
+    const reasoning = (data.choices[0].message as any).reasoning_content;
+
+    logger.info('AI response received', {
+      model: cfg.model,
+      contentLength: content?.length || 0,
+      reasoningLength: reasoning?.length || 0,
+      contentPreview: (content || reasoning || '').slice(0, 200),
+      usage: data.usage,
+    });
+
+    const result = content || reasoning;
+    if (!result) throw new Error('AI returned empty content — increase max_tokens or check model availability');
+    return result;
   } catch (error) {
     const message = error instanceof Error && error.name === 'AbortError'
       ? 'Proposal generation timed out. Please try again.'

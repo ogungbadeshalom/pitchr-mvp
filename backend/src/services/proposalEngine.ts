@@ -118,7 +118,7 @@ export async function generateProposal(params: {
   }
 
   const systemPrompt = buildSystemPrompt(params.length, params.profileText);
-  const proposal = await callDeepSeek(systemPrompt, userPrompt, Math.ceil(wordLimit * 1.5));
+  const proposal = await callDeepSeek(systemPrompt, userPrompt, Math.ceil(wordLimit * 2.5));
 
   return {
     proposal,
