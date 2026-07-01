@@ -8,7 +8,7 @@ import { getDeepseekConfig } from '../config/deepseek';
 import { verifyToken } from '../config/jwt';
 import { requireAuth } from '../middleware/auth';
 import { sessionRateLimit } from '../middleware/rateLimit';
-import { PaymentError, UnauthorizedError, ValidationError } from '../utils/errors';
+import { AppError, PaymentError, UnauthorizedError, ValidationError } from '../utils/errors';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -149,7 +149,12 @@ router.post('/generate', sessionRateLimit, async (req, res, next) => {
       character_count: proposalResult.characterCount,
     });
   } catch (err) {
-    next(err);
+    if (err instanceof AppError) {
+      return next(err);
+    }
+    const message = err instanceof Error ? err.message : 'Proposal generation failed';
+    logger.error('Proposal generation error', { error: String(err) });
+    return next(new AppError(message, 'GENERATION_ERROR', 500));
   }
 });
 
